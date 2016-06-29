@@ -15,12 +15,33 @@
  */
 package org.tuntuni.connection;
 
-/**
- * To manage connection with server sockets.
- */
-public class Client {
+import com.sun.istack.internal.logging.Logger;
+import java.util.logging.Level;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-    public Client() {
+/**
+ *
+ * @author Sudipto Chandra
+ */
+public class StatusTest {
+
+    public StatusTest() {
+    }
+
+    /**
+     * Test of values method, of class Status.
+     */
+    @Test
+    public void testValues() {
+        System.out.println(" +++ values +++ ");
+        Status[] result = Status.values();
+        assertNotNull(result);
+        for (Status status : result) {
+            assertNotNull(status);
+            System.out.println(status);
+        }
 
     }
+
 }

@@ -20,4 +20,7 @@ package org.tuntuni.connection;
  */
 public class Server {
 
+    public Server() {
+
+    }
 }
