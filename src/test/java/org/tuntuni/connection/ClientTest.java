@@ -89,19 +89,20 @@ public class ClientTest {
                 // find all active hosts in the same local network
                 int found = 0;
                 for (int i = start; i <= end; ++i) {
-                    String lanPC = formatIP(i);
+                    String lanip = formatIP(i);
                     try {
                         //Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
                         //int returnVal = p1.waitFor();
                         //boolean reachable = (returnVal==0);
 
-                        //InetAddress lanPC = InetAddress.getByAddress(intToByte(i));
-                        if (isReachable(lanPC, 25, 100)) {
+                        InetAddress lanPC = InetAddress.getByAddress(intToByte(i));
+                        //if (isReachable(lanip, 22, 100)) {
+                        if (lanPC.isReachable(100)) {
                             ++found;
-                            System.out.printf("%s is %b reachable.\n", lanPC);
+                            System.out.printf("%s is reachable.\n", lanip);
                         }
                     } catch (Exception ex) {
-                        System.out.println("Count not connect to " + lanPC);
+                        System.out.println("Count not connect to " + lanip);
                     }
                 }
 
@@ -147,8 +148,8 @@ public class ClientTest {
         out.print(i.getHostAddress());
         out.print(" ");
         out.print(i.getHostName().equals(i.getHostAddress()) ? "" : i.getHostName());
-        out.print(" \t ");
-        out.print(i.isReachable(1000) ? "reachable" : "unreachable");
+        //out.print(" \t ");
+        //out.print(i.isReachable(1000) ? "reachable" : "unreachable");
         out.print(" \t ");
         out.print(i.isSiteLocalAddress() ? "site local address" : "");
         out.print(" \t ");
