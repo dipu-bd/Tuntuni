@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni;
+package org.tuntuni.util;
 
 /**
- * The entry point of the application.
+ * Utility functions used in socket connection.
  */
-public class Program {
+public abstract class SocketUtils {
 
-    public static void main(String[] args) {
-        System.out.println("Nothing has been implemented yet.");
-    }
 }

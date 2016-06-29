@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni;
-
+package org.tuntuni.connection;
+ 
 /**
- * The entry point of the application.
+ * To manage connection with server sockets.
  */
-public class Program {
+public class Client {
 
-    public static void main(String[] args) {
-        System.out.println("Nothing has been implemented yet.");
-    }
+    public Client() {
+
+    } 
 }
