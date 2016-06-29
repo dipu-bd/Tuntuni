@@ -78,6 +78,8 @@ public class ClientTest {
                 int start = ((ip >> q) << q) + 1;
                 int end = cast - 1;
 
+                // show data
+                out.println();
                 out.printf("Network prefix length: %d\n", p);
                 out.printf("IP Address: %s\n", formatIP(ip));
                 out.printf("Broadcast Address: %s\n", formatIP(cast));
@@ -91,23 +93,32 @@ public class ClientTest {
                 for (int i = start; i <= end; ++i) {
                     String lanip = formatIP(i);
                     try {
-                        //Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
-                        //int returnVal = p1.waitFor();
-                        //boolean reachable = (returnVal==0);
 
                         InetAddress lanPC = InetAddress.getByAddress(intToByte(i));
                         //if (isReachable(lanip, 22, 100)) {
+                        //if (isReachable(lanip)) {
                         if (lanPC.isReachable(100)) {
                             ++found;
-                            System.out.printf("%s is reachable.\n", lanip);
+                            out.printf("%s is reachable.\n", lanip);
                         }
                     } catch (Exception ex) {
-                        System.out.println("Count not connect to " + lanip);
+                        out.println("Count not connect to " + lanip);
                     }
                 }
 
-                System.out.printf("\nSearch completed. %d active PC found.\n\n", found);
+                out.printf("\nSearch completed. %d active PC found.\n\n", found);
+                assertTrue(found >= 1);
             }
+        }
+    }
+
+    boolean isReachable(String addr) {
+        try {
+            Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 " + addr);
+            int returnVal = p1.waitFor();
+            return (returnVal == 0);
+        } catch (InterruptedException | IOException ex) {
+            return false;
         }
     }
 
@@ -146,8 +157,8 @@ public class ClientTest {
             return;
         }
         out.print(i.getHostAddress());
-        out.print(" ");
-        out.print(i.getHostName().equals(i.getHostAddress()) ? "" : i.getHostName());
+        //out.print(" ");
+        //out.print(i.getHostName().equals(i.getHostAddress()) ? "" : i.getHostName());
         //out.print(" \t ");
         //out.print(i.isReachable(1000) ? "reachable" : "unreachable");
         out.print(" \t ");
