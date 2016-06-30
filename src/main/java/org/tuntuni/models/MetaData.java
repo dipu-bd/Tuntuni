@@ -13,32 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection;
- 
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
+package org.tuntuni.models;
 
 /**
- *
- * @author Sudipto Chandra
+ * It has basic information about the application.
  */
-public class StatusTest {
-
-    public StatusTest() {
-    }
-
-    /**
-     * Test of values method, of class Status.
-     */
-    @Test
-    public void testValues() {
-        System.out.println("+++ values +++");
-        Status[] result = Status.values();
-        assertNotNull(result);
-        for (Status s : result) {
-            assertNotNull(s);
-            System.out.println(s.toString());
-        }
-        System.out.println();
-    } 
+public class MetaData {
+    
 }

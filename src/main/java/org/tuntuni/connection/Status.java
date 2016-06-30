@@ -20,40 +20,12 @@ package org.tuntuni.connection;
  */
 public enum Status {
 
-    //
-    // The enumeration fields
-    //
-    INVALID("The format is not valid"),
-    TEST("Test the connection"),
-    USER("User profile information");
-
-    //
-    // Section to handle extra information passed with enumeration type 
-    //
-    // to hold message
-    private final String mMessage;
-
-    // empty constructor
-    Status() {
-        this("");
-    }
-
-    // constructor with a message
-    Status(String message) {
-        mMessage = message;
-    }
-
-    /**
-     * Gets the message with this {@linkplain Status} type, if any.
-     *
-     * @return The message or an empty string.
-     */
-    public String message() {
-        return mMessage;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s: %s", name(), message());
-    }
+    // the format received in not valid
+    INVALID,
+    // test the connection
+    TEST,
+    // to pass meta information
+    META,
+    // to pass user profile information
+    USER
 }

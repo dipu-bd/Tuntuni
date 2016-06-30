@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.util;
+package org.tuntuni.models;
 
 /**
  * Lists some log messages used through-out the application.
  */
 public abstract class Logs {
 
-    public static final String INITIALIZE = "Log initialized",
-            
+    public static final String //--- begin : log message list ---
+            // Used in Server.java
             SERVER_PRIMARY_PORT_FAILS = "Failed to start server on primary port. Switching to backup port",
             SERVER_BACKUP_PORT_FAILS = "Server fails to start on backup port. Server is not running.",
-            SERVER_IS_CLOSING = "Waiting until the server is stopped.",
             SERVER_FAILED_CLOSING = "Failed to close the server",
             SERVER_SOCKET_EXCEPTION = "Failed to set timeout option to the server",
             SERVER_FAILS_ACCEPTING_CLIENT = "Failed to accept client socket",
-            
+            SERVER_LISTENING = "Waiting for clients",
+            // Used in Client.java
+            CLIENT_GET_HEAD = "Requesting server for meta information",
+            //--- end : log message list ---
             FINALIZE = "Log finalized ";
 
 }

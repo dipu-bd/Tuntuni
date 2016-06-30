@@ -21,7 +21,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.util.Logs;
+import org.tuntuni.models.Logs;
 
 /**
  * To listen and respond to clients sockets.
@@ -39,11 +39,16 @@ public final class Server {
     /**
      * Create a new Server. It does not start the server automatically. Please
      * call {@linkplain start()} to start the server.
-     *
-     * @throws IOException
      */
-    public Server() throws IOException {
+    public Server() {
 
+    }
+
+    /**
+     * Returns true if the server is up and running; false otherwise.
+     */
+    public boolean isActive() {
+        return (mServer != null && !mServer.isClosed() && mServer.isBound());
     }
 
     /**
@@ -52,6 +57,10 @@ public final class Server {
      * @throws IOException Server failed load in both Primary and backup ports.
      */
     public void start() throws IOException {
+        // check if already running
+        if (isActive()) {
+            return;
+        }
 
         // first try to create server on primary port
         try {
@@ -63,7 +72,7 @@ public final class Server {
             try {
                 mServer = new ServerSocket(BACKUP_PORT, MAX_QUEUE_SIZE);
             } catch (IOException ix) {
-                logger.log(Level.SEVERE, Logs.SERVER_BACKUP_PORT_FAILS);
+                logger.log(Level.SEVERE, Logs.SERVER_BACKUP_PORT_FAILS, ix);
                 // backup failed. throw error
                 throw ix;
             }
@@ -74,35 +83,18 @@ public final class Server {
     }
 
     /**
-     * Force stop the server. If succeeded returns true, otherwise false.
-     *
-     * @return True if server is stopped. False otherwise.
+     * Sends the request to stop the server. Note that, after this method is
+     * called server may not be stopped immediately. It may take a while.
      */
-    public boolean stop() {
+    public void stop() {
         try {
-            // check if server is running
+            // check if server is up and running
             if (isActive()) {
-                // close normally
-                mServer.close();
-                // wait until closed
-                while (!mServer.isClosed()) {
-                    logger.log(Level.INFO, Logs.SERVER_IS_CLOSING);
-                    Thread.sleep(50);
-                }
+                mServer.close(); // close the server
             }
-            return isActive();
-
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_FAILED_CLOSING, ex);
-            return isActive();
         }
-    }
-
-    /**
-     * Returns true if the server is up and running; false otherwise.
-     */
-    public boolean isActive() {
-        return (mServer != null && mServer.isBound());
     }
 
     /**
@@ -115,15 +107,30 @@ public final class Server {
             mServer.setSoTimeout(0);
 
             // start to listen on separate thread
-            new Thread(new Runnable() {
+            Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     catchClient();
                 }
-            }).start();
+            });
+            thread.setDaemon(true); // dies along with main thread  
+            thread.start();
 
         } catch (SocketException | NullPointerException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_SOCKET_EXCEPTION, ex);
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (mServer == null) {
+            return "SERVER:NULL";
+        } else if (mServer.isBound()) {
+            return "SERVER:BOUND=" + mServer.getLocalPort();
+        } else if (mServer.isClosed()) {
+            return "SERVER:CLOSED";
+        } else {
+            return "SERVER:UNKNOWN";
         }
     }
 
@@ -131,6 +138,7 @@ public final class Server {
     private void catchClient() {
         try {
             while (mServer.isBound()) {
+                logger.log(Level.INFO, Logs.SERVER_LISTENING);
                 Socket socket = mServer.accept();
 
                 // now do something to communicate with client
@@ -144,6 +152,7 @@ public final class Server {
 
     // send and receive information to client
     private void processClient(Socket socket) {
-
+        logger.log(Level.SEVERE, "Found a client", socket);
     }
+
 }
