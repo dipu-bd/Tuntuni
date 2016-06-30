@@ -26,6 +26,8 @@ public abstract class Logs {
             SERVER_BACKUP_PORT_FAILS = "Server fails to start on backup port. Server is not running.",
             SERVER_IS_CLOSING = "Waiting until the server is stopped.",
             SERVER_FAILED_CLOSING = "Failed to close the server",
+            SERVER_SOCKET_EXCEPTION = "Failed to set timeout option to the server",
+            SERVER_FAILS_ACCEPTING_CLIENT = "Failed to accept client socket",
             
             FINALIZE = "Log finalized ";
 

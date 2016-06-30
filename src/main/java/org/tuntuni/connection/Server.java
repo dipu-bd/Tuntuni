@@ -17,8 +17,11 @@ package org.tuntuni.connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import org.tuntuni.util.Logs;
 
 /**
@@ -58,30 +61,27 @@ public final class Server {
 
             // primary port fails. start in backup port
             try {
-                mServer = new ServerSocket(PRIMARY_PORT);
+                mServer = new ServerSocket(BACKUP_PORT);
             } catch (IOException ix) {
                 logger.log(Level.SEVERE, Logs.SERVER_BACKUP_PORT_FAILS);
                 // backup fails. throw error
                 throw ix;
             }
         }
+
         // now the server should be created. just listen and wait for clients. 
         listen();
     }
 
     /**
-     * Force stop the server. If succeeded returns true otherwise false.
+     * Force stop the server. If succeeded returns true, otherwise false.
      *
      * @return True if server is stopped. False otherwise.
      */
     public boolean stop() {
-        if (mServer == null) {
-            // no server found
-            return true;
-        }
         try {
             // check if server is running
-            if (mServer.isBound()) {
+            if (isActive()) {
                 // close normally
                 mServer.close();
                 // wait until closed
@@ -90,10 +90,11 @@ public final class Server {
                     Thread.sleep(50);
                 }
             }
-            return true;
+            return isActive();
+
         } catch (IOException | InterruptedException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_FAILED_CLOSING, ex);
-            return false;
+            return isActive();
         }
     }
 
@@ -107,8 +108,42 @@ public final class Server {
     /**
      * Start listening for the clients to connect.
      */
-    private void listen() {
+    public void listen() {
 
+        try {
+            // socket never time out while listening
+            mServer.setSoTimeout(0);
+
+            // start to listen on separate thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    catchClient();
+                }
+            }).start();
+
+        } catch (SocketException | NullPointerException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_SOCKET_EXCEPTION, ex);
+        }
     }
 
+    // to catch clients
+    private void catchClient() {
+        try {
+            while (mServer.isBound()) {
+                Socket socket = mServer.accept();
+
+                // now do something to communicate with client
+                processClient(socket);
+            }
+
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_FAILS_ACCEPTING_CLIENT, ex);
+        }
+    }
+
+    // send and receive information to client
+    private void processClient(Socket socket) {
+
+    }
 }
