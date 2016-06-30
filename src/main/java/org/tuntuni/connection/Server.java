@@ -21,7 +21,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import org.tuntuni.util.Logs;
 
 /**
@@ -31,6 +30,7 @@ public final class Server {
 
     public static final int PRIMARY_PORT = 24914;
     public static final int BACKUP_PORT = 42016;
+    public static final int MAX_QUEUE_SIZE = 100;
 
     public static final Logger logger = Logger.getLogger(Server.class.getName());
 
@@ -55,16 +55,16 @@ public final class Server {
 
         // first try to create server on primary port
         try {
-            mServer = new ServerSocket(PRIMARY_PORT);
+            mServer = new ServerSocket(PRIMARY_PORT, MAX_QUEUE_SIZE);
         } catch (IOException ex) {
             logger.log(Level.INFO, Logs.SERVER_PRIMARY_PORT_FAILS);
 
             // primary port fails. start in backup port
             try {
-                mServer = new ServerSocket(BACKUP_PORT);
+                mServer = new ServerSocket(BACKUP_PORT, MAX_QUEUE_SIZE);
             } catch (IOException ix) {
                 logger.log(Level.SEVERE, Logs.SERVER_BACKUP_PORT_FAILS);
-                // backup fails. throw error
+                // backup failed. throw error
                 throw ix;
             }
         }
