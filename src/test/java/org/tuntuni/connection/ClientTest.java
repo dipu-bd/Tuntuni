@@ -38,12 +38,12 @@ public class ClientTest {
     }
 
     /**
-     * Test of connect method, of class Client.
+     * Test of connect method, of class Client. 
      */
     @Test
     public void testConnect() throws Exception {
         System.out.println("---- connect -----");
-        Client instance = new Client();
+        Client instance = new Client(); 
 
         for (int i = 1; i <= 10; ++i) {
             System.out.println("Connecting with client " + i);

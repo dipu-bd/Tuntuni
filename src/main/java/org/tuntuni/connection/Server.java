@@ -46,30 +46,29 @@ public final class Server {
     private ServerSocketChannel mSSChannel;
 
     /**
-     * Create a new Server. It does not start the server automatically. Please
-     * call {@linkplain start()} to start the server.
-     *
-     * @throws java.io.IOException Failed to open a server-socket channel
+     * Create a new Server.
+     * <p>
+     * It does not start the server automatically. Please call
+     * {@linkplain start()} to start the server. Or you can initialize the
+     * server by {@linkplain initialize()} first, then call {@linkplain start()}
+     * to run server.</p>
      */
-    public Server() throws IOException {
-        this(false);
+    public Server() {
     }
 
     /**
-     * Creates a new Server. Pass {@code true} to {@code startImmediately} start
-     * the server immediately after creating it. {@code false} otherwise.
+     * Initializes the server.
+     * <p>
+     * It opens the selector and server socket channel. And binds the server
+     * channel to the first available port in the {@linkplain PORTS} list. If it
+     * fails to bind to all of the port given, and IOException is thrown. </p>
+     * <p>
+     * Please call {@linkplain start()} to start the server after initializing
+     * it.</p>
      *
-     * @param startImmediately pass {@code true} to start immediately
      * @throws java.io.IOException Failed to open a server-socket channel
      */
-    public Server(boolean startImmediately) throws IOException {
-        initialize();
-        if (startImmediately) {
-            start();
-        }
-    }
-
-    private void initialize() throws IOException {
+    public void initialize() throws IOException {
         // Create the selector
         mSelector = Selector.open();
         // try create server channel for each of the given ports
@@ -84,10 +83,10 @@ public final class Server {
                 // Recording server to selector (type = all of SelectionKey)
                 mSSChannel.register(mSelector, SelectionKey.OP_ACCEPT);
                 // successfully created one server
-                log.log(Level.INFO, Logs.SERVER_BIND_SUCCESS + PORTS[i]);
+                log.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
                 break;
             } catch (IOException ex) {
-                log.log(Level.WARNING, Logs.SERVER_BIND_FAILS + PORTS[i]);
+                log.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
                 mSSChannel.close();
             }
         }
@@ -99,7 +98,8 @@ public final class Server {
      * @return True only if server channel and selector is open
      */
     public boolean isOpen() {
-        return mSSChannel.isOpen();
+        return (mSSChannel != null && mSSChannel.isOpen())
+                || (mSelector != null && mSelector.isOpen());
     }
 
     /**
@@ -109,6 +109,10 @@ public final class Server {
      * @throws IOException Server failed load in both Primary and backup ports.
      */
     public void start() throws IOException {
+        // initialize the server if not already
+        if (!isOpen()) {
+            initialize();
+        }
         // create a new instance of server executor
         ExecutorService executor;
         executor = Executors.newSingleThreadExecutor();
@@ -117,8 +121,12 @@ public final class Server {
     }
 
     /**
-     * Sends the request to stop the server. Note that, after this method is
-     * called server may not be stopped immediately. It may take a while.
+     * Sends the request to stop the server.
+     * <p>
+     * It stops all the channel connected with the selector first, regardless of
+     * the channel type. After it close the selector. Note that, the close
+     * operation is asynchronous. After this method is called server may not be
+     * stopped immediately. It may take a while.</p>
      */
     public void stop() {
         // close all channels connected to selector
@@ -146,7 +154,9 @@ public final class Server {
         }
     }
 
-    private Runnable serverTask = () -> {
+    // runnable containing the infinite server loop.
+    // it is started via an executor service.
+    private final Runnable serverTask = () -> {
         // Infinite server loop      
         log.log(Level.INFO, Logs.SERVER_LISTENING);
         while (isOpen()) {
@@ -202,6 +212,7 @@ public final class Server {
         }
     }
 
+    // respond to key that is connectable
     private void connect(SelectionKey key) {
         System.out.println("+Connectable key!");
     }
@@ -253,6 +264,7 @@ public final class Server {
         }
     }
 
+    // write data to socket channel
     private void write(SelectionKey key) {
         System.out.println("+Writable key!");
     }
