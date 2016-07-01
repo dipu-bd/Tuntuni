@@ -24,6 +24,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -43,25 +44,24 @@ import org.tuntuni.util.SocketUtils;
  */
 public class Subnet {
 
-    public final int SCAN_START_DELAY_MILLIS = 5_000;  // 5 seconds.
-    public final int SCAN_INTERVAL_MILLIS = 15_000;    // 15 seconds.
-    public final int REACHABLE_TIMEOUT_MILLIS = 300;   // 300 milliseconds.
+    public final int SCAN_INTERVAL_MILLIS = 5_000;
+    public final int SCAN_START_DELAY_MILLIS = 5_000;
+    public final int REACHABLE_TIMEOUT_MILLIS = 500;
+    public final int REACHABLE_THREAD_COUNT = 10;
 
     private final Logger logger = Logger.getLogger(Subnet.class.getName());
 
     private boolean mOnProgress; // to indicate an update on progress
     private final ExecutorService mExecutor;
-    private final SetProperty<InetAddress> mUserList;
-    private final ReadOnlySetProperty<InetAddress> mUserListReadOnly;
+    private final HashSet<InetSocketAddress> mUserList;
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
         mOnProgress = false;
-        mUserList = new SimpleSetProperty<>();
-        mUserListReadOnly = new ReadOnlySetWrapper<>(mUserList);
-        mExecutor = Executors.newFixedThreadPool(10);
+        mUserList = new HashSet<>();        
+        mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         // start periodic check to get active user list        
         Executors.newSingleThreadScheduledExecutor()
                 .scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
@@ -69,15 +69,12 @@ public class Subnet {
     }
 
     /**
-     * Gets the read-only user list property.
-     * <p>
-     * You can bind or attach listener to this property, but since it is
-     * readonly, you can not change the values.</p>
+     * True when an scan in ongoing. False otherwise.
      *
      * @return
      */
-    public ReadOnlySetProperty<InetAddress> userListProperty() {
-        return mUserListReadOnly;
+    public boolean isBusy() {
+        return mOnProgress;
     }
 
     /**
@@ -88,24 +85,30 @@ public class Subnet {
      *
      * @return
      */
-    public InetAddress[] getUserList() {
-        return mUserListReadOnly.toArray(new InetAddress[0]);
+    public InetSocketAddress[] getUserList() {
+        return mUserList.toArray(new InetSocketAddress[0]);
     }
 
-    private boolean isBusy() {
-        return mOnProgress;
+    /**
+     * Gets the read-only user list property.
+     * <p>
+     * You can bind or attach listener to this property, but since it is
+     * readonly, you can not change the values.</p>
+     *
+     * @return
+     */
+    public ReadOnlySetProperty<InetSocketAddress> userListProperty() {
+        return null;
     }
 
     // to scan over whole subnet of all networks for active users
     private final Runnable performScan = () -> {
-        if (isBusy()) {
-            return;
-        }
-        mOnProgress = true;
+        System.out.println("I was here!");
+
         try {
             // get all network interfaces
             Enumeration<NetworkInterface> ne
-                    = NetworkInterface.getNetworkInterfaces();
+                    = NetworkInterface.getNetworkInterfaces(); 
             // loop through all of them
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
@@ -113,7 +116,8 @@ public class Subnet {
         } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_ENUMERATION_FAILED, ex);
         }
-        mOnProgress = false;
+
+        System.out.println("Found = " + getUserList().length);
     };
 
     // check all address avaiable in a network interface
@@ -130,13 +134,12 @@ public class Subnet {
 
             // loop through addresses assigned to this interface. (usually 1)
             netFace.getInterfaceAddresses().stream().forEach((ia) -> {
-                System.out.println("Loop Begin " + netFace.getName() + " " + ia.getAddress().toString());
                 // get network address
                 InetAddress address = ia.getAddress();
 
                 // address must be an IPv4 address.
                 // and it should be a site local address.
-                // Site Local Address:
+                // --- Site Local Address ---
                 // These have the scope of an entire site, or organization. 
                 // They allow addressing within an organization without need for
                 // using a public prefix. 
@@ -153,11 +156,11 @@ public class Subnet {
                 int first = SocketUtils.getFirstHost(ia);
                 int last = SocketUtils.getLastHost(ia);
                 int current = SocketUtils.addressAsInteger(address);
-
-                System.out.println("  First Address : " + SocketUtils.addressAsString(first));
-                System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
-                System.out.println("Current Address : " + SocketUtils.addressAsString(current));
-
+                /*
+                 System.out.println("  First Address : " + SocketUtils.addressAsString(first));
+                 System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
+                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
+                 */
                 // find all active hosts in the same local network
                 for (int i = first; i <= last; ++i) {
                     // skip current address
@@ -166,14 +169,10 @@ public class Subnet {
                     }
                     taskList.add(checkAddress(i));
                 }
-
-                System.out.println("Loop End " + netFace.getName() + " " + ia.getAddress().toString());
             });
-            System.out.println("Finished! " + netFace.getName());
 
             // wait until all tasks are done
             mExecutor.invokeAll(taskList);
-            System.out.println("Done waiting! " + netFace.getName());
 
         } catch (SocketException | InterruptedException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
@@ -187,16 +186,17 @@ public class Subnet {
         // run reachable check isn another thread
         return () -> {
             // calculate the remote network address
-            String address = SocketUtils.addressAsString(host);             
-            System.out.println("Checking " + address);            
+            String address = SocketUtils.addressAsString(host);
+            //System.out.println("Checking " + address);  
             // check if the server is up in any port of other server
             for (int i = 0; i < Server.PORTS.length; ++i) {
                 InetSocketAddress remote
                         = new InetSocketAddress(address, Server.PORTS[i]);
+
                 // blocking call to check if reachable
                 if (isReachable(remote, REACHABLE_TIMEOUT_MILLIS)) {
                     addAddress(remote);
-                    break;
+                    break;  // found at least one port
                 } else {
                     removeAddress(remote);
                 }
@@ -205,7 +205,7 @@ public class Subnet {
         };
     }
 
-    // synchrously checks if the socket is reachable
+    // checks if the socket is reachable. this method is synchronous or blocking.
     public boolean isReachable(InetSocketAddress socket, int timeout) {
         try {
             Client client = new Client();
@@ -216,12 +216,16 @@ public class Subnet {
         return false;
     }
 
-    private void addAddress(InetSocketAddress remote) {
-        logger.info("Add " + remote.getHostString() + ":" + remote.getPort());
+    private void addAddress(InetSocketAddress remote) {        
+        if(mUserList.add(remote)) {
+            System.out.println("Added " + remote.getHostString());
+        }
     }
 
     private void removeAddress(InetSocketAddress remote) {
-        //logger.info("Remove " + remote.getHostString() + ":" + remote.getPort());
+        if(mUserList.remove(remote)) {
+            System.out.println("Removed " + remote.getHostString());    
+        }
     }
 
 }

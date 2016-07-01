@@ -38,7 +38,7 @@ public class ServerTest {
         System.out.println("Started server. Server active = " + server.isOpen());
 
         if (server.isOpen()) {
-            Thread.sleep(10000);
+            Thread.sleep(1000000);
             System.out.println(">> after a while... ");
         }
 
