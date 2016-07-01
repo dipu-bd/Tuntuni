@@ -19,9 +19,7 @@ package org.tuntuni.connection;
  * Defined a few types of connection status client and server.
  */
 public enum Status {
-
-    // the format received in not valid
-    INVALID,
+ 
     // test the connection
     TEST,
     // to pass meta information

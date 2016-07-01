@@ -15,6 +15,15 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * To manage connection with server sockets.
  */
@@ -22,5 +31,65 @@ public class Client {
 
     public Client() {
 
+    }
+
+    public void connect(int id) throws IOException {
+
+        // Create client SocketChannel
+        SocketChannel client = SocketChannel.open();
+        // nonblocking I/O
+        client.configureBlocking(false);
+        // Connection to host
+        InetAddress host = InetAddress.getByName("localhost");
+        client.connect(new java.net.InetSocketAddress(host, Server.PORTS[0]));
+
+        System.out.println("Socket channel connected");
+
+        // Create selector
+        Selector selector = Selector.open();
+        // Record to selector (OP_CONNECT type)
+        SelectionKey clientKey = client.register(selector, SelectionKey.OP_CONNECT);
+
+        System.out.println("Selector registered");
+
+        // Waiting for the connection with 500ms timeeout
+        int sel = selector.select(500);
+        if (sel <= 0) {
+            System.out.println("Failed to connect after 500 milliseconds");
+            return;
+        }
+
+        // Get keys
+        Set keys = selector.selectedKeys();
+        Iterator it = keys.iterator();
+
+        // For each key...
+        while (it.hasNext()) {
+            SelectionKey key = (SelectionKey) it.next();
+
+            // Remove the current key
+            it.remove();
+
+            // Get the socket channel held by the key
+            SocketChannel channel = (SocketChannel) key.channel();
+
+            // Attempt a connection
+            if (key.isConnectable()) {
+
+                // Connection OK
+                System.out.println("Server Found");
+
+                // Close pendent connections
+                if (channel.isConnectionPending()) {
+                    channel.finishConnect();
+                }
+
+                // Write continuously on the buffer  
+                ByteBuffer buffer = ByteBuffer.wrap((" Client " + id + " ").getBytes());
+                channel.write(buffer);
+                buffer.clear();
+
+            }
+        }
     }
 }

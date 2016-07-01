@@ -15,13 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.After;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
 
 /**
  *
@@ -34,23 +28,22 @@ public class ServerTest {
 
     @Test
     public void testServer() throws Exception {
+
         System.out.println("---------start----------------");
+
         Server server = new Server();
-        Logger.getLogger(Server.class.getName())
-                .log(Level.INFO, "Created server: " + server);
-        System.out.println(server);
+        System.out.println("Created server");
+
         server.start();
-        System.out.println(server);
-        while (server.isActive()) {
-            Thread.sleep(2000);
-            System.out.println(server);
-            System.out.println(">> after 2 sec. ");
-            break;
+        System.out.println("Started server. Server active = " + server.isOpen());
+
+        if (server.isOpen()) {
+            Thread.sleep(6150);
+            System.out.println(">> after a while... ");
         }
+
         server.stop();
-        System.out.println(server);
-        Logger.getLogger(Server.class.getName())
-                .log(Level.INFO, "Is server active: " + server.isActive());
+        System.out.println("Stopped server. Server active = " + server.isOpen());
     }
 
 }

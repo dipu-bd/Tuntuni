@@ -16,9 +16,16 @@
 package org.tuntuni.connection;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
@@ -28,58 +35,85 @@ import org.tuntuni.models.Logs;
  */
 public final class Server {
 
-    public static final int PRIMARY_PORT = 24914;
-    public static final int BACKUP_PORT = 42016;
-    public static final int MAX_QUEUE_SIZE = 100;
+    public static final Logger log = Logger.getLogger(Server.class.getName());
 
-    public static final Logger logger = Logger.getLogger(Server.class.getName());
+    public static final int PORTS[] = {
+        24914, //PRIMARY_PORT
+        42016, //BACKUP_PORT  
+    };
 
-    private ServerSocket mServer; // holds main server socket
+    private Selector mSelector;
+    private ServerSocketChannel mSSChannel;
 
     /**
      * Create a new Server. It does not start the server automatically. Please
      * call {@linkplain start()} to start the server.
+     *
+     * @throws java.io.IOException Failed to open a server-socket channel
      */
-    public Server() {
-
+    public Server() throws IOException {
+        this(false);
     }
 
     /**
-     * Returns true if the server is up and running; false otherwise.
+     * Creates a new Server. Pass {@code true} to {@code startImmediately} start
+     * the server immediately after creating it. {@code false} otherwise.
+     *
+     * @param startImmediately pass {@code true} to start immediately
+     * @throws java.io.IOException Failed to open a server-socket channel
      */
-    public boolean isActive() {
-        return (mServer != null && !mServer.isClosed() && mServer.isBound());
+    public Server(boolean startImmediately) throws IOException {
+        initialize();
+        if (startImmediately) {
+            start();
+        }
+    }
+
+    private void initialize() throws IOException {
+        // Create the selector
+        mSelector = Selector.open();
+        // try create server channel for each of the given ports
+        for (int i = 0; i < PORTS.length; ++i) {
+            try {
+                // Create the server socket channel
+                mSSChannel = ServerSocketChannel.open();
+                // nonblocking I/O
+                mSSChannel.configureBlocking(false);
+                // bind to port           
+                mSSChannel.socket().bind(new InetSocketAddress(PORTS[i]));
+                // Recording server to selector (type = all of SelectionKey)
+                mSSChannel.register(mSelector, SelectionKey.OP_ACCEPT);
+                // successfully created one server
+                log.log(Level.INFO, Logs.SERVER_BIND_SUCCESS + PORTS[i]);
+                break;
+            } catch (IOException ex) {
+                log.log(Level.WARNING, Logs.SERVER_BIND_FAILS + PORTS[i]);
+                mSSChannel.close();
+            }
+        }
     }
 
     /**
-     * Creates a server and start listening.
+     * Returns true if the server channel is open; false otherwise.
+     *
+     * @return True only if server channel and selector is open
+     */
+    public boolean isOpen() {
+        return mSSChannel.isOpen();
+    }
+
+    /**
+     * Execute an infinite loop in a separate thread and wait for clients to
+     * connect.
      *
      * @throws IOException Server failed load in both Primary and backup ports.
      */
     public void start() throws IOException {
-        // check if already running
-        if (isActive()) {
-            return;
-        }
-
-        // first try to create server on primary port
-        try {
-            mServer = new ServerSocket(PRIMARY_PORT, MAX_QUEUE_SIZE);
-        } catch (IOException ex) {
-            logger.log(Level.INFO, Logs.SERVER_PRIMARY_PORT_FAILS);
-
-            // primary port fails. start in backup port
-            try {
-                mServer = new ServerSocket(BACKUP_PORT, MAX_QUEUE_SIZE);
-            } catch (IOException ix) {
-                logger.log(Level.SEVERE, Logs.SERVER_BACKUP_PORT_FAILS, ix);
-                // backup failed. throw error
-                throw ix;
-            }
-        }
-
-        // now the server should be created. just listen and wait for clients. 
-        listen();
+        // create a new instance of server executor
+        ExecutorService executor;
+        executor = Executors.newSingleThreadExecutor();
+        // submit the server task to start it later
+        executor.submit(serverTask);
     }
 
     /**
@@ -87,72 +121,139 @@ public final class Server {
      * called server may not be stopped immediately. It may take a while.
      */
     public void stop() {
+        // close all channels connected to selector
+        // ServerSocketChannel also gets closed as it is connected to selector.
         try {
-            // check if server is up and running
-            if (isActive()) {
-                mServer.close(); // close the server
-            }
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_FAILED_CLOSING, ex);
-        }
-    }
-
-    /**
-     * Start listening for the clients to connect.
-     */
-    public void listen() {
-
-        try {
-            // socket never time out while listening
-            mServer.setSoTimeout(0);
-
-            // start to listen on separate thread
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    catchClient();
+            Iterator it = mSelector.keys().iterator();
+            while (it.hasNext()) {
+                SelectionKey key = (SelectionKey) it.next();
+                // close the channel 
+                // it can be either ServerSocketChannel or normal SocketChannel.
+                try {
+                    key.channel().close();
+                } catch (IOException e) {
+                    log.log(Level.WARNING, Logs.SERVER_CLOSING_CHANNEL_ERROR, e);
                 }
-            });
-            thread.setDaemon(true); // dies along with main thread  
-            thread.start();
-
-        } catch (SocketException | NullPointerException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_SOCKET_EXCEPTION, ex);
-        }
-    }
-
-    @Override
-    public String toString() {
-        if (mServer == null) {
-            return "SERVER:NULL";
-        } else if (mServer.isBound()) {
-            return "SERVER:BOUND=" + mServer.getLocalPort();
-        } else if (mServer.isClosed()) {
-            return "SERVER:CLOSED";
-        } else {
-            return "SERVER:UNKNOWN";
-        }
-    }
-
-    // to catch clients
-    private void catchClient() {
-        try {
-            while (mServer.isBound()) {
-                logger.log(Level.INFO, Logs.SERVER_LISTENING);
-                Socket socket = mServer.accept();
-
-                // now do something to communicate with client
-                processClient(socket);
+                // cancel key
+                key.cancel();
             }
+            // now close the selector
+            log.log(Level.INFO, Logs.SERVER_CLOSING_SELECTOR);
+            mSelector.close();
+
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, Logs.SERVER_CLOSING_SELECTOR_ERROR, ex);
+        }
+    }
+
+    private Runnable serverTask = () -> {
+        // Infinite server loop      
+        log.log(Level.INFO, Logs.SERVER_LISTENING);
+        while (isOpen()) {
+            try {
+                // Waiting for events
+                mSelector.select();
+                // Iterate over the set of keys for which events are available
+                Iterator it = mSelector.selectedKeys().iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = (SelectionKey) it.next();
+                    // remove the key from selection list
+                    it.remove();
+                    // process current keys
+                    processKeys(key);
+                }
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, Logs.SERVER_SELECT_FAILED, ex);
+            }
+        }
+        log.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
+    };
+
+    // process a selection key
+    private void processKeys(SelectionKey key) {
+
+        // check if the key is valid
+        if (!key.isValid()) {
+            return;
+        }
+
+        // check if the key is connectable 
+        if (key.isConnectable()) {
+            connect(key);
+            return;
+        }
+
+        // check if the key is acceptable 
+        if (key.isAcceptable()) {
+            accept(key);
+            return;
+        }
+
+        // check if the key is readable / sending data
+        if (key.isReadable()) {
+            read(key);
+            return;
+        }
+
+        // check if the key is writable / receiving data
+        if (key.isWritable()) {
+            write(key);
+            return;
+        }
+    }
+
+    private void connect(SelectionKey key) {
+        System.out.println("+Connectable key!");
+    }
+
+    // accept a socket channel connecting with servers
+    private void accept(SelectionKey key) {
+        try {
+            // get client socket channel
+            SocketChannel client = mSSChannel.accept();
+            // Non Blocking I/O
+            client.configureBlocking(false);
+            // recording to the selector (reading)
+            client.register(mSelector, SelectionKey.OP_READ);
+
+            System.out.println("+Channel accepted");
 
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_FAILS_ACCEPTING_CLIENT, ex);
+            log.log(Level.SEVERE, Logs.SERVER_CHANNEL_ACCEPT_FAILED, ex);
         }
     }
 
-    // send and receive information to client
-    private void processClient(Socket socket) {
-        logger.log(Level.SEVERE, "Found a client", socket);
+    // read from a socket channel
+    private void read(SelectionKey key) {
+        try {
+            System.out.println("+Reading from channel");
+
+            // get the client socket channel from key
+            SocketChannel client = (SocketChannel) key.channel();
+
+            // create a new byte buffer
+            int BUFFER_SIZE = 32; // maximum length to read
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            // Read byte coming from the client
+            client.read(buffer);
+
+            if (buffer.hasRemaining()) {
+                System.out.println("+Finishing connecton and cancelling key");
+                client.close();
+                key.cancel();
+            }
+
+            // Show bytes on the console
+            buffer.flip();
+            String rest = new String(buffer.array(), Charset.defaultCharset());
+            System.out.println(rest);
+
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, Logs.SERVER_CHANNEL_READ_FAILED, ex);
+        }
     }
 
+    private void write(SelectionKey key) {
+        System.out.println("+Writable key!");
+    }
 }
