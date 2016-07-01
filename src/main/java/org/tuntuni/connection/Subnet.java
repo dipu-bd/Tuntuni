@@ -19,13 +19,10 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +31,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
-import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.collections.FXCollections;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.SocketUtils;
 
@@ -44,49 +41,28 @@ import org.tuntuni.util.SocketUtils;
  */
 public class Subnet {
 
-    public final int SCAN_INTERVAL_MILLIS = 5_000;
-    public final int SCAN_START_DELAY_MILLIS = 5_000;
+    public final int SCAN_START_DELAY_MILLIS = 2_000;
+    public final int SCAN_INTERVAL_MILLIS = 15_000;
+    public final int REACHABLE_THREAD_COUNT = 20;
     public final int REACHABLE_TIMEOUT_MILLIS = 500;
-    public final int REACHABLE_THREAD_COUNT = 10;
 
     private final Logger logger = Logger.getLogger(Subnet.class.getName());
 
-    private boolean mOnProgress; // to indicate an update on progress
     private final ExecutorService mExecutor;
-    private final HashSet<InetSocketAddress> mUserList;
+    private final SimpleSetProperty<InetSocketAddress> mUserList;
+    private final ReadOnlySetProperty<InetSocketAddress> mROUserList;
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
-        mOnProgress = false;
-        mUserList = new HashSet<>();        
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
+        mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
+        mROUserList = new ReadOnlySetWrapper<>(mUserList);
         // start periodic check to get active user list        
         Executors.newSingleThreadScheduledExecutor()
                 .scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
                         SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * True when an scan in ongoing. False otherwise.
-     *
-     * @return
-     */
-    public boolean isBusy() {
-        return mOnProgress;
-    }
-
-    /**
-     * Gets the current user list.
-     * <p>
-     * It will return list of all sockets connected to this application at the
-     * time of call. </p>
-     *
-     * @return
-     */
-    public InetSocketAddress[] getUserList() {
-        return mUserList.toArray(new InetSocketAddress[0]);
     }
 
     /**
@@ -98,17 +74,16 @@ public class Subnet {
      * @return
      */
     public ReadOnlySetProperty<InetSocketAddress> userListProperty() {
-        return null;
+        return mROUserList;
     }
 
     // to scan over whole subnet of all networks for active users
     private final Runnable performScan = () -> {
-        System.out.println("I was here!");
-
+        logger.log(Level.INFO, Logs.SUBNET_SCAN_START);
         try {
             // get all network interfaces
             Enumeration<NetworkInterface> ne
-                    = NetworkInterface.getNetworkInterfaces(); 
+                    = NetworkInterface.getNetworkInterfaces();
             // loop through all of them
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
@@ -116,8 +91,6 @@ public class Subnet {
         } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_ENUMERATION_FAILED, ex);
         }
-
-        System.out.println("Found = " + getUserList().length);
     };
 
     // check all address avaiable in a network interface
@@ -150,7 +123,7 @@ public class Subnet {
                     return;
                 }
 
-                logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS + address.getHostAddress());
+                logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
 
                 // get network's first and last hosts
                 int first = SocketUtils.getFirstHost(ia);
@@ -211,20 +184,24 @@ public class Subnet {
             Client client = new Client();
             return client.test(socket, timeout);
         } catch (IOException ex) {
-            logger.log(Level.FINE, Logs.SUBNET_CHECK_ERROR + socket.getHostString(), ex);
+            logger.log(Level.FINE, Logs.SUBNET_CHECK_ERROR, socket.getHostString());
         }
         return false;
     }
 
-    private void addAddress(InetSocketAddress remote) {        
-        if(mUserList.add(remote)) {
-            System.out.println("Added " + remote.getHostString());
+    // add address to the observable list
+    private void addAddress(InetSocketAddress remote) {
+        if (mUserList.add(remote)) {
+            logger.log(Level.INFO, "Added user {0}:{1}",
+                    new Object[]{remote.getHostString(), remote.getPort()});
         }
     }
 
+    // remove object from observable list
     private void removeAddress(InetSocketAddress remote) {
-        if(mUserList.remove(remote)) {
-            System.out.println("Removed " + remote.getHostString());    
+        if (mUserList.remove(remote)) {
+            logger.log(Level.INFO, "Removed user {0}:{1}",
+                    new Object[]{remote.getHostString(), remote.getPort()});
         }
     }
 

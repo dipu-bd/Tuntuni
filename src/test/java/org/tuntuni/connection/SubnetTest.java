@@ -18,6 +18,9 @@ package org.tuntuni.connection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import javafx.beans.property.ReadOnlySetProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -26,7 +29,7 @@ import static org.junit.Assert.*;
  * @author Sudipto Chandra
  */
 public class SubnetTest {
-    
+
     public SubnetTest() {
     }
 
@@ -35,7 +38,7 @@ public class SubnetTest {
      */
     @Test
     public void testUserListProperty() {
-        
+
     }
 
     /**
@@ -44,15 +47,12 @@ public class SubnetTest {
     @Test
     public void testGetUserList() throws InterruptedException {
         Subnet subnet = new Subnet();
-        Thread.sleep(600000);
-    }
+        subnet.userListProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.print("+++++ set changed: ");
+            System.out.println(oldValue.size() + " to " + newValue.size() + " of " + observable);            
 
-    /**
-     * Test of isReachable method, of class Subnet.
-     */
-    @Test
-    public void testIsReachable() {
-        
+        });
+
+        Thread.sleep(600_000);  // run for 10 mins
     }
-    
 }

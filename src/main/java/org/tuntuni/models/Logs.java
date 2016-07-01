@@ -22,9 +22,9 @@ public abstract class Logs {
 
     public static final String //--- begin : log message list ---
             // Used in Server
-            SERVER_BIND_FAILS = "Failed to bind server with port ",
-            SERVER_BIND_SUCCESS = "Server is bound to port ",
-            SERVER_LISTENING = "Waiting for clients.",
+            SERVER_BIND_SUCCESS = "Server is bound to port {0}",
+            SERVER_BIND_FAILS = "Failed to bind server with port {0}",
+            SERVER_LISTENING = "Waiting for clients at {0}",
             SERVER_LISTENING_STOPPED = "Stopped waiting for clients.",
             SERVER_SELECT_FAILED = "Failed to select or process keys.",
             SERVER_CHANNEL_ACCEPT_FAILED = "Failed to accept client channel.",
@@ -35,11 +35,12 @@ public abstract class Logs {
             SERVER_CLOSING_SELECTOR_ERROR = "Failed to close selector",
             SERVER_CLOSING_CHANNEL_ERROR = "Failed to close a socket channel",
             // Used in Subnet
+            SUBNET_SCAN_START = "Performing a scan for active subnet users",
             SUBNET_INTERFACE_ENUMERATION_FAILED = "Failed to get network interfaces",
             SUBNET_INTERFACE_CHECK_ERROR = "Failed to check network interface",
-            SUBNET_CHECKING_SUBNETS = "Checking up all subnets of ",
-            SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from ",
-            SUBNET_CHECK_ERROR = "Failed to check the subnet: ",
+            SUBNET_CHECKING_SUBNETS = "Checking up all subnets of {0}",
+            SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from {0}",
+            SUBNET_CHECK_ERROR = "Failed to check the subnet: {0}",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
 

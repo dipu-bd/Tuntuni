@@ -35,7 +35,7 @@ import org.tuntuni.models.Logs;
  */
 public final class Server {
 
-    public static final Logger log = Logger.getLogger(Server.class.getName());
+    public static final Logger logger = Logger.getLogger(Server.class.getName());
 
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
@@ -83,10 +83,10 @@ public final class Server {
                 // Recording server to selector (type = all of SelectionKey)
                 mSSChannel.register(mSelector, SelectionKey.OP_ACCEPT);
                 // successfully created one server
-                log.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
+                logger.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
                 break;
             } catch (IOException ex) {
-                log.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
+                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
                 mSSChannel.close();
             }
         }
@@ -98,8 +98,16 @@ public final class Server {
      * @return True only if server channel and selector is open
      */
     public boolean isOpen() {
-        return (mSSChannel != null && mSSChannel.isOpen())
-                || (mSelector != null && mSelector.isOpen());
+        return (mSSChannel != null && mSSChannel.isOpen()
+                && mSSChannel.socket().isBound());
+    }
+
+    public int getPort() {
+        if (isOpen()) {
+            return mSSChannel.socket().getLocalPort();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -140,17 +148,17 @@ public final class Server {
                 try {
                     key.channel().close();
                 } catch (IOException e) {
-                    log.log(Level.WARNING, Logs.SERVER_CLOSING_CHANNEL_ERROR, e);
+                    logger.log(Level.WARNING, Logs.SERVER_CLOSING_CHANNEL_ERROR, e);
                 }
                 // cancel key
                 key.cancel();
             }
             // now close the selector
-            log.log(Level.INFO, Logs.SERVER_CLOSING_SELECTOR);
+            logger.log(Level.INFO, Logs.SERVER_CLOSING_SELECTOR);
             mSelector.close();
 
         } catch (Exception ex) {
-            log.log(Level.SEVERE, Logs.SERVER_CLOSING_SELECTOR_ERROR, ex);
+            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_SELECTOR_ERROR, ex);
         }
     }
 
@@ -158,7 +166,7 @@ public final class Server {
     // it is started via an executor service.
     private final Runnable serverTask = () -> {
         // Infinite server loop      
-        log.log(Level.INFO, Logs.SERVER_LISTENING);
+        logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
             try {
                 // Waiting for events
@@ -173,10 +181,10 @@ public final class Server {
                     processKeys(key);
                 }
             } catch (IOException ex) {
-                log.log(Level.SEVERE, Logs.SERVER_SELECT_FAILED, ex);
+                logger.log(Level.SEVERE, Logs.SERVER_SELECT_FAILED, ex);
             }
         }
-        log.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
+        logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
     };
 
     // process a selection key
@@ -230,7 +238,7 @@ public final class Server {
             System.out.println("+Channel accepted");
 
         } catch (IOException ex) {
-            log.log(Level.SEVERE, Logs.SERVER_CHANNEL_ACCEPT_FAILED, ex);
+            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_ACCEPT_FAILED, ex);
         }
     }
 
@@ -260,7 +268,7 @@ public final class Server {
             System.out.println(rest);
 
         } catch (IOException ex) {
-            log.log(Level.SEVERE, Logs.SERVER_CHANNEL_READ_FAILED, ex);
+            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_READ_FAILED, ex);
         }
     }
 
