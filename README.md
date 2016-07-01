@@ -6,8 +6,7 @@
 
 ## Features  
 - Discover all users connected within the same lan
-- Continuous video
-- Turn off audio or video
+- Live video conference
 - Normal text messaging
 - Any type of file sharing
 

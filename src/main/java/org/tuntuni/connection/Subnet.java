@@ -41,12 +41,12 @@ import org.tuntuni.util.SocketUtils;
  */
 public class Subnet {
 
-    public final int SCAN_START_DELAY_MILLIS = 2_000;
-    public final int SCAN_INTERVAL_MILLIS = 15_000;
-    public final int REACHABLE_THREAD_COUNT = 20;
-    public final int REACHABLE_TIMEOUT_MILLIS = 500;
+    public static final int SCAN_START_DELAY_MILLIS = 2_000;
+    public static final int SCAN_INTERVAL_MILLIS = 15_000;
+    public static final int REACHABLE_THREAD_COUNT = 20;
+    public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
-    private final Logger logger = Logger.getLogger(Subnet.class.getName());
+    private static final Logger logger = Logger.getLogger(Subnet.class.getName());
 
     private final ExecutorService mExecutor;
     private final SimpleSetProperty<InetSocketAddress> mUserList;
