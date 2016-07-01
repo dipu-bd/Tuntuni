@@ -21,7 +21,7 @@ package org.tuntuni.models;
 public abstract class Logs {
 
     public static final String //--- begin : log message list ---
-            // Used in Server.java
+            // Used in Server
             SERVER_BIND_FAILS = "Failed to bind server with port ",
             SERVER_BIND_SUCCESS = "Server is bound to port ",
             SERVER_LISTENING = "Waiting for clients.",
@@ -34,6 +34,12 @@ public abstract class Logs {
             SERVER_CLOSING_FAILED = "Failed to stop server.",
             SERVER_CLOSING_SELECTOR_ERROR = "Failed to close selector",
             SERVER_CLOSING_CHANNEL_ERROR = "Failed to close a socket channel",
+            // Used in Subnet
+            SUBNET_INTERFACE_ENUMERATION_FAILED = "Failed to get network interfaces",
+            SUBNET_INTERFACE_CHECK_ERROR = "Failed to check network interface",
+            SUBNET_CHECKING_SUBNETS = "Checking up all subnets of ",
+            SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from ",
+            SUBNET_CHECK_ERROR = "Failed to check the subnet: ",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
 

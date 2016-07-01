@@ -17,6 +17,8 @@ package org.tuntuni.connection;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -91,5 +93,12 @@ public class Client {
 
             }
         }
+    }
+
+    public boolean test(InetSocketAddress socket, int timeout) throws IOException {
+        try (Socket soc = new Socket()) {
+            soc.connect(socket, timeout);
+        }
+        return true;
     }
 }

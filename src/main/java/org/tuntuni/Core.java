@@ -20,7 +20,7 @@ import org.tuntuni.connection.Client;
 import org.tuntuni.connection.Server;
 
 /**
- * For inter-process communication
+ * For inter-process communication.
  */
 public class Core {
 
