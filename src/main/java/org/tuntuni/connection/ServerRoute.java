@@ -15,9 +15,9 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.MetaData;
-import org.tuntuni.models.Status;
-import org.tuntuni.models.UserProfile;
+import org.tuntuni.connection.model.MetaData;
+import org.tuntuni.connection.model.Status;
+import org.tuntuni.connection.model.UserProfile;
 
 /**
  * To build proper response for a request coming from server.

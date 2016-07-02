@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni;
+package org.tuntuni.connection.model;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
+import java.io.Serializable;
 
-public class FXMLController implements Initializable {
+/**
+ * Defined a few types of connection status client and server.
+ */
+public enum Status implements Serializable {
     
-    @FXML
-    private Label label;
-    
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-        label.setText("Hello World!");
-    }
-    
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+    // test the connection
+// test the connection
+    TEST,
+    // to pass meta information
+    META,
+    // to pass user profile information
+    PROFILE
 }

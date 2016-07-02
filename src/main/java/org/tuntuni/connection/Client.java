@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -26,6 +25,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.util.Logs;
+import org.tuntuni.connection.model.UserProfile;
+import org.tuntuni.connection.model.MetaData;
+import org.tuntuni.connection.model.Status;
 
 /**
  * To manage connection with server sockets.
@@ -39,8 +41,12 @@ public class Client {
 
     private static final Logger logger = Logger.getLogger(Client.class.getName());
 
+    // to connect with server
     private int mTimeout;
     private final InetSocketAddress mAddress;
+    // local data from server
+    private MetaData mMeta;
+    private UserProfile mProfile;
 
     // hidesthe constructor and handle it with static open() method
     public Client(InetSocketAddress socket) throws IOException {
@@ -52,7 +58,10 @@ public class Client {
 
     @Override
     public boolean equals(Object other) {
-        return mAddress.equals(other);
+        if (other instanceof Client) {
+            return mAddress.equals(((Client) other).getAddress());
+        }
+        return false;
     }
 
     @Override
@@ -156,5 +165,35 @@ public class Client {
     public boolean test() {
         Object data = request(Status.TEST);
         return (data != null && Server.SECRET_CODE.equals(data));
+    }
+
+    /**
+     * Download the meta data from the server. If download fails, a previous
+     * version of meta data is returned. It only returns {@code null} if no
+     * previous version available.
+     *
+     * @return the server meta data.
+     */
+    public MetaData meta() {
+        Object data = request(Status.META);
+        if (data != null && data instanceof MetaData) {
+            mMeta = (MetaData) data;
+        }
+        return mMeta;
+    }
+
+    /**
+     * Download the user profile from the server. If download fails, a previous
+     * version of it is returned. It only returns {@code null} if no previous
+     * version is available.
+     *
+     * @return the user running the server.
+     */
+    public UserProfile user() {
+        Object data = request(Status.PROFILE);
+        if (data != null && data instanceof UserProfile) {
+            mProfile = (UserProfile) data;
+        }
+        return mProfile;
     }
 }

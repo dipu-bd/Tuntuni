@@ -13,17 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.models;
+package org.tuntuni.controller;
 
-import java.io.Serializable;
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.Initializable;
 
 /**
+ * FXML Controller class
  *
  * @author Sudipto Chandra
  */
-public class UserProfile implements Serializable {
+public class SideBar implements Initializable {
 
-    public static UserProfile build() {
-        return new UserProfile();
-    }
+    /**
+     * Initializes the controller class.
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
+    }    
+    
 }

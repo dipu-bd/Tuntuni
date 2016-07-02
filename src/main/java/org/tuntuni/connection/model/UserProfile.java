@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.models;
+package org.tuntuni.connection.model;
 
 import java.io.Serializable;
 
 /**
- * An attachment to the server's key
+ *
+ * @author Sudipto Chandra
  */
-public class Attachment extends Object implements Serializable {
-    
-    public Attachment() {        
+public class UserProfile implements Serializable {
+
+    public static UserProfile build() {
+        return new UserProfile();
     }
-        
 }
