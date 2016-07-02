@@ -55,7 +55,9 @@ public class ClientTest {
         Client instance = Client.open(
                 new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
-        assertTrue(instance.test());
+        boolean result = instance.test();
+        System.out.println("Result found = " + result);
+        assertTrue(result);
     }
 
 }

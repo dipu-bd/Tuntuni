@@ -15,22 +15,15 @@
  */
 package org.tuntuni.connection;
 
-import java.io.BufferedReader;
 import org.tuntuni.models.Status;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketOptions;
-import java.nio.IntBuffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Set;
 import org.tuntuni.util.SocketUtils;
 
@@ -109,42 +102,63 @@ public class Client {
      * @throws java.io.IOException
      */
     public boolean test() throws IOException {
+        // first check if the channel is open
         if (isOpen()) {
             return true;
         }
-
+        System.out.println("Opening a channel");
+        // open a channel
         mChannel = SocketChannel.open();
-        mChannel.configureBlocking(true);
-        mChannel.register(mSelector, mTimeout);
+        mChannel.configureBlocking(false);
+        // register the channel
+        mChannel.register(mSelector, SelectionKey.OP_CONNECT);
+        // connect the channel with address
         mChannel.connect(mAddress);
-        if (mSelector.select(mTimeout) <= 0) {
-            return false;
-        }
+        System.out.println("Connecting a channel");
+        // wait for the selector
+        System.out.println("Selecting with selector");
+        while (mSelector.select(mTimeout) > 0) {
+            System.out.println("Process selected keys");
+            // Get selected keys
+            Set keys = mSelector.selectedKeys();
+            Iterator it = keys.iterator();
+            // For each key...
+            while (it.hasNext()) {
+                // Get the selection key 
+                SelectionKey key = (SelectionKey) it.next();
+                // Remove it
+                it.remove();
+                System.out.println("Selected key is removed");
 
-        // Get keys
-        Set keys = mSelector.selectedKeys();
-        Iterator it = keys.iterator();
-        // For each key...
-        while (it.hasNext()) {
-            // Get the selection key 
-            SelectionKey key = (SelectionKey) it.next();
-            // Remove it.
-            it.remove();
-
-            // Get the socket channel held by the key
-            SocketChannel channel = (SocketChannel) key.channel();
-            // Attempt a connection
-            if (key.isConnectable()) {
-                // Connection OK : Server Found
-                // Close pendent connections
-                if (channel.isConnectionPending()) {
-                    channel.finishConnect();
+                if (key.isConnectable()) {
+                    // Connection OK : Server Found 
+                    if (mChannel.isConnectionPending()) {
+                        mChannel.finishConnect();
+                        System.out.println("Selected key has finished connection");
+                    }
+                    // write operation
+                    System.out.println("Writing to server");
+                    ByteBuffer bb = ByteBuffer.allocate(4);
+                    bb.putInt(Status.TEST);
+                    bb.flip();
+                    mChannel.write(bb);
+                    mChannel.shutdownOutput();
+                    mChannel.register(mSelector, SelectionKey.OP_READ);
+                    continue;
                 }
-
-                // write operation
+                if (key.isReadable()) {
+                    // read operation
+                    System.out.println("Reading from server");
+                    ByteBuffer result = ByteBuffer.allocate(4);
+                    mChannel.read(result);
+                    result.flip();
+                    int i = result.getInt();
+                    System.out.println("Hello result = " + i);
+                    return i == 1;
+                }
             }
         }
-
+        return false;
         /*
          // Open a socket
          try (Socket socket = new Socket()) {

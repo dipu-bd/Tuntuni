@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Status;
+import org.tuntuni.util.SocketUtils;
 
 /**
  * To listen and respond to clients sockets.
@@ -249,17 +250,17 @@ public final class Server {
             System.out.println("+Reading from channel");
 
             // get the client socket channel from key
-            SocketChannel client = (SocketChannel) key.channel();
+            SocketChannel channel = (SocketChannel) key.channel();
             // no attachment. it must me a new connection.
             if (key.attachment() == null) {
-                // cancel key
-                key.cancel();
                 // Read byte coming from the client
                 ByteBuffer buffer = ByteBuffer.allocate(8);
-                client.read(buffer);
+                channel.read(buffer);
                 // Show bytes on the console
                 buffer.flip();
-                route(client, buffer.getInt());
+                System.out.println("Client said " + buffer.getInt());
+                channel.register(mSelector, SelectionKey.OP_WRITE);
+                
             } else {
                 // handle read on attachment
             }
@@ -272,17 +273,13 @@ public final class Server {
     private void write(SelectionKey key) {
         try {
             System.out.println("+Writing to channel!");
-
             // Get the channel from key
             SocketChannel client = (SocketChannel) key.channel();
-            // Get attachment bytes
-            byte[] bytes = (byte[]) key.attachment();
             // Write bytes to the client
-            client.write(ByteBuffer.wrap(bytes));
+            client.write(ByteBuffer.wrap(SocketUtils.intToBytes(1)));
             // close the client
             client.close();
-            // cancel the key
-            key.cancel();
+
         } catch (IOException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_WRITE_FAILED, ex);
         }
@@ -295,7 +292,6 @@ public final class Server {
         }
         switch (type) {
             case Status.TEST:
-                channel.register(mSelector, SelectionKey.OP_WRITE, new byte[]{1});
                 break;
             case Status.META:
                 break;
