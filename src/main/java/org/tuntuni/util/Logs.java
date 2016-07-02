@@ -21,14 +21,14 @@ package org.tuntuni.util;
 public abstract class Logs {
 
     public static final String //--- begin : log message list ---
-            // Used in Server 
+            // Used in Server and Client
             SERVER_BIND_SUCCESS = "Server is bound to port {0}",
             SERVER_BIND_FAILS = "Server could not be bound to to port {0}",
             SERVER_LISTENING = "Waiting for clients at {0}",
             SERVER_LISTENING_STOPPED = "Stopped waiting for clients.",
             SERVER_ACCEPT_FAILED = "Failed to accept a channel.",
             SERVER_IO_FAILED = "Failed to read or write from server",
-            SERVER_CLASS_FAILED = "Request data could not be recognized.",
+            SOCKET_CLASS_FAILED = "Request data could not be recognized.",
             SERVER_CLOSING_ERROR = "Failed to close the socket",
             SERVER_RECEIVED_CLIENT = "{0} connected with status {1} and {2} params",
             // Used in Subnet

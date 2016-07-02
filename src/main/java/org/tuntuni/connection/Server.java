@@ -188,7 +188,7 @@ public final class Server {
         } catch (IOException ex) {
             logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.WARNING, Logs.SERVER_CLASS_FAILED, ex);
+            logger.log(Level.WARNING, Logs.SOCKET_CLASS_FAILED, ex);
         }
 
         // close the socket

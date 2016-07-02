@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.tuntuni.util.Logs;
 
 /**
  * To manage connection with server sockets.
@@ -47,6 +48,21 @@ public class Client {
         mTimeout = DEFAULT_TIMEOUT;
         // set the socket
         mAddress = socket;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return mAddress.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        return mAddress.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return mAddress.toString();
     }
 
     /**
@@ -124,10 +140,10 @@ public class Client {
                 return res.readObject();
 
             } catch (IOException | ClassNotFoundException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);
             }
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            //logger.log(Level.SEVERE, null, ex);
         }
         return null;
     }

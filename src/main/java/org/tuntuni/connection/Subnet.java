@@ -174,7 +174,7 @@ public class Subnet {
                 } else {
                     removeAddress(client);
                 }
-                System.out.println("Tested " + client.getHostString() + ":" + client.getPort());
+                //System.out.println("Tested " + client.getHostString() + ":" + client.getPort());
             }
             return 0;
         };
