@@ -49,8 +49,8 @@ public class Subnet {
     private static final Logger logger = Logger.getLogger(Subnet.class.getName());
 
     private final ExecutorService mExecutor;
-    private final SimpleSetProperty<InetSocketAddress> mUserList;
-    private final ReadOnlySetProperty<InetSocketAddress> mROUserList;
+    private final SimpleSetProperty<Client> mUserList;
+    private final ReadOnlySetProperty<Client> mROUserList;
 
     /**
      * Creates a new instance of Subnet.
@@ -73,7 +73,7 @@ public class Subnet {
      *
      * @return
      */
-    public ReadOnlySetProperty<InetSocketAddress> userListProperty() {
+    public ReadOnlySetProperty<Client> userListProperty() {
         return mROUserList;
     }
 
@@ -167,11 +167,12 @@ public class Subnet {
                         = new InetSocketAddress(address, Server.PORTS[i]);
 
                 // blocking call to check if reachable
-                if (isReachable(remote, REACHABLE_TIMEOUT_MILLIS)) {
-                    addAddress(remote);
-                    break;  // found at least one port
+                Client client = Client.open(remote);
+                if (isReachable(client, REACHABLE_TIMEOUT_MILLIS)) {
+                    addAddress(client);
+                    break;  // found at least one port reachable
                 } else {
-                    removeAddress(remote);
+                    removeAddress(client);
                 }
             }
             return 0;
@@ -179,29 +180,30 @@ public class Subnet {
     }
 
     // checks if the socket is reachable. this method is synchronous or blocking.
-    public boolean isReachable(InetSocketAddress socket, int timeout) {
+    public boolean isReachable(Client client, int timeout) {
         try {
-            Client client = new Client();
-            return client.test(socket, timeout);
-        } catch (IOException ex) {
-            logger.log(Level.FINE, Logs.SUBNET_CHECK_ERROR, socket.getHostString());
+            client.setTimeout(timeout);
+            return client.test();
+        } catch (Exception e) {
+            logger.log(Level.FINE, Logs.SUBNET_CHECK_ERROR,
+                    client.getAddress().getHostString());
         }
         return false;
     }
 
     // add address to the observable list
-    private void addAddress(InetSocketAddress remote) {
-        if (mUserList.add(remote)) {
+    private void addAddress(Client client) {
+        if (mUserList.add(client)) {
             logger.log(Level.INFO, "Added user {0}:{1}",
-                    new Object[]{remote.getHostString(), remote.getPort()});
+                    new Object[]{client.getHostString(), client.getPort()});
         }
     }
 
     // remove object from observable list
-    private void removeAddress(InetSocketAddress remote) {
-        if (mUserList.remove(remote)) {
+    private void removeAddress(Client client) {
+        if (mUserList.remove(client)) {
             logger.log(Level.INFO, "Removed user {0}:{1}",
-                    new Object[]{remote.getHostString(), remote.getPort()});
+                    new Object[]{client.getHostString(), client.getPort()});
         }
     }
 

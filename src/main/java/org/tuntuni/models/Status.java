@@ -13,32 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection;
- 
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
+package org.tuntuni.models;
 
 /**
- *
- * @author Sudipto Chandra
+ * Defined a few types of connection status client and server.
  */
-public class StatusTest {
-
-    public StatusTest() {
-    }
-
-    /**
-     * Test of values method, of class Status.
-     */
-    @Test
-    public void testValues() {
-        System.out.println("+++ values +++");
-        Status[] result = Status.values();
-        assertNotNull(result);
-        for (Status s : result) {
-            assertNotNull(s);
-            System.out.println(s.toString());
-        }
-        System.out.println();
-    } 
+public abstract class Status {
+ 
+    // test the connection
+    public static final int TEST = 1;
+    // to pass meta information
+    public static final int META = 2;
+    // to pass user profile information
+    public static final int USER = 3;
 }

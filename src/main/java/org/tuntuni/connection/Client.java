@@ -15,90 +15,155 @@
  */
 package org.tuntuni.connection;
 
+import java.io.BufferedReader;
+import org.tuntuni.models.Status;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
+import java.net.SocketException;
+import java.net.SocketOptions;
+import java.nio.IntBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
+import org.tuntuni.util.SocketUtils;
 
 /**
  * To manage connection with server sockets.
+ * <p>
+ * You can not create new client directly. To create a client use
+ * {@linkplain Client.open()} method.</p>
  */
 public class Client {
 
-    public Client() {
+    public static final int DEFAULT_TIMEOUT = 500;
 
+    private Selector mSelector;
+    private int mTimeout;  // timeout for selector.select() 
+    private final InetSocketAddress mAddress; // socket address
+    private SocketChannel mChannel; // currently opened channel
+
+    // hidesthe constructor and handle it with static open() method
+    private Client(InetSocketAddress socket) throws IOException {
+        // default settings
+        mTimeout = DEFAULT_TIMEOUT;
+        // set the socket
+        mAddress = socket;
+        // Create selector
+        mSelector = Selector.open();
     }
 
-    public void connect(int id) throws IOException {
+    /**
+     * Opens a new channel to connect with server.
+     * <p>
+     * First a {@code selector} should be open and then the default
+     * {@code channel}. This method does not automatically connect the
+     * {@code channel} with the {@code socket}. Make sure to call
+     * {@linkplain connect} method to connect with the server. </p>
+     *
+     * @param socket
+     * @return The opened instance of Client.
+     * @throws IOException
+     */
+    public static Client open(InetSocketAddress socket) throws IOException {
+        return new Client(socket);
+    }
 
-        // Create client SocketChannel
-        SocketChannel client = SocketChannel.open();
-        // nonblocking I/O
-        client.configureBlocking(false);
-        // Connection to host
-        InetAddress host = InetAddress.getByName("localhost");
-        client.connect(new java.net.InetSocketAddress(host, Server.PORTS[0]));
+    public InetSocketAddress getAddress() {
+        return mAddress;
+    }
 
-        System.out.println("Socket channel connected");
+    public String getHostString() {
+        return mAddress.getHostString();
+    }
 
-        // Create selector
-        Selector selector = Selector.open();
-        // Record to selector (OP_CONNECT type)
-        SelectionKey clientKey = client.register(selector, SelectionKey.OP_CONNECT);
+    public int getPort() {
+        return mAddress.getPort();
+    }
 
-        System.out.println("Selector registered");
+    /**
+     * Set the timeout for an attempt to connect with server.
+     * <p>
+     * Default is {@value #DEFAULT_TIMEOUT}.</p>
+     *
+     * @param timeout in milliseconds.
+     */
+    public void setTimeout(int timeout) {
+        mTimeout = timeout;
+    }
 
-        // Waiting for the connection with 500ms timeeout
-        int sel = selector.select(500);
-        if (sel <= 0) {
-            System.out.println("Failed to connect after 500 milliseconds");
-            return;
+    /**
+     * Test the server
+     *
+     * @return
+     * @throws java.io.IOException
+     */
+    public boolean test() throws IOException {
+        // Open a socket
+        try (Socket socket = new Socket()) {
+            socket.setSoTimeout(mTimeout);
+            socket.connect(mAddress, mAddress.getPort());
+
+            try (OutputStream out = socket.getOutputStream()) {
+                out.write(SocketUtils.intToBytes(Status.TEST));
+                out.flush();
+                socket.shutdownOutput();
+            }
+
+            try (InputStream is = socket.getInputStream();
+                    Scanner sc = new Scanner(is)) {
+
+                boolean result = sc.nextBoolean();
+                return result;
+            }
+        }
+    }
+
+    /**
+     * Starts the connection with server.
+     *
+     * @param load
+     * @return
+     * @throws IOException
+     * @throws ConnectException
+     */
+    public Object communicate(Object load) throws ConnectException, IOException {
+        // Waiting for the connection with timeeout
+        if (mSelector.select(mTimeout) <= 0) {
+            throw new ConnectException("Failed to connect after " + mTimeout + " milliseconds.");
         }
 
         // Get keys
-        Set keys = selector.selectedKeys();
+        Set keys = mSelector.selectedKeys();
         Iterator it = keys.iterator();
 
         // For each key...
         while (it.hasNext()) {
+            // Get the selection key 
             SelectionKey key = (SelectionKey) it.next();
-
-            // Remove the current key
+            // Remove it.
             it.remove();
 
             // Get the socket channel held by the key
             SocketChannel channel = (SocketChannel) key.channel();
-
             // Attempt a connection
             if (key.isConnectable()) {
 
-                // Connection OK
-                System.out.println("Server Found");
-
+                // Connection OK : Server Found
                 // Close pendent connections
                 if (channel.isConnectionPending()) {
                     channel.finishConnect();
                 }
 
-                // Write continuously on the buffer  
-                ByteBuffer buffer = ByteBuffer.wrap((" Client " + id + " ").getBytes());
-                channel.write(buffer);
-                buffer.clear();
-
+                // write operation
             }
         }
-    }
-
-    public boolean test(InetSocketAddress socket, int timeout) throws IOException {
-        try (Socket soc = new Socket()) {
-            soc.connect(socket, timeout);
-        }
-        return true;
+        return null;
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,18 +39,23 @@ public class ClientTest {
     }
 
     /**
-     * Test of connect method, of class Client. 
+     * Test of connect method, of class Client.
      */
     @Test
-    public void testConnect() throws Exception {
-        System.out.println("---- connect -----");
-        Client instance = new Client(); 
+    public void testOpen() throws Exception {
+        System.out.println("---- open -----");
+        Client instance = Client.open(
+                new InetSocketAddress(Server.PORTS[0]));
+        assertNotNull(instance);
+    }
 
-        for (int i = 1; i <= 10; ++i) {
-            System.out.println("Connecting with client " + i);
-            instance.connect(i);
-            Thread.sleep(1000); // wait a sec...
-        }
+    @Test
+    public void testTest() throws Exception {
+        System.out.println("---- test -----");
+        Client instance = Client.open(
+                new InetSocketAddress(Server.PORTS[0]));
+        assertNotNull(instance);
+        assertTrue(instance.test());
     }
 
 }
