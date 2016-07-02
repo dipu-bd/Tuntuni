@@ -74,7 +74,7 @@ public class Client {
     public static Client open(InetSocketAddress socket) throws IOException {
         return new Client(socket);
     }
-    
+
     public boolean isOpen() {
         return mChannel != null && mChannel.isOpen();
     }
@@ -109,28 +109,61 @@ public class Client {
      * @throws java.io.IOException
      */
     public boolean test() throws IOException {
-        if(isOpen()) return true;
-        
-        
-        
-        // Open a socket
-        try (Socket socket = new Socket()) {
-            socket.setSoTimeout(mTimeout);
-            socket.connect(mAddress, mAddress.getPort());
+        if (isOpen()) {
+            return true;
+        }
 
-            try (OutputStream out = socket.getOutputStream()) {
-                out.write(SocketUtils.intToBytes(Status.TEST));
-                out.flush();
-                socket.shutdownOutput();
-            }
+        mChannel = SocketChannel.open();
+        mChannel.configureBlocking(true);
+        mChannel.register(mSelector, mTimeout);
+        mChannel.connect(mAddress);
+        if (mSelector.select(mTimeout) <= 0) {
+            return false;
+        }
 
-            try (InputStream is = socket.getInputStream();
-                    Scanner sc = new Scanner(is)) {
+        // Get keys
+        Set keys = mSelector.selectedKeys();
+        Iterator it = keys.iterator();
+        // For each key...
+        while (it.hasNext()) {
+            // Get the selection key 
+            SelectionKey key = (SelectionKey) it.next();
+            // Remove it.
+            it.remove();
 
-                boolean result = sc.nextBoolean();
-                return result;
+            // Get the socket channel held by the key
+            SocketChannel channel = (SocketChannel) key.channel();
+            // Attempt a connection
+            if (key.isConnectable()) {
+                // Connection OK : Server Found
+                // Close pendent connections
+                if (channel.isConnectionPending()) {
+                    channel.finishConnect();
+                }
+
+                // write operation
             }
         }
+
+        /*
+         // Open a socket
+         try (Socket socket = new Socket()) {
+         socket.setSoTimeout(mTimeout);
+         socket.connect(mAddress, mAddress.getPort());
+
+         try (OutputStream out = socket.getOutputStream()) {
+         out.write(SocketUtils.intToBytes(Status.TEST));
+         out.flush();
+         socket.shutdownOutput();
+         }
+
+         try (InputStream is = socket.getInputStream();
+         Scanner sc = new Scanner(is)) {
+
+         boolean result = sc.nextBoolean();
+         return result;
+         }
+         }*/
     }
 
     /**
