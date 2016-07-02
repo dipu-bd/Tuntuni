@@ -24,8 +24,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
-import org.tuntuni.util.SocketUtils;
 
 /**
  * To manage connection with server sockets.
@@ -50,6 +50,19 @@ public class Client {
         mAddress = socket;
         // Create selector
         mSelector = Selector.open();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Client) {
+            return this.getAddress().equals(((Client) other).getAddress());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.mAddress);
     }
 
     /**
@@ -106,7 +119,7 @@ public class Client {
         if (isOpen()) {
             return true;
         }
-        System.out.println("Opening a channel");
+        //System.out.println("Opening a channel");
         // open a channel
         mChannel = SocketChannel.open();
         mChannel.configureBlocking(false);
@@ -114,11 +127,11 @@ public class Client {
         mChannel.register(mSelector, SelectionKey.OP_CONNECT);
         // connect the channel with address
         mChannel.connect(mAddress);
-        System.out.println("Connecting a channel");
+        //System.out.println("Connecting a channel");
         // wait for the selector
-        System.out.println("Selecting with selector");
+        //System.out.println("Selecting with selector");
         while (mSelector.select(mTimeout) > 0) {
-            System.out.println("Process selected keys");
+            //System.out.println("Process selected keys");
             // Get selected keys
             Set keys = mSelector.selectedKeys();
             Iterator it = keys.iterator();
@@ -128,16 +141,16 @@ public class Client {
                 SelectionKey key = (SelectionKey) it.next();
                 // Remove it
                 it.remove();
-                System.out.println("Selected key is removed");
+                //System.out.println("Selected key is removed");
 
                 if (key.isConnectable()) {
                     // Connection OK : Server Found 
                     if (mChannel.isConnectionPending()) {
                         mChannel.finishConnect();
-                        System.out.println("Selected key has finished connection");
+                        //System.out.println("Selected key has finished connection");
                     }
                     // write operation
-                    System.out.println("Writing to server");
+                    //System.out.println("Writing to server");
                     ByteBuffer bb = ByteBuffer.allocate(4);
                     bb.putInt(Status.TEST);
                     bb.flip();
@@ -148,12 +161,12 @@ public class Client {
                 }
                 if (key.isReadable()) {
                     // read operation
-                    System.out.println("Reading from server");
+                    //System.out.println("Reading from server");
                     ByteBuffer result = ByteBuffer.allocate(4);
                     mChannel.read(result);
                     result.flip();
                     int i = result.getInt();
-                    System.out.println("Hello result = " + i);
+                    //System.out.println("Hello result = " + i);
                     return i == 1;
                 }
             }

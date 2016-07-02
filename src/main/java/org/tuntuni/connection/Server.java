@@ -191,40 +191,22 @@ public final class Server {
 
     // process a selection key
     private void processKeys(SelectionKey key) {
-
         // check if the key is valid
         if (!key.isValid()) {
             return;
         }
-
-        // check if the key is connectable 
-        if (key.isConnectable()) {
-            connect(key);
-            return;
-        }
-
         // check if the key is acceptable 
         if (key.isAcceptable()) {
             accept(key);
-            return;
         }
-
         // check if the key is readable / sending data
-        if (key.isReadable()) {
+        else if (key.isReadable()) {
             read(key);
-            return;
-        }
-
+        } 
         // check if the key is writable / receiving data
-        if (key.isWritable()) {
+        else if (key.isWritable()) {
             write(key);
-            return;
         }
-    }
-
-    // respond to key that is connectable
-    private void connect(SelectionKey key) {
-        System.out.println("+Connectable key!");
     }
 
     // accept a socket channel connecting with servers
@@ -237,8 +219,7 @@ public final class Server {
             // recording to the selector (reading)
             client.register(mSelector, SelectionKey.OP_READ);
 
-            System.out.println("+Channel accepted");
-
+            //System.out.println("+Channel accepted");
         } catch (IOException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_ACCEPT_FAILED, ex);
         }
@@ -247,7 +228,7 @@ public final class Server {
     // read from a socket channel
     private void read(SelectionKey key) {
         try {
-            System.out.println("+Reading from channel");
+            //System.out.println("+Reading from channel");
 
             // get the client socket channel from key
             SocketChannel channel = (SocketChannel) key.channel();
@@ -258,9 +239,9 @@ public final class Server {
                 channel.read(buffer);
                 // Show bytes on the console
                 buffer.flip();
-                System.out.println("Client said " + buffer.getInt());
+                //System.out.println("Client said " + buffer.getInt());
                 channel.register(mSelector, SelectionKey.OP_WRITE);
-                
+
             } else {
                 // handle read on attachment
             }
@@ -272,7 +253,7 @@ public final class Server {
     // write data to socket channel
     private void write(SelectionKey key) {
         try {
-            System.out.println("+Writing to channel!");
+            //System.out.println("+Writing to channel!");
             // Get the channel from key
             SocketChannel client = (SocketChannel) key.channel();
             // Write bytes to the client
