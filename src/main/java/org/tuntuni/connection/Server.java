@@ -99,7 +99,6 @@ public final class Server {
                 break;
             } catch (IOException ex) {
                 logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
-                mSSocket.close();
             }
         }
     }
@@ -131,17 +130,20 @@ public final class Server {
      */
     public void stop() {
         try {
-            if (!mSSocket.isClosed()) {
+            if (mSSocket != null && !mSSocket.isClosed()) {
                 mSSocket.close();
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_SELECTOR_ERROR, ex);
+            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
 
     // runnable containing the infinite server loop.
     // it is started via an executor service.
     private void runServer() {
+        if (!isOpen()) {
+            return;
+        }
         // Infinite server loop
         logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
@@ -162,30 +164,35 @@ public final class Server {
 
     // process a selection key
     private void processSocket(Socket socket) {
+
         try ( // get all input and output streams from socket
                 InputStream in = socket.getInputStream();
-                ObjectInputStream ois = new ObjectInputStream(in);
+                ObjectInputStream req = new ObjectInputStream(in);
                 OutputStream out = socket.getOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(out);) {
+                ObjectOutputStream res = new ObjectOutputStream(out);) {
 
             // get request type
-            Status status = (Status) ois.readObject();
+            Status status = (Status) req.readObject(); 
+            // get params
+            Object[] data = (Object[]) req.readObject(); 
             // routing by status type
-            Object res = ServerRoute.request(status);
-            // flush all uncommitted data
+            Object result = ServerRoute.request(status, data); 
+            // send the result
             if (res != null) {
-                oos.writeObject(res);
-                oos.flush();
+                res.writeObject(result);
+                res.flush();
             }
-        } catch (IOException | ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            // close the socket
-            try {
-                socket.close();
-            } catch (IOException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_IO_FAILED, ex);
+        } catch (ClassNotFoundException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_CLASS_FAILED, ex);
+        }
+
+        // close the socket
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
 

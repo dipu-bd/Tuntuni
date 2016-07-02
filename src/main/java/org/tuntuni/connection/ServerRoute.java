@@ -15,9 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import org.tuntuni.models.MetaData;
 import org.tuntuni.models.Status;
 import org.tuntuni.models.UserProfile;
@@ -48,7 +45,7 @@ public class ServerRoute {
 
     // what to do when Status.TEST request arrived
     public static Object test() {
-        return true;
+        return Server.SECRET_CODE;
     }
 
     // what to do when Status.META request arrived

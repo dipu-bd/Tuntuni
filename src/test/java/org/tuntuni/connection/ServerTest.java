@@ -32,10 +32,10 @@ public class ServerTest {
         System.out.println("---------start----------------");
 
         Server server = new Server();
-        System.out.println("Created server");
+        System.out.println("++++Created server");
 
         server.start();
-        System.out.println("Started server. Server active = " + server.isOpen());
+        System.out.println("++++Started server. Server active = " + server.isOpen());
 
         if (server.isOpen()) {
             Thread.sleep(3600_000);
@@ -43,7 +43,7 @@ public class ServerTest {
         }
 
         server.stop();
-        System.out.println("Stopped server. Server active = " + server.isOpen());
+        System.out.println("++++Stopped server. Server active = " + server.isOpen());
     }
 
 }

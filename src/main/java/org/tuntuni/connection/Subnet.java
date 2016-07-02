@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.tuntuni.connection;
- 
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -166,28 +166,18 @@ public class Subnet {
                         = new InetSocketAddress(address, Server.PORTS[i]);
 
                 // blocking call to check if reachable
-                Client client = Client.open(remote);
-                if (isReachable(client, REACHABLE_TIMEOUT_MILLIS)) {
+                Client client = new Client(remote);
+                client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
+                if (client.test()) {
                     addAddress(client);
                     break;  // found at least one port reachable
                 } else {
                     removeAddress(client);
                 }
+                System.out.println("Tested " + client.getHostString() + ":" + client.getPort());
             }
             return 0;
         };
-    }
-
-    // checks if the socket is reachable. this method is synchronous or blocking.
-    public boolean isReachable(Client client, int timeout) {
-        try {
-            client.setTimeout(timeout);
-            return client.test();
-        } catch (Exception e) {
-            logger.log(Level.FINE, Logs.SUBNET_CHECK_ERROR,
-                    client.getAddress().getHostString());
-        }
-        return false;
     }
 
     // add address to the observable list

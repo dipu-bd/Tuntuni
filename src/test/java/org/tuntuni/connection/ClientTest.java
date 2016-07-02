@@ -44,16 +44,14 @@ public class ClientTest {
     @Test
     public void testOpen() throws Exception {
         System.out.println("---- open -----");
-        Client instance = Client.open(
-                new InetSocketAddress(Server.PORTS[0]));
+        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
     }
 
     @Test
     public void testTest() throws Exception {
         System.out.println("---- test -----");
-        Client instance = Client.open(
-                new InetSocketAddress(Server.PORTS[0]));
+        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));        
         assertNotNull(instance);
         boolean result = instance.test();
         System.out.println("Result found = " + result);
