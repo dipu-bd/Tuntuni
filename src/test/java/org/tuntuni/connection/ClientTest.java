@@ -16,6 +16,7 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,14 +27,14 @@ import static org.junit.Assert.*;
  * @author Sudipto Chandra
  */
 public class ClientTest {
-
+    
     public ClientTest() {
     }
-
+    
     @Before
     public void setUp() {
     }
-
+    
     @After
     public void tearDown() {
     }
@@ -42,20 +43,42 @@ public class ClientTest {
      * Test of connect method, of class Client.
      */
     @Test
-    public void testOpen() throws Exception {
+    public void testConstructor() throws Exception {
         System.out.println("---- open -----");
         Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
     }
-
+    
     @Test
-    public void testTest() throws Exception {
+    public void testServer() throws Exception {
         System.out.println("---- test -----");
-        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));        
+        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
         boolean result = instance.test();
-        System.out.println("Result found = " + result);
+        System.out.println("+++ Result found = " + result);
         assertTrue(result);
     }
-
+    
+    @Test
+    public void testRandom() throws Exception {
+        System.out.println("---- random -----");
+        Client instance = new Client(
+                new InetSocketAddress("192.121.11.23", Server.PORTS[0])); 
+        assertNotNull(instance);
+        boolean result = instance.test();
+        System.out.println("+++ Result found = " + result);
+        assertFalse(result);
+    }
+    
+    @Test
+    public void testInvalid() throws Exception {
+        System.out.println("---- invalid -----");
+        Client instance = new Client(
+                new InetSocketAddress(22));
+        assertNotNull(instance);
+        boolean result = instance.test();
+        System.out.println("+++ Result found = " + result);
+        assertFalse(result);
+    }
+    
 }

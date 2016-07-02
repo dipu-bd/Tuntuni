@@ -172,20 +172,23 @@ public final class Server {
                 ObjectOutputStream res = new ObjectOutputStream(out);) {
 
             // get request type
-            Status status = (Status) req.readObject(); 
+            Status status = (Status) req.readObject();
             // get params
-            Object[] data = (Object[]) req.readObject(); 
+            Object[] data = (Object[]) req.readObject();
+            // log this connection
+            logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
+                    new Object[]{socket.getRemoteSocketAddress(), status, data.length});
             // routing by status type
-            Object result = ServerRoute.request(status, data); 
+            Object result = ServerRoute.request(status, data);
             // send the result
             if (res != null) {
                 res.writeObject(result);
                 res.flush();
             }
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_IO_FAILED, ex);
+            logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CLASS_FAILED, ex);
+            logger.log(Level.WARNING, Logs.SERVER_CLASS_FAILED, ex);
         }
 
         // close the socket

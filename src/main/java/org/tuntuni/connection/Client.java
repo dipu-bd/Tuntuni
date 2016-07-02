@@ -49,18 +49,38 @@ public class Client {
         mAddress = socket;
     }
 
+    /**
+     * Gets the socket address associated with this client.
+     *
+     * @return the socket address
+     */
     public InetSocketAddress getAddress() {
         return mAddress;
     }
 
+    /**
+     * Gets the host address associated with this client.
+     *
+     * @return the host address as string
+     */
     public String getHostString() {
         return mAddress.getHostString();
     }
 
+    /**
+     * Gets the port number associated with this client.
+     *
+     * @return the port number
+     */
     public int getPort() {
         return mAddress.getPort();
     }
 
+    /**
+     * Gets the timeout for a connection
+     *
+     * @return Timeout for a connection
+     */
     public int getTimeout() {
         return mTimeout;
     }
@@ -86,10 +106,8 @@ public class Client {
     public Object request(Status status, Object... data) {
         // create a socket
         try (Socket socket = new Socket()) {
-            // set the socket timeout
-            socket.setSoTimeout(getTimeout());
             // connect the socket with given address
-            socket.connect(getAddress(), getPort());
+            socket.connect(getAddress(), getTimeout());
 
             try ( // get input-output 
                     OutputStream out = socket.getOutputStream();
