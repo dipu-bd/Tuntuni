@@ -15,14 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import javafx.beans.property.ReadOnlySetProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableSet;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

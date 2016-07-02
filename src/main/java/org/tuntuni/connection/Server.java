@@ -18,17 +18,18 @@ package org.tuntuni.connection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
+import org.tuntuni.models.Status;
 
 /**
  * To listen and respond to clients sockets.
@@ -249,24 +250,19 @@ public final class Server {
 
             // get the client socket channel from key
             SocketChannel client = (SocketChannel) key.channel();
-
-            // create a new byte buffer
-            int BUFFER_SIZE = 32; // maximum length to read
-            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            // Read byte coming from the client
-            client.read(buffer);
-
-            if (buffer.hasRemaining()) {
-                System.out.println("+Finishing connecton and cancelling key");
-                client.close();
+            // no attachment. it must me a new connection.
+            if (key.attachment() == null) {
+                // cancel key
                 key.cancel();
+                // Read byte coming from the client
+                ByteBuffer buffer = ByteBuffer.allocate(8);
+                client.read(buffer);
+                // Show bytes on the console
+                buffer.flip();
+                route(client, buffer.getInt());
+            } else {
+                // handle read on attachment
             }
-
-            // Show bytes on the console
-            buffer.flip();
-            String rest = new String(buffer.array(), Charset.defaultCharset());
-            System.out.println(rest);
-
         } catch (IOException ex) {
             logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_READ_FAILED, ex);
         }
@@ -274,6 +270,37 @@ public final class Server {
 
     // write data to socket channel
     private void write(SelectionKey key) {
-        System.out.println("+Writable key!");
+        try {
+            System.out.println("+Writing to channel!");
+
+            // Get the channel from key
+            SocketChannel client = (SocketChannel) key.channel();
+            // Get attachment bytes
+            byte[] bytes = (byte[]) key.attachment();
+            // Write bytes to the client
+            client.write(ByteBuffer.wrap(bytes));
+            // close the client
+            client.close();
+            // cancel the key
+            key.cancel();
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_WRITE_FAILED, ex);
+        }
+
+    }
+
+    private void route(SocketChannel channel, int type) throws ClosedChannelException {
+        if (!channel.isOpen()) {
+            return;
+        }
+        switch (type) {
+            case Status.TEST:
+                channel.register(mSelector, SelectionKey.OP_WRITE, new byte[]{1});
+                break;
+            case Status.META:
+                break;
+            case Status.USER:
+                break;
+        }
     }
 }
