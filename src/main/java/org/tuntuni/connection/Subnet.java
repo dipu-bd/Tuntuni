@@ -32,7 +32,7 @@ import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-import org.tuntuni.models.Logs;
+import org.tuntuni.util.Logs;
 import org.tuntuni.util.SocketUtils;
 
 /**

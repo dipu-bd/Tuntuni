@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.models;
+package org.tuntuni.util;
 
 /**
  * Lists some log messages used through-out the application.
@@ -26,7 +26,7 @@ public abstract class Logs {
             SERVER_BIND_FAILS = "Failed to bind server with port {0}",
             SERVER_LISTENING = "Waiting for clients at {0}",
             SERVER_LISTENING_STOPPED = "Stopped waiting for clients.",
-            SERVER_SELECT_FAILED = "Failed to select or process keys.",
+            SERVER_ACCEPT_FAILED = "Failed to accept a channel.",
             SERVER_CHANNEL_ACCEPT_FAILED = "Failed to accept client channel.",
             SERVER_CHANNEL_READ_FAILED = "Failed to read from client channel.",
             SERVER_CHANNEL_WRITE_FAILED = "Failed to write in client channel.",

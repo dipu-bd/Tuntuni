@@ -15,15 +15,18 @@
  */
 package org.tuntuni.models;
 
+import java.io.Serializable;
+
 /**
  * Defined a few types of connection status client and server.
  */
-public abstract class Status {
- 
+public enum Status implements Serializable {
+    
     // test the connection
-    public static final int TEST = 1;
+// test the connection
+    TEST,
     // to pass meta information
-    public static final int META = 2;
+    META,
     // to pass user profile information
-    public static final int USER = 3;
+    PROFILE
 }

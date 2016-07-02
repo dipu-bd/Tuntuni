@@ -16,39 +16,38 @@
 package org.tuntuni.connection;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.util.Iterator;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.models.Logs;
 import org.tuntuni.models.Status;
-import org.tuntuni.util.SocketUtils;
+import org.tuntuni.util.Logs;
 
 /**
  * To listen and respond to clients sockets.
  */
 public final class Server {
 
-    public static final Logger logger = Logger.getLogger(Server.class.getName());
-
+    public static final int MAX_SOCKET_THREAD = 10;
+    public static final String SECRET_CODE = "B33KS83JNF";
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
 
-    private Selector mSelector;
-    private ServerSocketChannel mSSChannel;
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
+
+    private ServerSocket mSSocket;
+    private final ExecutorService mExecutor;
 
     /**
-     * Create a new Server.
+     * Creates a new Server.
      * <p>
      * It does not start the server automatically. Please call
      * {@linkplain start()} to start the server. Or you can initialize the
@@ -56,42 +55,7 @@ public final class Server {
      * to run server.</p>
      */
     public Server() {
-    }
-
-    /**
-     * Initializes the server.
-     * <p>
-     * It opens the selector and server socket channel. And binds the server
-     * channel to the first available port in the {@linkplain PORTS} list. If it
-     * fails to bind to all of the port given, and IOException is thrown. </p>
-     * <p>
-     * Please call {@linkplain start()} to start the server after initializing
-     * it.</p>
-     *
-     * @throws java.io.IOException Failed to open a server-socket channel
-     */
-    public void initialize() throws IOException {
-        // Create the selector
-        mSelector = Selector.open();
-        // try create server channel for each of the given ports
-        for (int i = 0; i < PORTS.length; ++i) {
-            try {
-                // Create the server socket channel
-                mSSChannel = ServerSocketChannel.open();
-                // nonblocking I/O
-                mSSChannel.configureBlocking(false);
-                // bind to port           
-                mSSChannel.socket().bind(new InetSocketAddress(PORTS[i]));
-                // Recording server to selector (type = all of SelectionKey)
-                mSSChannel.register(mSelector, SelectionKey.OP_ACCEPT);
-                // successfully created one server
-                logger.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
-                break;
-            } catch (IOException ex) {
-                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
-                mSSChannel.close();
-            }
-        }
+        mExecutor = Executors.newFixedThreadPool(MAX_SOCKET_THREAD);
     }
 
     /**
@@ -100,21 +64,52 @@ public final class Server {
      * @return True only if server channel and selector is open
      */
     public boolean isOpen() {
-        return (mSSChannel != null && mSSChannel.isOpen()
-                && mSSChannel.socket().isBound());
+        return (mSSocket != null && mSSocket.isBound());
     }
 
+    /**
+     * Gets the port to which the server is bound to
+     *
+     * @return
+     */
     public int getPort() {
-        if (isOpen()) {
-            return mSSChannel.socket().getLocalPort();
-        } else {
-            return -1;
+        return isOpen() ? mSSocket.getLocalPort() : -1;
+    }
+
+    /**
+     * Initializes the server.
+     * <p>
+     * It creates a server socket and try to bind it to the first available port
+     * in the {@linkplain PORTS} list. If it fails to bind to all of the port
+     * given, an IOException is thrown. </p>
+     * <p>
+     * Please call {@linkplain start()} to start the server after initializing
+     * it.</p>
+     *
+     * @throws java.io.IOException Failed to open a server-socket
+     */
+    public void initialize() throws IOException {
+        // try create server channel for each of the given ports
+        for (int i = 0; i < PORTS.length; ++i) {
+            try {
+                // Create the server socket channel
+                mSSocket = new ServerSocket(PORTS[i]);
+                // successfully created a server
+                logger.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
+                break;
+            } catch (IOException ex) {
+                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
+                mSSocket.close();
+            }
         }
     }
 
     /**
      * Execute an infinite loop in a separate thread and wait for clients to
      * connect.
+     * <p>
+     * This method calls {@linkplain initialize()} if a server socket is not
+     * open.</p>
      *
      * @throws IOException Server failed load in both Primary and backup ports.
      */
@@ -123,42 +118,22 @@ public final class Server {
         if (!isOpen()) {
             initialize();
         }
-        // create a new instance of server executor
-        ExecutorService executor;
-        executor = Executors.newSingleThreadExecutor();
-        // submit the server task to start it later
-        executor.submit(serverTask);
+        // execute server in separate thread
+        mExecutor.submit(() -> {
+            runServer();
+        });
     }
 
     /**
      * Sends the request to stop the server.
      * <p>
-     * It stops all the channel connected with the selector first, regardless of
-     * the channel type. After it close the selector. Note that, the close
-     * operation is asynchronous. After this method is called server may not be
-     * stopped immediately. It may take a while.</p>
+     * It may take a while to stop the server completely.</p>
      */
     public void stop() {
-        // close all channels connected to selector
-        // ServerSocketChannel also gets closed as it is connected to selector.
         try {
-            Iterator it = mSelector.keys().iterator();
-            while (it.hasNext()) {
-                SelectionKey key = (SelectionKey) it.next();
-                // close the channel 
-                // it can be either ServerSocketChannel or normal SocketChannel.
-                try {
-                    key.channel().close();
-                } catch (IOException e) {
-                    logger.log(Level.WARNING, Logs.SERVER_CLOSING_CHANNEL_ERROR, e);
-                }
-                // cancel key
-                key.cancel();
+            if (!mSSocket.isClosed()) {
+                mSSocket.close();
             }
-            // now close the selector
-            logger.log(Level.INFO, Logs.SERVER_CLOSING_SELECTOR);
-            mSelector.close();
-
         } catch (Exception ex) {
             logger.log(Level.SEVERE, Logs.SERVER_CLOSING_SELECTOR_ERROR, ex);
         }
@@ -166,118 +141,52 @@ public final class Server {
 
     // runnable containing the infinite server loop.
     // it is started via an executor service.
-    private final Runnable serverTask = () -> {
-        // Infinite server loop      
+    private void runServer() {
+        // Infinite server loop
         logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
+
             try {
-                // Waiting for events
-                mSelector.select();
-                // Iterate over the set of keys for which events are available
-                Iterator it = mSelector.selectedKeys().iterator();
-                while (it.hasNext()) {
-                    SelectionKey key = (SelectionKey) it.next();
-                    // remove the key from selection list
-                    it.remove();
-                    // process current keys
-                    processKeys(key);
-                }
+                Socket socket = mSSocket.accept();
+                // process the request in a separate thread
+                mExecutor.submit(() -> {
+                    processSocket(socket);
+                });
+
             } catch (IOException ex) {
-                logger.log(Level.SEVERE, Logs.SERVER_SELECT_FAILED, ex);
+                logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex);
             }
         }
         logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
-    };
+    }
 
     // process a selection key
-    private void processKeys(SelectionKey key) {
-        // check if the key is valid
-        if (!key.isValid()) {
-            return;
-        }
-        // check if the key is acceptable 
-        if (key.isAcceptable()) {
-            accept(key);
-        }
-        // check if the key is readable / sending data
-        else if (key.isReadable()) {
-            read(key);
-        } 
-        // check if the key is writable / receiving data
-        else if (key.isWritable()) {
-            write(key);
-        }
-    }
+    private void processSocket(Socket socket) {
+        try ( // get all input and output streams from socket
+                InputStream in = socket.getInputStream();
+                ObjectInputStream ois = new ObjectInputStream(in);
+                OutputStream out = socket.getOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
-    // accept a socket channel connecting with servers
-    private void accept(SelectionKey key) {
-        try {
-            // get client socket channel
-            SocketChannel client = mSSChannel.accept();
-            // Non Blocking I/O
-            client.configureBlocking(false);
-            // recording to the selector (reading)
-            client.register(mSelector, SelectionKey.OP_READ);
-
-            //System.out.println("+Channel accepted");
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_ACCEPT_FAILED, ex);
-        }
-    }
-
-    // read from a socket channel
-    private void read(SelectionKey key) {
-        try {
-            //System.out.println("+Reading from channel");
-
-            // get the client socket channel from key
-            SocketChannel channel = (SocketChannel) key.channel();
-            // no attachment. it must me a new connection.
-            if (key.attachment() == null) {
-                // Read byte coming from the client
-                ByteBuffer buffer = ByteBuffer.allocate(8);
-                channel.read(buffer);
-                // Show bytes on the console
-                buffer.flip();
-                //System.out.println("Client said " + buffer.getInt());
-                channel.register(mSelector, SelectionKey.OP_WRITE);
-
-            } else {
-                // handle read on attachment
+            // get request type
+            Status status = (Status) ois.readObject();
+            // routing by status type
+            Object res = ServerRoute.request(status);
+            // flush all uncommitted data
+            if (res != null) {
+                oos.writeObject(res);
+                oos.flush();
             }
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_READ_FAILED, ex);
+        } catch (IOException | ClassNotFoundException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            // close the socket
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
         }
     }
 
-    // write data to socket channel
-    private void write(SelectionKey key) {
-        try {
-            //System.out.println("+Writing to channel!");
-            // Get the channel from key
-            SocketChannel client = (SocketChannel) key.channel();
-            // Write bytes to the client
-            client.write(ByteBuffer.wrap(SocketUtils.intToBytes(1)));
-            // close the client
-            client.close();
-
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CHANNEL_WRITE_FAILED, ex);
-        }
-
-    }
-
-    private void route(SocketChannel channel, int type) throws ClosedChannelException {
-        if (!channel.isOpen()) {
-            return;
-        }
-        switch (type) {
-            case Status.TEST:
-                break;
-            case Status.META:
-                break;
-            case Status.USER:
-                break;
-        }
-    }
 }

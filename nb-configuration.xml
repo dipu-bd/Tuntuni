@@ -17,5 +17,6 @@ Any value defined here will override the pom.xml file value but is only applicab
         <org-netbeans-modules-javascript2-requirejs.enabled>true</org-netbeans-modules-javascript2-requirejs.enabled>
         <org-netbeans-modules-whitelist.whitelist-oracle>false</org-netbeans-modules-whitelist.whitelist-oracle>
         <netbeans.hint.license>apache20</netbeans.hint.license>
+        <org-netbeans-spi-editor-hints-projects.text.x-java.Javac_5f_canUseLambda.enabled>false</org-netbeans-spi-editor-hints-projects.text.x-java.Javac_5f_canUseLambda.enabled>
     </properties>
 </project-shared-configuration>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sudipto Chandra.
+ * Copyright 2016 Tuntuni.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,12 @@ package org.tuntuni.models;
 import java.io.Serializable;
 
 /**
- * It has basic information about the application.
+ *
+ * @author Sudipto Chandra
  */
-public class MetaData implements Serializable{
-    
-    public static MetaData build() {
-        return new MetaData();
+public class UserProfile implements Serializable {
+
+    public static UserProfile build() {
+        return new UserProfile();
     }
 }

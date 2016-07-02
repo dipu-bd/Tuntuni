@@ -17,14 +17,16 @@ package org.tuntuni.connection;
 
 import org.tuntuni.models.Status;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
+import java.net.Socket;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,10 +39,8 @@ public class Client {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private Selector mSelector;
     private int mTimeout;  // timeout for selector.select() 
     private final InetSocketAddress mAddress; // socket address
-    private SocketChannel mChannel; // currently opened channel
 
     // hidesthe constructor and handle it with static open() method
     private Client(InetSocketAddress socket) throws IOException {
@@ -48,41 +48,6 @@ public class Client {
         mTimeout = DEFAULT_TIMEOUT;
         // set the socket
         mAddress = socket;
-        // Create selector
-        mSelector = Selector.open();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof Client) {
-            return this.getAddress().equals(((Client) other).getAddress());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.mAddress);
-    }
-
-    /**
-     * Opens a new channel to connect with server.
-     * <p>
-     * First a {@code selector} should be open and then the default
-     * {@code channel}. This method does not automatically connect the
-     * {@code channel} with the {@code socket}. Make sure to call
-     * {@linkplain connect} method to connect with the server. </p>
-     *
-     * @param socket
-     * @return The opened instance of Client.
-     * @throws IOException
-     */
-    public static Client open(InetSocketAddress socket) throws IOException {
-        return new Client(socket);
-    }
-
-    public boolean isOpen() {
-        return mChannel != null && mChannel.isOpen();
     }
 
     public InetSocketAddress getAddress() {
@@ -95,6 +60,10 @@ public class Client {
 
     public int getPort() {
         return mAddress.getPort();
+    }
+
+    public Object connect(Status test, Object... data) {
+        
     }
 
     /**
@@ -115,82 +84,82 @@ public class Client {
      * @throws java.io.IOException
      */
     public boolean test() throws IOException {
-        // first check if the channel is open
-        if (isOpen()) {
-            return true;
-        }
-        //System.out.println("Opening a channel");
-        // open a channel
-        mChannel = SocketChannel.open();
-        mChannel.configureBlocking(false);
-        // register the channel
-        mChannel.register(mSelector, SelectionKey.OP_CONNECT);
-        // connect the channel with address
-        mChannel.connect(mAddress);
-        //System.out.println("Connecting a channel");
-        // wait for the selector
-        //System.out.println("Selecting with selector");
-        while (mSelector.select(mTimeout) > 0) {
-            //System.out.println("Process selected keys");
-            // Get selected keys
-            Set keys = mSelector.selectedKeys();
-            Iterator it = keys.iterator();
-            // For each key...
-            while (it.hasNext()) {
-                // Get the selection key 
-                SelectionKey key = (SelectionKey) it.next();
-                // Remove it
-                it.remove();
-                //System.out.println("Selected key is removed");
+        // Open a socket
+        try (Socket socket = new Socket()) {
+            socket.connect(mAddress, mAddress.getPort());
 
-                if (key.isConnectable()) {
-                    // Connection OK : Server Found 
-                    if (mChannel.isConnectionPending()) {
-                        mChannel.finishConnect();
-                        //System.out.println("Selected key has finished connection");
-                    }
-                    // write operation
-                    //System.out.println("Writing to server");
-                    ByteBuffer bb = ByteBuffer.allocate(4);
-                    bb.putInt(Status.TEST);
-                    bb.flip();
-                    mChannel.write(bb);
-                    mChannel.shutdownOutput();
-                    mChannel.register(mSelector, SelectionKey.OP_READ);
-                    continue;
-                }
-                if (key.isReadable()) {
-                    // read operation
-                    //System.out.println("Reading from server");
-                    ByteBuffer result = ByteBuffer.allocate(4);
-                    mChannel.read(result);
-                    result.flip();
-                    int i = result.getInt();
-                    //System.out.println("Hello result = " + i);
-                    return i == 1;
-                }
+            try ( // get input-output 
+                    InputStream in = socket.getInputStream();
+                    ObjectInputStream req = new ObjectInputStream(in);
+                    OutputStream out = socket.getOutputStream();
+                    ObjectOutputStream res = new ObjectOutputStream(out)) {
+
+                int result = sc.nextInt();
+
+                return result == 1;
             }
         }
-        return false;
+
         /*
-         // Open a socket
-         try (Socket socket = new Socket()) {
-         socket.setSoTimeout(mTimeout);
-         socket.connect(mAddress, mAddress.getPort());
-
-         try (OutputStream out = socket.getOutputStream()) {
-         out.write(SocketUtils.intToBytes(Status.TEST));
-         out.flush();
-         socket.shutdownOutput();
+         // first check if the channel is open
+         if (isOpen()) {
+         return true;
          }
+         //System.out.println("Opening a channel");
+         // open a channel
+         mChannel = SocketChannel.open();
+         mChannel.configureBlocking(false);
+         // register the channel
+         mChannel.register(mSelector, SelectionKey.OP_CONNECT);
+         // connect the channel with address
+         mChannel.connect(mAddress);
+         //System.out.println("Connecting a channel");
+         // wait for the selector
+         //System.out.println("Selecting with selector");
+         while (mSelector.select(mTimeout) > 0) {
+         //System.out.println("Process selected keys");
+         // Get selected keys
+         Set keys = mSelector.selectedKeys();
+         Iterator it = keys.iterator();
+         // For each key...
+         while (it.hasNext()) {
+         // Get the selection key 
+         SelectionKey key = (SelectionKey) it.next();
+         // Remove it
+         it.remove();
+         //System.out.println("Selected key is removed");
 
-         try (InputStream is = socket.getInputStream();
-         Scanner sc = new Scanner(is)) {
-
-         boolean result = sc.nextBoolean();
-         return result;
+         if (key.isConnectable()) {
+         // Connection OK : Server Found 
+         if (mChannel.isConnectionPending()) {
+         mChannel.finishConnect();
+         //System.out.println("Selected key has finished connection");
          }
-         }*/
+         // write operation
+         //System.out.println("Writing to server");
+         ByteBuffer bb = ByteBuffer.allocate(4);
+         bb.putInt(Status.TEST);
+         bb.flip();
+         mChannel.write(bb);
+         mChannel.shutdownOutput();
+         mChannel.register(mSelector, SelectionKey.OP_READ);
+         continue;
+         }
+         if (key.isReadable()) {
+         // read operation
+         //System.out.println("Reading from server");
+         ByteBuffer result = ByteBuffer.allocate(4);
+         mChannel.read(result);
+         result.flip();
+         int i = result.getInt();
+         //System.out.println("Hello result = " + i);
+         return i == 1;
+         }
+         }
+         }
+         return false;
+   
+         */
     }
 
     /**
