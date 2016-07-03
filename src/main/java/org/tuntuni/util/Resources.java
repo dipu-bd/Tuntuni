@@ -15,6 +15,7 @@
  */
 package org.tuntuni.util;
 
+import java.io.InputStream;
 import javafx.scene.image.Image;
 
 /**
@@ -29,7 +30,11 @@ public class Resources {
         return Resources.class.getResource("/img/" + fileName).toString();
     }
 
+    public InputStream getStream(String fileName) {
+        return Resources.class.getResourceAsStream("/img/" + fileName);
+    }
+
     public Image getImage(String fileName) {
-        return new Image(getPath(fileName));
+        return new Image(getStream(fileName));
     }
 }

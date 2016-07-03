@@ -137,7 +137,7 @@ public class UserProfile {
      *
      * @return Value of the field
      */
-    public Date dateofbirth() {
+    public Date dateofBirth() {
         if (!hasField("DateOfBirth")) {
             return null;
         }
@@ -160,7 +160,7 @@ public class UserProfile {
      */
     public Image avatar() {
         if (!hasField("Avatar")) {
-            return Core.instance().resource().getImage("default-avatar.png");
+            return Core.instance().resource().getImage("avatar.png");
         } else {
             return HelperUtils.bytesToImage(
                     getField("Avatar", byte[].class));
