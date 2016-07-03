@@ -25,9 +25,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.util.Logs;
-import org.tuntuni.connection.model.UserProfile;
-import org.tuntuni.connection.model.MetaData;
-import org.tuntuni.connection.model.Status;
+import org.tuntuni.model.UserProfile;
+import org.tuntuni.model.MetaData;
+import org.tuntuni.model.Status;
 
 /**
  * To manage connection with server sockets.

@@ -27,9 +27,7 @@ import javafx.stage.Stage;
  * The entry point of the application.
  */
 public class Program extends Application {
-
-    public static String WINDOW_TITLE = "Tuntuni - A video chatting tool for LAN";
-
+ 
     @Override
     public void start(Stage stage) throws IOException {
         // set current stage to core
@@ -42,7 +40,7 @@ public class Program extends Application {
         // add custom styles to the scene
         scene.getStylesheets().add("/css/default.css");
         // prepare the stage
-        stage.setTitle(WINDOW_TITLE);
+        stage.setTitle(Core.instance().meta().title());
         // set the scene to stage
         stage.setScene(scene);
         // display the stage

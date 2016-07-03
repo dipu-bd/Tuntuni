@@ -15,12 +15,10 @@
  */
 package org.tuntuni.util;
 
-import java.io.File;
-import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.connection.model.UserProfile;
+import org.tuntuni.model.UserProfile;
 
 /**
  *
@@ -42,8 +40,8 @@ public class DatabaseTest {
     public void testString() {
         System.out.println("testStringTransaction");
         String expResult = "this is a test data";
-        database.putData("Test", expResult);
-        String result = database.getData("Test");
+        database.putData("Test", "test", expResult);
+        String result = database.getData("Test", "test");
         assertEquals(expResult, result);
     }
 
@@ -52,8 +50,8 @@ public class DatabaseTest {
         System.out.println("testObjectTransaction");
         UserProfile expResult = new UserProfile();
         assertNotNull(expResult);
-        database.putObject("Profile", expResult);
-        UserProfile result = database.getObject("Profile", UserProfile.class);
+        database.putObject("test", "Profile", expResult);
+        UserProfile result = database.getObject("test", "Profile", UserProfile.class);
         assertNotNull(result);
         assertEquals(expResult, result);
     }

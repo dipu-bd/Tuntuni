@@ -16,7 +16,6 @@
 package org.tuntuni.util;
 
 import com.google.gson.Gson;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.prefs.Preferences;
 
@@ -38,21 +37,31 @@ public class Database {
         mDatabase = Preferences.userRoot().node(DEFAULT_NODE);
     }
 
-    public String getData(String key) {
-        return mDatabase.get(key.toLowerCase(), "");
+    public Preferences store(String name) {
+        return mDatabase.node(name.toLowerCase());
     }
 
-    public <T extends Object> T getObject(String key, Type typeOfT) {
-        String data = getData(key);
+    public String getData(String storeName, String key) {
+        return store(storeName).get(key.toLowerCase(), "");
+    }
+
+    public <T extends Object> T getObject(String storeName, String key, Type typeOfT) {
+        String data = getData(storeName, key);
         return mGson.fromJson(data, typeOfT);
     }
 
-    public void putData(String key, String value) {
-        mDatabase.put(key.toLowerCase(), value);
+    public void putData(String storeName, String key, String value) {
+        store(storeName).put(key.toLowerCase(), value);
     }
 
-    public void putObject(String key, Object data) {
-        String json = mGson.toJson(data);
-        putData(key, json);
+    public void putObject(String storeName, String key, Object data) {
+        if (data != null) {
+            String json = mGson.toJson(data);
+            putData(storeName, key, json);
+        }
+    }
+
+    public boolean hasField(String storeName, String key) {
+        return store(storeName).get(key, "").length() > 0;
     }
 }

@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection.model;
+package org.tuntuni.model;
 
 import java.io.Serializable;
 
 /**
- * It has basic information about the application.
+ * Defined a few types of connection status client and server.
  */
-public class MetaData implements Serializable{
+public enum Status implements Serializable {
     
-    public static MetaData build() {
-        return new MetaData();
-    }
+    // test the connection
+// test the connection
+    TEST,
+    // to pass meta information
+    META,
+    // to pass user profile information
+    PROFILE
 }

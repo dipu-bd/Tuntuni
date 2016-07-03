@@ -15,9 +15,8 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.connection.model.MetaData;
-import org.tuntuni.connection.model.Status;
-import org.tuntuni.connection.model.UserProfile;
+import org.tuntuni.Core;
+import org.tuntuni.model.Status;
 
 /**
  * To build proper response for a request coming from server.
@@ -50,11 +49,11 @@ public class ServerRoute {
 
     // what to do when Status.META request arrived
     public static Object meta() {
-        return MetaData.build();
+        return Core.instance().meta();
     }
 
     // what to do when Status.PROFILE request arrived
     public static Object profile() {
-        return UserProfile.build();
+        return Core.instance().profile();
     }
 }

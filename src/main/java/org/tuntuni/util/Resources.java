@@ -13,32 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection.model;
+package org.tuntuni.util;
 
-import java.io.Serializable;
+import javafx.scene.image.Image;
 
 /**
  *
  */
-public class UserProfile implements Serializable {
+public class Resources {
 
-    public String name = "Sudipto Chandra";
-
-    public UserProfile() {
-
+    public Resources() {
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof UserProfile) {
-            return name.equals(((UserProfile) other).name);
-        }
-        return false;
+    public String imagePath(String fileName) {
+        return Resources.class.getResource("/img/" + fileName).toString();
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public Image getImage(String fileName) {
+        return new Image(imagePath(fileName));
     }
-
 }

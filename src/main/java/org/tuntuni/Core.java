@@ -17,11 +17,16 @@ package org.tuntuni;
 
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
+import org.tuntuni.connection.ServerRoute;
 import org.tuntuni.connection.Subnet;
+import org.tuntuni.model.MetaData;
+import org.tuntuni.model.UserProfile;
 import org.tuntuni.controller.Main;
 import org.tuntuni.controller.Messaging;
 import org.tuntuni.controller.SideBar;
 import org.tuntuni.controller.VideoCall;
+import org.tuntuni.util.Database;
+import org.tuntuni.util.Resources;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -58,11 +63,22 @@ public class Core {
     private SideBar mSideBar;
     private VideoCall mVideoCall;
     private Messaging mMessaging;
+    // data
+    private final Resources mResources;
+    private final Database mDatabase;
+    private final MetaData mMeta;    
+    private final UserProfile mProfile;    
 
     // Creates a new context. hidden from public.
     private Core() {
+        // order might be important here
+        // put simple & light constructors first
+        mResources = new Resources();
+        mDatabase = new Database();
         mServer = new Server();
         mSubnet = new Subnet();
+        mMeta = new MetaData();
+        mProfile = new UserProfile();
     }
 
     /**
@@ -176,5 +192,38 @@ public class Core {
      */
     public Messaging messaging() {
         return mMessaging;
+    }
+
+    /** 
+     * Gets the meta data
+     * @return 
+     */
+    public MetaData meta() {
+        return mMeta;
+    }
+
+    /**
+     * Gets the current user profile.
+     *
+     * @return
+     */
+    public UserProfile profile() {
+        return mProfile;
+    }
+    
+    /**
+     * Gets the database.
+     * @return 
+     */
+    public Database database() {
+        return mDatabase;
+    }
+    
+    /**
+     * Gets the resource manager.
+     * @return 
+     */
+    public Resources resource() {
+        return mResources;
     }
 }
