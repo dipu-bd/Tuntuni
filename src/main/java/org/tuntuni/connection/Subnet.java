@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +49,7 @@ public class Subnet {
     private static final Logger logger = Logger.getLogger(Subnet.class.getName());
 
     private final ExecutorService mExecutor;
+    private final ScheduledExecutorService mSchedular;
     private final SimpleSetProperty<Client> mUserList;
     private final ReadOnlySetProperty<Client> mROUserList;
 
@@ -55,9 +57,11 @@ public class Subnet {
      * Creates a new instance of Subnet.
      */
     public Subnet() {
-        mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
         mROUserList = new ReadOnlySetWrapper<>(mUserList);
+        mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
+        mSchedular = Executors.newSingleThreadScheduledExecutor();
+
     }
 
     /**
@@ -81,9 +85,16 @@ public class Subnet {
      */
     public void start() {
         // start periodic check to get active user list        
-        Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
-                        SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+        mSchedular.scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
+                SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Cancel the scheduled task.
+     */
+    public void stop() {
+        mExecutor.shutdown();
+        mSchedular.shutdown();
     }
 
     // to scan over whole subnet of all networks for active users

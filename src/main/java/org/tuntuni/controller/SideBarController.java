@@ -17,11 +17,20 @@ package org.tuntuni.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlySetProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import org.tuntuni.Core;
+import org.tuntuni.connection.Client;
 
 /**
  * SideBarController appears in the left side of the main scene.
@@ -32,13 +41,32 @@ import org.tuntuni.Core;
  */
 public class SideBarController implements Initializable {
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        Core.instance().sidebar(this);        
-    }
-
     @FXML
     private ListView userList;
-    @FXML
-    private Button toggleButton;
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        Core.instance().sidebar(this);
+
+        // build user list later
+        Platform.runLater(() -> {
+            buildUserList(Core.instance().subnet().userListProperty());
+            // add user list change listener
+            Core.instance().subnet().userListProperty().addListener(
+                    (observable, oldVal, newVal) -> buildUserList(newVal));
+        });
+    }
+
+    private void buildUserList(ObservableSet<Client> clients) {
+
+        userList.getItems().clear();
+
+        clients.stream().forEach((client) -> {
+            ListCell cell = new ListCell();
+            cell.setText(client.getHostString());
+            //cell.setText(client.user().fullname());
+            //cell.setGraphic(new ImageView(client.user().avatar()));
+            userList.getItems().add(cell);
+        });
+    }
 }

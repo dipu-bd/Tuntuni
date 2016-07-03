@@ -45,6 +45,7 @@ public final class Server {
 
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
+    private Exception mError;
 
     /**
      * Creates a new Server.
@@ -64,7 +65,17 @@ public final class Server {
      * @return True only if server channel and selector is open
      */
     public boolean isOpen() {
-        return (mSSocket != null && mSSocket.isBound());
+        return (mSSocket != null && !mSSocket.isClosed() && mSSocket.isBound());
+    }
+
+    /**
+     * Gets any error associated with this server. If none, {@code null} value
+     * is returned.
+     *
+     * @return
+     */
+    public Exception getError() {
+        return mError;
     }
 
     /**
@@ -109,18 +120,20 @@ public final class Server {
      * <p>
      * This method calls {@linkplain initialize()} if a server socket is not
      * open.</p>
-     *
-     * @throws IOException Server failed load in both Primary and backup ports.
      */
-    public void start() throws IOException {
-        // initialize the server if not already
-        if (!isOpen()) {
-            initialize();
+    public void start() {
+        try {
+            // initialize the server if not already
+            if (!isOpen()) {
+                initialize();
+            }
+            // execute server in separate thread
+            mExecutor.submit(() -> {
+                runServer();
+            });
+        } catch (IOException ex) {
+            mError = ex;
         }
-        // execute server in separate thread
-        mExecutor.submit(() -> {
-            runServer();
-        });
     }
 
     /**
@@ -130,24 +143,21 @@ public final class Server {
      */
     public void stop() {
         try {
-            if (mSSocket != null && !mSSocket.isClosed()) {
+            if (isOpen()) {
                 mSSocket.close();
             }
+            mExecutor.shutdown();
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
+            logger.log(Level.WARNING, Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
 
     // runnable containing the infinite server loop.
     // it is started via an executor service.
     private void runServer() {
-        if (!isOpen()) {
-            return;
-        }
         // Infinite server loop
         logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
-
             try {
                 Socket socket = mSSocket.accept();
                 // process the request in a separate thread
@@ -156,7 +166,7 @@ public final class Server {
                 });
 
             } catch (IOException ex) {
-                logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex);
+                logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex); 
             }
         }
         logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);

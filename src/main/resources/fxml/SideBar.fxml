@@ -13,36 +13,31 @@
 
 <VBox prefHeight="450.0" prefWidth="250.0" styleClass="side-bar" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controller.SideBarController">        
    
-    <fx:define> 
-        <ToggleGroup fx:id="sideButton" />
+    <fx:define>  
         <Double fx:id="EXPANDED_WIDTH" fx:value="200.0" />
         <Double fx:id="COLLAPSED_WIDTH" fx:value="48.0" />
     </fx:define>
     
     <children>
-      <HBox fillHeight="false">
-         <children>
-            <Button fx:id="toggleButton" mnemonicParsing="false" onAction="#toggleSidebar" prefHeight="45.0" prefWidth="50.0" styleClass="expand-button" text="| | |">
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin></Button>
-            <Label prefHeight="45.0" text="Tuntuni">
-               <font>
-                  <Font name="Segoe Print" size="24.0" />
-               </font>
-               <graphic>
-                  <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../img/tuntuni.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <padding>
-                  <Insets left="10.0" right="10.0" />
-               </padding>
-            </Label>
-         </children>
-      </HBox>
-      <ListView fx:id="userList" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-   </children>
+        <HBox fillHeight="false">
+            <children>             
+                <Label prefHeight="45.0" text="Tuntuni">
+                    <font>
+                        <Font name="Segoe Print" size="24.0" />
+                    </font>
+                    <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../img/tuntuni.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                </Label>
+            </children>
+        </HBox>
+        <ListView fx:id="userList" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+    </children>
 </VBox>

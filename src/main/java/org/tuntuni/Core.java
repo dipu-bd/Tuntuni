@@ -15,6 +15,7 @@
  */
 package org.tuntuni;
 
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
 import org.tuntuni.connection.Subnet;
@@ -40,7 +41,7 @@ import org.tuntuni.util.Resources;
  * set MainController call {@code Core.instance().main(this)} in the
  * {@code MainController.initialize()} method.</p>
  */
-public class Core {
+public final class Core {
 
     // instance of context
     private static final Core mInstance = new Core();
@@ -80,6 +81,19 @@ public class Core {
         mSubnet = new Subnet();
         mMeta = new MetaData();
         mUser = new UserProfile();
+        // load later
+        Platform.runLater(() -> start());
+    }
+
+    public void start() {
+        mServer.start();
+        mSubnet.start();
+    }
+
+    public void close() { 
+        System.out.println("Closing.....");
+        mServer.stop();
+        mSubnet.stop();
     }
 
     ///

@@ -132,7 +132,7 @@ public class Client {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
-            socket.connect(getAddress(), getTimeout());
+            socket.connect(getAddress(), getTimeout()); 
 
             try ( // get input-output 
                     OutputStream out = socket.getOutputStream();
