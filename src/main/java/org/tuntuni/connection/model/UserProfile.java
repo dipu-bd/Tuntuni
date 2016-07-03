@@ -19,11 +19,13 @@ import java.io.Serializable;
 
 /**
  *
- * @author Sudipto Chandra
  */
 public class UserProfile implements Serializable {
+    
+    public String name = "Sudipto Chandra";
 
-    public static UserProfile build() {
-        return new UserProfile();
+    public UserProfile() {
+
     }
+
 }
