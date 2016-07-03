@@ -15,15 +15,13 @@
  */
 package org.tuntuni;
 
-import java.util.Enumeration;
-import java.util.ResourceBundle;
+import java.io.IOException;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import sun.misc.Resource;
 
 /**
  * The entry point of the application.
@@ -33,16 +31,21 @@ public class Program extends Application {
     public static String WINDOW_TITLE = "Tuntuni - A video chatting tool for LAN";
 
     @Override
-    public void start(Stage stage) throws Exception {
-        
-        Parent root = FXMLLoader.load(
+    public void start(Stage stage) throws IOException {
+        // set current stage to core
+        Core.instance().stage(stage);
+        // get the parent node
+        Parent root = (Parent) FXMLLoader.load(
                 getClass().getResource("/fxml/Main.fxml"));
-
+        // build the default scene
         Scene scene = new Scene(root);
+        // add custom styles to the scene
         scene.getStylesheets().add("/css/default.css");
-
+        // prepare the stage
         stage.setTitle(WINDOW_TITLE);
+        // set the scene to stage
         stage.setScene(scene);
+        // display the stage
         stage.show();
     }
 

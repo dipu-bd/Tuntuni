@@ -40,7 +40,7 @@ import org.tuntuni.util.SocketUtils;
  */
 public class Subnet {
 
-    public static final int SCAN_START_DELAY_MILLIS = 2_000;
+    public static final int SCAN_START_DELAY_MILLIS = 500;
     public static final int SCAN_INTERVAL_MILLIS = 15_000;
     public static final int REACHABLE_THREAD_COUNT = 20;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
@@ -58,10 +58,6 @@ public class Subnet {
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
         mROUserList = new ReadOnlySetWrapper<>(mUserList);
-        // start periodic check to get active user list        
-        Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
-                        SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -74,6 +70,20 @@ public class Subnet {
      */
     public ReadOnlySetProperty<Client> userListProperty() {
         return mROUserList;
+    }
+
+    /**
+     * Start the periodic task that scan through all possible subnets.
+     * <p>
+     * After calling the {@linkplain start()} method, the first scan starts
+     * after around {@value #SCAN_START_DELAY_MILLIS} milliseconds and repeat
+     * once every {@value #SCAN_INTERVAL_MILLIS} milliseconds. </p>
+     */
+    public void start() {
+        // start periodic check to get active user list        
+        Executors.newSingleThreadScheduledExecutor()
+                .scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
+                        SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     // to scan over whole subnet of all networks for active users

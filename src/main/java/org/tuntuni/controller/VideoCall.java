@@ -18,20 +18,20 @@ package org.tuntuni.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
-import org.tuntuni.Core;
 
 /**
- * SideBar appears in the left side of the main scene.
- * <p>
- * It shows a list of users, and options to manage them. Also, the side-bar is
- * collapsible. In collapsed mode only the top active users will appear. And in
- * expanded mode a list of users with search option will be available.</p>
+ * FXML Controller class
+ *
+ * @author Sudipto Chandra
  */
-public class SideBar implements Initializable {
+public class VideoCall implements Initializable {
 
+    /**
+     * Initializes the controller class.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Core.instance().sidebar(this);        
-    }
-
+        // TODO
+    }    
+    
 }

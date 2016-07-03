@@ -21,20 +21,37 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import org.tuntuni.Core;
 
+/**
+ * The controller for the main scene of this application.
+ * <p>
+ * It has two parts. One is side-bar. Another is the body. The side-bar is
+ * positioned at the right side and collapsible. The body is divided into two
+ * parts. One for text messaging. Another for video chatting.
+ * </p>
+ *
+ */
 public class Main implements Initializable {
-    
+
     @FXML
-    private Label label;
-    
+    private Label statusLabel;
     @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-        label.setText("Hello World!");
-    }
-    
+    private ProgressBar progressBar;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+        Core.instance().main(this);
+    }
+
+    @FXML
+    private void onStatusClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void onProgressClicked(ActionEvent event) {
+
+    }
 }
