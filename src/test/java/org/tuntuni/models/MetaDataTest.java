@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.model;
+package org.tuntuni.models;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -32,11 +37,12 @@ public class MetaDataTest {
      */
     @Test
     public void testVersion() {
-        System.out.println("+++version");
+        System.out.println("testVersion()");
         MetaData instance = new MetaData();
         String result = instance.version();
-        System.out.println("===" + result);
         assertNotNull(result);
+        System.out.println("++" + result);
+        System.out.println();
     }
 
     /**
@@ -44,11 +50,12 @@ public class MetaDataTest {
      */
     @Test
     public void testHostName() {
-        System.out.println("+++hostName");
+        System.out.println("testHostName()");
         MetaData instance = new MetaData();
         String result = instance.hostName();
-        System.out.println("===" + result);
         assertNotNull(result);
+        System.out.println("++" + result);
+        System.out.println();
     }
 
     /**
@@ -56,11 +63,32 @@ public class MetaDataTest {
      */
     @Test
     public void testTitle() {
-        System.out.println("+++title");
+        System.out.println("testTitle()");
         MetaData instance = new MetaData();
         String result = instance.title();
-        System.out.println("===" + result);
         assertNotNull(result);
+        System.out.println("++" + result);
+        System.out.println();
     }
 
+    @Test
+    public void testSerialie() throws IOException, ClassNotFoundException {
+        System.out.println("testSerializable()");
+        MetaData meta = new MetaData();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(meta);
+
+        oos.close();
+        baos.close();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+
+        ois.close();
+        bais.close();
+
+        assertNotNull(ois.readObject());
+    }
 }

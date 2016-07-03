@@ -23,11 +23,10 @@ import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 
 /**
- *
- * @author Sudipto Chandra
+ * Some commonly used functions and methods
  */
-public class HelperUtils {
-
+public class Commons {
+ 
     public static byte[] imageToBytes(Image img) {
         try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
             ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", byteOutput);
@@ -44,4 +43,5 @@ public class HelperUtils {
             return null;
         }
     }
+
 }

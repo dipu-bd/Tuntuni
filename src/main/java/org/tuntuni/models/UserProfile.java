@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.model;
-
-import java.io.Serializable;
-import java.lang.reflect.Type;
+package org.tuntuni.models;
+ 
 import java.util.Date;
-import javafx.scene.image.Image;
+import java.lang.reflect.Type;
+import javafx.scene.image.Image; 
 import org.tuntuni.Core;
-import org.tuntuni.util.HelperUtils;
+import org.tuntuni.util.Commons;
 
 /**
  * Profile information of current user. This class is directly linked to
@@ -170,7 +169,7 @@ public class UserProfile {
         if (!hasField("Avatar")) {
             return Core.instance().resource().getImage("avatar.png");
         } else {
-            return HelperUtils.bytesToImage(
+            return Commons.bytesToImage(
                     getField("Avatar", byte[].class));
         }
     }
@@ -181,7 +180,7 @@ public class UserProfile {
      * @param value Value of the field
      */
     public void avatar(Image value) {
-        setField("Avatar", HelperUtils.imageToBytes(value));
+        setField("Avatar", Commons.imageToBytes(value));
     }
 
     /**

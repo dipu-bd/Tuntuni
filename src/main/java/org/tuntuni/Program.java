@@ -32,6 +32,7 @@ public class Program extends Application {
     public void start(Stage stage) throws IOException {
         // set current stage to core
         Core.instance().stage(stage);
+        Core.instance().start();
         //catch on close
         stage.setOnCloseRequest((evt) -> Core.instance().close());
 

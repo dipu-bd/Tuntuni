@@ -26,14 +26,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.Core;
-import org.tuntuni.model.Status;
-import org.tuntuni.model.Logs;
+import static org.tuntuni.connection.Server.PORTS;
+import org.tuntuni.models.Status;
+import org.tuntuni.models.Logs;
 
 /**
  * To listen and respond to clients sockets.
  */
 public final class Server {
+
+    // logger
+    private static final Logger logger = Logger.getGlobal();
 
     public static final int MAX_SOCKET_THREAD = 10;
     public static final String SECRET_CODE = "B33KS83JNF";
@@ -41,8 +44,6 @@ public final class Server {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
-
-    private static final Logger logger = Core.logger;
 
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;

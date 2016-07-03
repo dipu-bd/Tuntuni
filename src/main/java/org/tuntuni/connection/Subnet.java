@@ -34,8 +34,7 @@ import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-import org.tuntuni.Core;
-import org.tuntuni.model.Logs;
+import org.tuntuni.models.Logs;
 import org.tuntuni.util.SocketUtils;
 
 /**
@@ -43,12 +42,13 @@ import org.tuntuni.util.SocketUtils;
  */
 public class Subnet {
 
-    public static final int SCAN_START_DELAY_MILLIS = 500;
+    // logger
+    private static final Logger logger = Logger.getGlobal();
+
+    public static final int SCAN_START_DELAY_MILLIS = 1_000;
     public static final int SCAN_INTERVAL_MILLIS = 15_000;
     public static final int REACHABLE_THREAD_COUNT = 20;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
-
-    private static final Logger logger = Core.logger;
 
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;

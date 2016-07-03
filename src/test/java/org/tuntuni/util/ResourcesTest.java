@@ -33,30 +33,30 @@ public class ResourcesTest {
     public ResourcesTest() {
     }
 
-    @Before
-    public void setUp() {
-    }
-
     @Test
     public void testGetPath() {
-        System.out.println("+++ getPath");
+        System.out.println("getPath()");
         String fileName = "avatar.png";
         Resources instance = new Resources();
         String expResult = "/img/avatar.png";
         String result = instance.getPath(fileName);
-        System.out.println(result);
+        System.out.println("++avatar=" + result);
         assertTrue(result.endsWith(expResult));
+        System.out.println();
     }
 
     @Test
     public void testGetImage() throws IOException {
-        System.out.println("getImage");
+        System.out.println("**getImage");
         Resources instance = new Resources();
         Image result = instance.getImage("avatar.png");
         assertNotNull(result);
         ImageIO.write(SwingFXUtils.fromFXImage(result, null), "png",
-                new File("C:\\Users\\Dipu\\Desktop\\avatar.png"));
-
+                new File(System.getProperty("user.home")
+                        + File.separator + "Desktop"
+                        + File.separator + "avatar.png"));
+        System.out.println("++A file was saved in your desktop");
+        System.out.println();
     }
 
 }

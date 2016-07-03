@@ -15,39 +15,37 @@
  */
 package org.tuntuni.util;
 
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
- *
- * @author Sudipto Chandra
+ * to test this file input the path
  */
-public class HelperUtilsTest {
+public class CommonsTest {
 
-    public HelperUtilsTest() {
+    private final String inputFile = "D:\\Pictures\\Monogram.PNG";
+    private final String outputFile = "C:\\Users\\Dipu\\Desktop\\test.png";
+
+    public CommonsTest() {
     }
 
     @Test
     public void testImageToBytes() throws URISyntaxException, FileNotFoundException, IOException {
         System.out.println("imageToBytes");
 
-        FileInputStream fis = new FileInputStream(
-                new File("D:\\Pictures\\Monogram.PNG"));
+        FileInputStream fis = new FileInputStream(new File(inputFile));
         Image img = new Image(fis);
         fis.close();
 
-        byte[] result = HelperUtils.imageToBytes(img);
+        byte[] result = Commons.imageToBytes(img);
         assertNotNull(result);
     }
 
@@ -55,19 +53,17 @@ public class HelperUtilsTest {
     public void testBytesToImage() throws FileNotFoundException, IOException {
         System.out.println("bytesToImage");
 
-        FileInputStream fis = new FileInputStream(
-                new File("D:\\Pictures\\Monogram.PNG"));
+        FileInputStream fis = new FileInputStream(new File(inputFile));
         Image img = new Image(fis);
         fis.close();
 
-        byte[] data = HelperUtils.imageToBytes(img);
+        byte[] data = Commons.imageToBytes(img);
         assertNotNull(data);
-        
-        Image result = HelperUtils.bytesToImage(data);
+
+        Image result = Commons.bytesToImage(data);
         assertNotNull(result);
 
-        ImageIO.write(SwingFXUtils.fromFXImage(result, null), "png",
-                new File("C:\\Users\\Dipu\\Desktop\\test.png"));        
+        ImageIO.write(SwingFXUtils.fromFXImage(result, null), "png", new File(outputFile));
     }
 
 }

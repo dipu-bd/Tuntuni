@@ -16,7 +16,6 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,14 +26,14 @@ import static org.junit.Assert.*;
  * @author Sudipto Chandra
  */
 public class ClientTest {
-    
+
     public ClientTest() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -44,41 +43,44 @@ public class ClientTest {
      */
     @Test
     public void testConstructor() throws Exception {
-        System.out.println("---- open -----");
+        System.out.println("testConstructor()");
         Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
+        System.out.println();
     }
-    
+
     @Test
     public void testServer() throws Exception {
-        System.out.println("---- test -----");
+        System.out.println("testServer()");
         Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
+        System.out.println("++host=" + instance.getHostString());
         boolean result = instance.test();
-        System.out.println("+++ Result found = " + result);
-        assertTrue(result);
+        System.out.println("++result= " + result);
+        System.out.println();
     }
-    
+
     @Test
     public void testRandom() throws Exception {
-        System.out.println("---- random -----");
+        System.out.println("testRandom()");
         Client instance = new Client(
-                new InetSocketAddress("192.121.11.23", Server.PORTS[0])); 
+                new InetSocketAddress("192.121.11.23", Server.PORTS[0]));
         assertNotNull(instance);
+        System.out.println("++host=" + instance.getHostString());
         boolean result = instance.test();
-        System.out.println("+++ Result found = " + result);
-        assertFalse(result);
+        System.out.println("++result= " + result);
+        System.out.println();
     }
-    
+
     @Test
     public void testInvalid() throws Exception {
-        System.out.println("---- invalid -----");
-        Client instance = new Client(
-                new InetSocketAddress(22));
+        System.out.println("testInvalid()");
+        Client instance = new Client(new InetSocketAddress(22));
         assertNotNull(instance);
+        System.out.println("++host=" + instance.getHostString());
         boolean result = instance.test();
-        System.out.println("+++ Result found = " + result);
-        assertFalse(result);
+        System.out.println("++result= " + result);
+        System.out.println();
     }
-    
+
 }

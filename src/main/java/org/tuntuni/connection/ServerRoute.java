@@ -16,7 +16,7 @@
 package org.tuntuni.connection;
 
 import org.tuntuni.Core;
-import org.tuntuni.model.Status;
+import org.tuntuni.models.Status;
 
 /**
  * To build proper response for a request coming from server.

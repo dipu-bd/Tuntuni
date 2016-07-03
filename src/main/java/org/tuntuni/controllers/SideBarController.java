@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.controller;
+package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,8 +21,8 @@ import javafx.application.Platform;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 
@@ -58,6 +58,7 @@ public class SideBarController implements Initializable {
         clients.stream().forEach((client) -> {
             //cell.setText(client.user().fullname());
             //cell.setGraphic(new ImageView(client.user().avatar()));
+            HBox hbox = new HBox();            
             userList.getItems().add(client.getHostString());
         });
     }

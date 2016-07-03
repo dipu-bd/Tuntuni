@@ -18,7 +18,9 @@ package org.tuntuni.util;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.model.UserProfile;
+import org.tuntuni.Core;
+import org.tuntuni.models.MetaData;
+import org.tuntuni.models.UserProfile;
 
 /**
  *
@@ -40,20 +42,22 @@ public class DatabaseTest {
     public void testString() {
         System.out.println("testStringTransaction");
         String expResult = "this is a test data";
-        database.putData("Test", "test", expResult);
-        String result = database.getData("Test", "test");
+        database.putData("test", "test", expResult);
+        String result = database.getData("test", "test");
         assertEquals(expResult, result);
     }
 
     @Test
     public void testObject() {
         System.out.println("testObjectTransaction");
-        UserProfile expResult = new UserProfile();
+        MetaData expResult = new MetaData();
         assertNotNull(expResult);
-        database.putObject("test", "Profile", expResult);
-        UserProfile result = database.getObject("test", "Profile", UserProfile.class);
+        database.putObject("test", "meta", expResult);
+        MetaData result = database.getObject("test", "meta", MetaData.class);
         assertNotNull(result);
-        assertEquals(expResult, result);
+        assertEquals(expResult.hostName(), result.hostName());
+        assertEquals(expResult.title(), result.title());
+        assertEquals(expResult.version(), result.version());
     }
 
     @Test

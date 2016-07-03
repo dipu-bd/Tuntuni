@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.model;
+package org.tuntuni.models;
 
 import java.io.Serializable;
 import java.util.Date;
 import javafx.scene.image.Image;
-import org.tuntuni.util.HelperUtils;
+import org.tuntuni.util.Commons;
 
 /**
  *
@@ -38,7 +38,7 @@ public class UserData implements Serializable {
         mStatus = profile.status();
         mAboutMe = profile.aboutme();
         mDateOfBirth = profile.dateofBirth();
-        mAvatar = HelperUtils.imageToBytes(profile.avatar());
+        mAvatar = Commons.imageToBytes(profile.avatar());
     }
 
     public String getFullName() {
@@ -58,7 +58,7 @@ public class UserData implements Serializable {
     }
 
     public Image getAvatar() {
-        return HelperUtils.bytesToImage(mAvatar);
+        return Commons.bytesToImage(mAvatar);
     }
 
     public Date getDateOfBirth() {

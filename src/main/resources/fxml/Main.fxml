@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="main-frame" prefHeight="400" prefWidth="680" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controller.MainController">
+<BorderPane id="main-frame" prefHeight="400" prefWidth="680" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MainController">
    
     <bottom>
         <HBox prefHeight="20.0" prefWidth="600.0" styleClass="statusbar" BorderPane.alignment="CENTER">

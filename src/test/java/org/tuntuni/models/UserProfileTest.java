@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.model;
+package org.tuntuni.models;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.tuntuni.Core;
 
 /**
  *
@@ -30,14 +30,10 @@ public class UserProfileTest {
     }
 
     UserProfile profile;
-
+     
     @Before
-    public void setUp() {
-        profile = new UserProfile();
-    }
-
-    @After
-    public void tearDown() {
+    public void testBefore() { 
+        profile = Core.instance().user();
     }
 
     @Test
@@ -47,38 +43,31 @@ public class UserProfileTest {
 
     @Test
     public void testFullname() {
-        System.out.print("+++ full name = ");
-        System.out.println(profile.fullname());
+        assertNotNull(profile.fullname());
     }
 
     @Test
     public void testUsername_String() {
-        System.out.print("+++ user name = ");
-        System.out.println(profile.username());
-    }
-
-    @Test
-    public void testDateofBirth() {
-        System.out.print("+++ date of birth = ");
-        System.out.println(profile.dateofBirth());
+        assertNotNull(profile.username());
     }
 
     @Test
     public void testAvatar_Image() {
-        System.out.print("+++ avatar = ");
-        System.out.println(profile.avatar());
+        assertNotNull(profile.avatar());
     }
 
     @Test
     public void testStatus_String() {
-        System.out.print("+++ status = ");
-        System.out.println(profile.status());
+        assertNotNull(profile.status());
     }
 
     @Test
     public void testAboutme_String() {
-        System.out.print("+++ aboutme = ");
-        System.out.println(profile.aboutme());
+        assertNotNull(profile.aboutme());
     }
 
+    @Test
+    public void testGetData() {
+        assertNotNull(profile.getData());
+    }
 }

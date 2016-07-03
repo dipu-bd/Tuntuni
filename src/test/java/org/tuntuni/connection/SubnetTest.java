@@ -27,25 +27,16 @@ public class SubnetTest {
     }
 
     /**
-     * Test of userListProperty method, of class Subnet.
-     */
-    @Test
-    public void testUserListProperty() {
-
-    }
-
-    /**
      * Test of getUserList method, of class Subnet.
      */
     @Test
-    public void testGetUserList() throws InterruptedException {
+    public void testSubnet() throws InterruptedException {
+        System.out.println("testSubnet()");
         Subnet subnet = new Subnet();
-        subnet.userListProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.print("+++++ set changed: ");
-            System.out.println(oldValue.size() + " to " + newValue.size() + " of " + observable);            
-
-        });
-
-        Thread.sleep(600_000);  // run for 10 mins
+        subnet.start();
+        Thread.sleep(3_000);  // wait a moment
+        System.out.println("++Users:" + subnet.userListProperty().getSize());
+        subnet.stop();
+        System.out.println();
     }
 }

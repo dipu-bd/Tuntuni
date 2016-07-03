@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.controller;
+package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,13 +21,16 @@ import javafx.fxml.Initializable;
 import org.tuntuni.Core;
 
 /**
- * To view or edit user's profile
+ * The controller for text messaging and file sharing.
+ * <p>
+ * It gives a history based text conversation window. Below is a text box and
+ * send text button. Above is the conversation history. </p>
  */
-public class ProfileController implements Initializable {
+public class MessagingController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Core.instance().profile(this);
+        Core.instance().messaging(this);
     }
 
 }

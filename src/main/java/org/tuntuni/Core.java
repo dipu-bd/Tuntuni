@@ -21,14 +21,14 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
 import org.tuntuni.connection.Subnet;
-import org.tuntuni.model.MetaData;
-import org.tuntuni.model.UserProfile;
-import org.tuntuni.controller.MainController;
-import org.tuntuni.controller.MessagingController;
-import org.tuntuni.controller.ProfileController;
-import org.tuntuni.controller.SideBarController;
-import org.tuntuni.controller.VideoCallController;
-import org.tuntuni.model.Logs;
+import org.tuntuni.models.MetaData;
+import org.tuntuni.models.UserProfile;
+import org.tuntuni.controllers.MainController;
+import org.tuntuni.controllers.MessagingController;
+import org.tuntuni.controllers.ProfileController;
+import org.tuntuni.controllers.SideBarController;
+import org.tuntuni.controllers.VideoCallController;
+import org.tuntuni.models.Logs;
 import org.tuntuni.util.Database;
 import org.tuntuni.util.Resources;
 
@@ -47,17 +47,17 @@ import org.tuntuni.util.Resources;
 public final class Core {
 
     // logger
-    public static final Logger logger = Logger.getLogger("org.tuntuni");
+    private static final Logger logger = Logger.getGlobal();
 
     // instance of context
     private static final Core mInstance = new Core();
 
     /**
-     * Gets an instance of Core object.
+     * Gets an instance of this class.
      *
      * @return
      */
-    public static final Core instance() {
+    public static final Core instance() { 
         return mInstance;
     }
 
@@ -86,9 +86,7 @@ public final class Core {
         mServer = new Server();
         mSubnet = new Subnet();
         mMeta = new MetaData();
-        mUser = new UserProfile();
-        // load later
-        Platform.runLater(() -> start());
+        mUser = new UserProfile(); 
     }
 
     public void start() {

@@ -28,22 +28,18 @@ public class ServerTest {
 
     @Test
     public void testServer() throws Exception {
-
-        System.out.println("---------start----------------");
-
+        System.out.println("testServer()");
         Server server = new Server();
-        System.out.println("++++Created server");
-
+        System.out.println("++Created server");
         server.start();
-        System.out.println("++++Started server. Server active = " + server.isOpen());
-
+        System.out.println("++Server active = " + server.isOpen());
         if (server.isOpen()) {
-            Thread.sleep(3600_000);
-            System.out.println(">> after a while... ");
+            Thread.sleep(2_000);
+            System.out.println(">>after a while... ");
         }
-
         server.stop();
-        System.out.println("++++Stopped server. Server active = " + server.isOpen());
+        System.out.println("++Server active = " + server.isOpen());
+        System.out.println();
     }
 
 }
