@@ -15,6 +15,7 @@
  */
 package org.tuntuni.model;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import com.sun.org.apache.xml.internal.security.utils.HelperNodeList;
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -161,7 +162,8 @@ public class UserProfile {
         if (!hasField("Avatar")) {
             return Core.instance().resource().getImage("default-avatar.png");
         } else {
-            return HelperUtils.bytesToImage(getField("Avatar", Byte[].class));
+            return HelperUtils.bytesToImage(
+                    getField("Avatar", byte[].class));
         }
     }
 

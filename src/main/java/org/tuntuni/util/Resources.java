@@ -25,11 +25,11 @@ public class Resources {
     public Resources() {
     }
 
-    public String imagePath(String fileName) {
+    public String getPath(String fileName) {
         return Resources.class.getResource("/img/" + fileName).toString();
     }
 
     public Image getImage(String fileName) {
-        return new Image(imagePath(fileName));
+        return new Image(getPath(fileName));
     }
 }
