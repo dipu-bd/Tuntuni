@@ -17,7 +17,10 @@ package org.tuntuni.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import org.tuntuni.Core;
 
 /**
@@ -34,4 +37,8 @@ public class SideBarController implements Initializable {
         Core.instance().sidebar(this);        
     }
 
+    @FXML
+    private ListView userList;
+    @FXML
+    private Button toggleButton;
 }
