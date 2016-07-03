@@ -21,13 +21,16 @@ import javafx.fxml.Initializable;
 import org.tuntuni.Core;
 
 /**
- * Controller for video calling. It shows video in background. 
+ * The controller for text messaging and file sharing.
+ * <p>
+ * It gives a history based text conversation window. Below is a text box and
+ * send text button. Above is the conversation history. </p>
  */
-public class VideoCall implements Initializable {
- 
+public class Messaging implements Initializable {
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Core.instance().videocall(this);
-    }    
-    
+        Core.instance().messaging(this);
+    }
+
 }

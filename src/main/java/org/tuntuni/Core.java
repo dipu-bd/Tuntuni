@@ -15,12 +15,13 @@
  */
 package org.tuntuni;
 
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
 import org.tuntuni.connection.Subnet;
 import org.tuntuni.controller.Main;
+import org.tuntuni.controller.Messaging;
 import org.tuntuni.controller.SideBar;
+import org.tuntuni.controller.VideoCall;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -52,8 +53,11 @@ public class Core {
     private final Server mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
-    private Main mMainController;
-    private SideBar mSideBarController;
+    // controllers
+    private Main mMain;
+    private SideBar mSideBar;
+    private VideoCall mVideoCall;
+    private Messaging mMessaging;
 
     // Creates a new context. hidden from public.
     private Core() {
@@ -103,7 +107,7 @@ public class Core {
      * @param main
      */
     public void main(Main main) {
-        mMainController = main;
+        mMain = main;
     }
 
     /**
@@ -113,7 +117,7 @@ public class Core {
      * @return
      */
     public Main main() {
-        return mMainController;
+        return mMain;
     }
 
     /**
@@ -123,7 +127,7 @@ public class Core {
      * @param sidebar
      */
     public void sidebar(SideBar sidebar) {
-        mSideBarController = sidebar;
+        mSideBar = sidebar;
     }
 
     /**
@@ -133,6 +137,44 @@ public class Core {
      * @return
      */
     public SideBar sidebar() {
-        return mSideBarController;
+        return mSideBar;
+    }
+
+    /**
+     * Sets the VideoCall controller. Set when the controller is initialized.
+     *
+     * @param videocall
+     */
+    public void videocall(VideoCall videocall) {
+        mVideoCall = videocall;
+    }
+
+    /**
+     * Gets the VideoCall controller if it is initialized, otherwise a
+     * {@code null} value is returned
+     *
+     * @return
+     */
+    public VideoCall videocall() {
+        return mVideoCall;
+    }
+
+    /**
+     * Sets the Messaging controller. Set when the controller is initialized.
+     *
+     * @param messaging
+     */
+    public void messaging(Messaging messaging) {
+        mMessaging = messaging;
+    }
+
+    /**
+     * Gets the Messaging controller if it is initialized, otherwise a
+     * {@code null} value is returned
+     *
+     * @return
+     */
+    public Messaging messaging() {
+        return mMessaging;
     }
 }
