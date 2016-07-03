@@ -16,7 +16,6 @@
 package org.tuntuni.util;
 
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
 import java.nio.ByteBuffer;
 
 /**
@@ -107,31 +106,19 @@ public abstract class SocketUtils {
     }
 
     /**
-     * Gets the default gateway from the interface address.
-     * <p>
-     * The returned address is in integer format. To convert it to normal
-     * address you can use {@linkplain SocketUtils.getAddress()} method.</p>
-     *
-     * @param ia InterfaceAddress to get default gateway of.
-     * @return
-     */
-    public static int getDefaultGateway(InterfaceAddress ia) {
-        int ip = addressAsInteger(ia.getAddress());
-        int mask = getSubnetMask(ia.getNetworkPrefixLength());
-        return (ip & mask) + 1;
-    }
-
-    /**
      * Gets the first host from the interface address.
      * <p>
      * The returned address is in integer format. To convert it to normal
      * address you can use {@linkplain SocketUtils.getAddress()} method.</p>
      *
-     * @param ia InterfaceAddress to get first host of.
+     * @param address
+     * @param prefix
      * @return
      */
-    public static int getFirstHost(InterfaceAddress ia) {
-        return getDefaultGateway(ia);
+    public static int getFirstHost(InetAddress address, int prefix) {
+        int ip = bytesToInt(address.getAddress());
+        int mask = getSubnetMask(prefix);
+        return (ip & mask) + 1;
     }
 
     /**
@@ -140,10 +127,28 @@ public abstract class SocketUtils {
      * The returned address is in integer format. To convert it to normal
      * address you can use {@linkplain SocketUtils.getAddress()} method.</p>
      *
-     * @param ia InterfaceAddress to get last host of.
+     * @param address
+     * @param prefix
      * @return
      */
-    public static int getLastHost(InterfaceAddress ia) {
-        return bytesToInt(ia.getBroadcast().getAddress()) - 1;
+    public static int getLastHost(InetAddress address, int prefix) {
+        int ip = bytesToInt(address.getAddress());
+        int mask = getBroadcastMask(prefix);
+        return (ip | mask) - 1;
     }
+
+    /**
+     * Gets the default gateway from the interface address.
+     * <p>
+     * The returned address is in integer format. To convert it to normal
+     * address you can use {@linkplain SocketUtils.getAddress()} method.</p>
+     *
+     * @param address
+     * @param prefix
+     * @return
+     */
+    public static int getDefaultGateway(InetAddress address, int prefix) {
+        return getFirstHost(address, prefix);
+    }
+
 }

@@ -16,8 +16,6 @@
 package org.tuntuni.util;
 
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import org.junit.Test;
@@ -31,10 +29,7 @@ public class SocketUtilsTest {
 
     public SocketUtilsTest() {
     }
-
-    /**
-     * Test of bytesToInt method, of class SocketUtils.
-     */
+ 
     @Test
     public void testBytesToInt() {
         System.out.println("bytesToInt");
@@ -43,10 +38,7 @@ public class SocketUtilsTest {
         int result = SocketUtils.bytesToInt(bytes);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of intToBytes method, of class SocketUtils.
-     */
+ 
     @Test
     public void testIntToBytes() {
         System.out.println("intToBytes");
@@ -55,10 +47,7 @@ public class SocketUtilsTest {
         byte[] result = SocketUtils.intToBytes(number);
         assertArrayEquals(expResult, result);
     }
-
-    /**
-     * Test of getSubnetMask method, of class SocketUtils.
-     */
+ 
     @Test
     public void testGetBroadcastMask() {
         System.out.println("getSubnetMask");
@@ -67,10 +56,7 @@ public class SocketUtilsTest {
         int result = SocketUtils.getBroadcastMask(prefix);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of getSubnetMask method, of class SocketUtils.
-     */
+ 
     @Test
     public void testGetSubnetMask() {
         System.out.println("getSubnetMask");
@@ -79,10 +65,7 @@ public class SocketUtilsTest {
         int result = SocketUtils.getSubnetMask(prefix);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of addressAsInteger method, of class SocketUtils.
-     */
+ 
     @Test
     public void testAddressAsInteger() throws UnknownHostException {
         System.out.println("addressAsInteger");
@@ -91,10 +74,7 @@ public class SocketUtilsTest {
         int result = SocketUtils.addressAsInteger(address);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of addressAsString method, of class SocketUtils.
-     */
+ 
     @Test
     public void testAddressAsString() {
         System.out.println("addressAsString");
@@ -103,48 +83,33 @@ public class SocketUtilsTest {
         String result = SocketUtils.addressAsString(host);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of getDefaultGateway method, of class SocketUtils.
-     */
+ 
     @Test
     public void testGetDefaultGateway() throws SocketException, UnknownHostException {
         System.out.println("getDefaultGateway");
         InetAddress address = InetAddress.getByName("192.168.43.8");
-        NetworkInterface ni = NetworkInterface.getByInetAddress(address);
-        InterfaceAddress ia = ni.getInterfaceAddresses().get(0);
         int expResult = (192 << 24) | (168 << 16) | (43 << 8) | 1;
-        int result = SocketUtils.getDefaultGateway(ia);
+        int result = SocketUtils.getDefaultGateway(address, 24);
         //System.out.println(SocketUtils.addressAsString(result));
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of getFirstHost method, of class SocketUtils.
-     */
+ 
     @Test
     public void testGetFirstHost() throws UnknownHostException, SocketException {
         System.out.println("getFirstHost");
         InetAddress address = InetAddress.getByName("192.168.43.8");
-        NetworkInterface ni = NetworkInterface.getByInetAddress(address);
-        InterfaceAddress ia = ni.getInterfaceAddresses().get(0);
         int expResult = (192 << 24) | (168 << 16) | (43 << 8) | 1;
-        int result = SocketUtils.getFirstHost(ia);
-        assertEquals(expResult, result); 
+        int result = SocketUtils.getFirstHost(address, 24);
+        assertEquals(expResult, result);
     }
-
-    /**
-     * Test of getLastHost method, of class SocketUtils.
-     */
+ 
     @Test
     public void testGetLastHost() throws UnknownHostException, SocketException {
         System.out.println("getLastHost");
         InetAddress address = InetAddress.getByName("192.168.43.8");
-        NetworkInterface ni = NetworkInterface.getByInetAddress(address);
-        InterfaceAddress ia = ni.getInterfaceAddresses().get(0);
         int expResult = (192 << 24) | (168 << 16) | (43 << 8) | 254;
-        int result = SocketUtils.getLastHost(ia);
-        assertEquals(expResult, result); 
+        int result = SocketUtils.getLastHost(address, 24);
+        assertEquals(expResult, result);
     }
 
 }

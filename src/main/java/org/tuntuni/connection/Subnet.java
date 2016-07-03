@@ -148,13 +148,15 @@ public class Subnet {
                 logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
 
                 // get network's first and last hosts
-                int first = SocketUtils.getFirstHost(ia);
-                int last = SocketUtils.getLastHost(ia);
+                int prefix = ia.getNetworkPrefixLength();
                 int current = SocketUtils.addressAsInteger(address);
+                int first = SocketUtils.getFirstHost(address, prefix);
+                int last = SocketUtils.getLastHost(address, prefix);
                 /*
+                 System.out.println("Prefix Length: " + prefix);
+                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
                  System.out.println("  First Address : " + SocketUtils.addressAsString(first));
                  System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
-                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
                  */
                 // find all active hosts in the same local network
                 for (int i = first; i <= last; ++i) {
