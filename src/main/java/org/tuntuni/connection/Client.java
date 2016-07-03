@@ -122,6 +122,24 @@ public class Client {
     }
 
     /**
+     * Gets the user data associated with it.
+     *
+     * @return
+     */
+    public UserData getUserData() {
+        return mUser;
+    }
+    
+    /**
+     * Gets the meta data associated with it.
+     *
+     * @return
+     */
+    public MetaData getMetaData() {
+        return mMeta;
+    }
+
+    /**
      * Sends a request to the server.
      *
      * @param status Status of the request

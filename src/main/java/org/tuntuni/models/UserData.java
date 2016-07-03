@@ -60,6 +60,10 @@ public class UserData implements Serializable {
     public Image getAvatar() {
         return Commons.bytesToImage(mAvatar);
     }
+        
+    public Image getAvatar(int height, int width) {
+        return Commons.bytesToImage(mAvatar, height, width);
+    }
 
     public Date getDateOfBirth() {
         return mDateOfBirth;

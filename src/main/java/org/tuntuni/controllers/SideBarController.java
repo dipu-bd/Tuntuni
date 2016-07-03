@@ -22,8 +22,8 @@ import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
 import org.tuntuni.Core;
+import org.tuntuni.components.UserItem;
 import org.tuntuni.connection.Client;
 
 /**
@@ -58,8 +58,7 @@ public class SideBarController implements Initializable {
         clients.stream().forEach((client) -> {
             //cell.setText(client.user().fullname());
             //cell.setGraphic(new ImageView(client.user().avatar()));
-            HBox hbox = new HBox();            
-            userList.getItems().add(client.getHostString());
+            userList.getItems().add(UserItem.createInstance(client).getNode());
         });
     }
 }

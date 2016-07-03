@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlySetProperty;
-import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Logs;
@@ -52,15 +50,13 @@ public class Subnet {
 
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;
-    private final SimpleSetProperty<Client> mUserList;
-    private final ReadOnlySetProperty<Client> mROUserList;
+    private final SimpleSetProperty<Client> mUserList; 
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
         mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
-        mROUserList = new ReadOnlySetWrapper<>(mUserList);
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mSchedular = Executors.newSingleThreadScheduledExecutor();
 
@@ -74,8 +70,8 @@ public class Subnet {
      *
      * @return
      */
-    public ReadOnlySetProperty<Client> userListProperty() {
-        return mROUserList;
+    public SimpleSetProperty<Client> userListProperty() {
+        return mUserList;
     }
 
     /**

@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
  * Some commonly used functions and methods
  */
 public class Commons {
- 
+
     public static byte[] imageToBytes(Image img) {
         try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
             ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", byteOutput);
@@ -44,4 +44,11 @@ public class Commons {
         }
     }
 
+    public static Image bytesToImage(byte[] data, int height, int width) {
+        try (ByteArrayInputStream byteInput = new ByteArrayInputStream(data)) {
+            return new Image(byteInput, height, width, true, true);
+        } catch (IOException ex) {
+            return null;
+        }
+    }
 }

@@ -17,7 +17,6 @@ package org.tuntuni;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
 import org.tuntuni.connection.Subnet;
