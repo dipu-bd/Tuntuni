@@ -20,14 +20,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.Program;
+import org.tuntuni.Core;
 
 /**
  * It has basic information about the application.
  */
 public class MetaData implements Serializable {
 
-    private static final Logger logger = Logger.getLogger(MetaData.class.getName());
+    private static final Logger logger = Core.logger;
 
     private final String mVersion = "1.0-SNAPSHOT";
     private final String mTitle = "Tuntuni - A video chatting tool for LAN";

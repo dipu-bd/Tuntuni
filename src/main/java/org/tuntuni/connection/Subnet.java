@@ -33,7 +33,8 @@ import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-import org.tuntuni.util.Logs;
+import org.tuntuni.Core;
+import org.tuntuni.model.Logs;
 import org.tuntuni.util.SocketUtils;
 
 /**
@@ -46,7 +47,7 @@ public class Subnet {
     public static final int REACHABLE_THREAD_COUNT = 20;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
-    private static final Logger logger = Logger.getLogger(Subnet.class.getName());
+    private static final Logger logger = Core.logger;
 
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;

@@ -26,8 +26,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.tuntuni.Core;
 import org.tuntuni.model.Status;
-import org.tuntuni.util.Logs;
+import org.tuntuni.model.Logs;
 
 /**
  * To listen and respond to clients sockets.
@@ -41,7 +42,7 @@ public final class Server {
         42016, //BACKUP_PORT  
     };
 
-    private static final Logger logger = Logger.getLogger(Server.class.getName());
+    private static final Logger logger  = Core.logger;
 
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;

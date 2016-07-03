@@ -17,7 +17,6 @@ package org.tuntuni.util;
 
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 /**

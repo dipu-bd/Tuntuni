@@ -15,8 +15,6 @@
  */
 package org.tuntuni.model;
 
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
-import com.sun.org.apache.xml.internal.security.utils.HelperNodeList;
 import java.lang.reflect.Type;
 import java.util.Date;
 import javafx.scene.image.Image;

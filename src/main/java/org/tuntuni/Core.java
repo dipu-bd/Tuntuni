@@ -15,6 +15,8 @@
  */
 package org.tuntuni;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
@@ -26,6 +28,7 @@ import org.tuntuni.controller.MessagingController;
 import org.tuntuni.controller.ProfileController;
 import org.tuntuni.controller.SideBarController;
 import org.tuntuni.controller.VideoCallController;
+import org.tuntuni.model.Logs;
 import org.tuntuni.util.Database;
 import org.tuntuni.util.Resources;
 
@@ -42,6 +45,9 @@ import org.tuntuni.util.Resources;
  * {@code MainController.initialize()} method.</p>
  */
 public final class Core {
+
+    // logger
+    public static final Logger logger = Logger.getLogger("org.tuntuni");
 
     // instance of context
     private static final Core mInstance = new Core();
@@ -90,8 +96,9 @@ public final class Core {
         mSubnet.start();
     }
 
-    public void close() { 
-        System.out.println("Closing.....");
+    public void close() {
+        logger.log(Level.INFO, Logs.PROGRAM_CLOSING);
+        // stop all
         mServer.stop();
         mSubnet.stop();
     }

@@ -24,7 +24,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.util.Logs;
+import org.tuntuni.Core;
+import org.tuntuni.model.Logs;
 import org.tuntuni.model.UserProfile;
 import org.tuntuni.model.MetaData;
 import org.tuntuni.model.Status;
@@ -39,7 +40,7 @@ public class Client {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private static final Logger logger = Logger.getLogger(Client.class.getName());
+    private static final Logger logger  = Core.logger;
 
     // to connect with server
     private int mTimeout;

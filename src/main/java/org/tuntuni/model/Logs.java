@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.util;
+package org.tuntuni.model;
 
 /**
  * Lists some log messages used through-out the application.
@@ -21,6 +21,8 @@ package org.tuntuni.util;
 public abstract class Logs {
 
     public static final String //--- begin : log message list ---
+            // Program
+            PROGRAM_CLOSING = "Closing all active executors and schedulars.",
             // Used in Server and Client
             SERVER_BIND_SUCCESS = "Server is bound to port {0}",
             SERVER_BIND_FAILS = "Server could not be bound to to port {0}",
