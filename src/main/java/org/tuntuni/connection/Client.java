@@ -29,6 +29,7 @@ import org.tuntuni.model.Logs;
 import org.tuntuni.model.UserProfile;
 import org.tuntuni.model.MetaData;
 import org.tuntuni.model.Status;
+import org.tuntuni.model.UserData;
 
 /**
  * To manage connection with server sockets.
@@ -40,14 +41,14 @@ public class Client {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private static final Logger logger  = Core.logger;
+    private static final Logger logger = Core.logger;
 
     // to connect with server
     private int mTimeout;
     private final InetSocketAddress mAddress;
     // local data from server
     private MetaData mMeta;
-    private UserProfile mProfile;
+    private UserData mUser;
 
     // hidesthe constructor and handle it with static open() method
     public Client(InetSocketAddress socket) throws IOException {
@@ -133,7 +134,7 @@ public class Client {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
-            socket.connect(getAddress(), getTimeout()); 
+            socket.connect(getAddress(), getTimeout());
 
             try ( // get input-output 
                     OutputStream out = socket.getOutputStream();
@@ -164,37 +165,17 @@ public class Client {
      * @return {@code true} if available, {@code false} otherwise
      */
     public boolean test() {
-        Object data = request(Status.TEST);
-        return (data != null && Server.SECRET_CODE.equals(data));
-    }
-
-    /**
-     * Download the meta data from the server. If download fails, a previous
-     * version of meta data is returned. It only returns {@code null} if no
-     * previous version available.
-     *
-     * @return the server meta data.
-     */
-    public MetaData meta() {
+        // get meta data
         Object data = request(Status.META);
         if (data != null && data instanceof MetaData) {
             mMeta = (MetaData) data;
+            // get user profile
+            Object user = request(Status.PROFILE);
+            if (user != null && user instanceof UserData) {
+                mUser = (UserData) user;
+                return true;
+            }
         }
-        return mMeta;
-    }
-
-    /**
-     * Download the user profile from the server. If download fails, a previous
-     * version of it is returned. It only returns {@code null} if no previous
-     * version is available.
-     *
-     * @return the user running the server.
-     */
-    public UserProfile user() {
-        Object data = request(Status.PROFILE);
-        if (data != null && data instanceof UserProfile) {
-            mProfile = (UserProfile) data;
-        }
-        return mProfile;
+        return false;
     }
 }

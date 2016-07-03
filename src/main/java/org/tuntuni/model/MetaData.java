@@ -18,28 +18,25 @@ package org.tuntuni.model;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.tuntuni.Core;
 
 /**
  * It has basic information about the application.
  */
 public class MetaData implements Serializable {
 
-    private static final Logger logger = Core.logger;
-
+    private final String mHostName;
+    private final String mTitle = "Tuntuni";
     private final String mVersion = "1.0-SNAPSHOT";
-    private final String mTitle = "Tuntuni - A video chatting tool for LAN";
-
-    private String mHostName;
 
     public MetaData() {
+        // get localhost
+        InetAddress localhost = null;
         try {
-            mHostName = InetAddress.getLocalHost().getHostName();
+            localhost = InetAddress.getLocalHost();
         } catch (UnknownHostException ex) {
-            logger.log(Level.INFO, null, ex);
         }
+        // set host name
+        mHostName = localhost != null ? localhost.getHostName() : "Unknown";
     }
 
     /**

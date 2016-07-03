@@ -95,8 +95,8 @@ public class Subnet {
      * Cancel the scheduled task.
      */
     public void stop() {
-        mExecutor.shutdown();
-        mSchedular.shutdown();
+        mExecutor.shutdownNow();
+        mSchedular.shutdownNow();
     }
 
     // to scan over whole subnet of all networks for active users
@@ -169,8 +169,9 @@ public class Subnet {
             // wait until all tasks are done
             mExecutor.invokeAll(taskList);
 
-        } catch (SocketException | InterruptedException ex) {
+        } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
+        } catch (InterruptedException iex) {
         }
     }
 

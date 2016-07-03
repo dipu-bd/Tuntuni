@@ -31,9 +31,7 @@ public class ServerRoute {
      * @return The response object. Can be {@code null}.
      */
     public static Object request(Status status, Object... data) {
-        switch (status) {
-            case TEST:
-                return test();
+        switch (status) { 
             case META:
                 return meta();
             case PROFILE:
@@ -41,12 +39,7 @@ public class ServerRoute {
         }
         return null;
     }
-
-    // what to do when Status.TEST request arrived
-    public static Object test() {
-        return Server.SECRET_CODE;
-    }
-
+ 
     // what to do when Status.META request arrived
     public static Object meta() {
         return Core.instance().meta();

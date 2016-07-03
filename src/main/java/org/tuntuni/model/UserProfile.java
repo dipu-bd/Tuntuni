@@ -15,6 +15,7 @@
  */
 package org.tuntuni.model;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Date;
 import javafx.scene.image.Image;
@@ -33,6 +34,15 @@ public class UserProfile {
      * Initializes a new User Profile
      */
     public UserProfile() {
+    }
+
+    /**
+     * Gets the serializable instant UserData from this user profile.
+     *
+     * @return serializable user data
+     */
+    public UserData getData() {
+        return new UserData(this);
     }
 
     /**
@@ -209,4 +219,5 @@ public class UserProfile {
     public void aboutme(String value) {
         setField("AboutMe", value);
     }
+
 }

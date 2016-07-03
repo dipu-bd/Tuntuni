@@ -42,7 +42,7 @@ public final class Server {
         42016, //BACKUP_PORT  
     };
 
-    private static final Logger logger  = Core.logger;
+    private static final Logger logger = Core.logger;
 
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
@@ -143,14 +143,16 @@ public final class Server {
      * It may take a while to stop the server completely.</p>
      */
     public void stop() {
+        // close server socket
         try {
             if (isOpen()) {
                 mSSocket.close();
             }
-            mExecutor.shutdown();
         } catch (Exception ex) {
             logger.log(Level.WARNING, Logs.SERVER_CLOSING_ERROR, ex);
         }
+        // shutdown executors
+        mExecutor.shutdownNow();
     }
 
     // runnable containing the infinite server loop.
@@ -167,7 +169,9 @@ public final class Server {
                 });
 
             } catch (IOException ex) {
-                logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex); 
+                if (isOpen()) {
+                    logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex);
+                }
             }
         }
         logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
