@@ -56,11 +56,9 @@ public class SideBarController implements Initializable {
         userList.getItems().clear();
 
         clients.stream().forEach((client) -> {
-            ListCell cell = new ListCell();
-            cell.setText(client.getHostString());
             //cell.setText(client.user().fullname());
             //cell.setGraphic(new ImageView(client.user().avatar()));
-            userList.getItems().add(cell);
+            userList.getItems().add(client.getHostString());
         });
     }
 }

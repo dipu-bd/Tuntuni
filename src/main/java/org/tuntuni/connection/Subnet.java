@@ -29,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleSetProperty;
@@ -204,18 +205,22 @@ public class Subnet {
 
     // add address to the observable list
     private void addAddress(Client client) {
-        if (mUserList.add(client)) {
-            logger.log(Level.INFO, "Added user {0}:{1}",
-                    new Object[]{client.getHostString(), client.getPort()});
-        }
+        Platform.runLater(() -> {
+            if (mUserList.add(client)) {
+                logger.log(Level.INFO, "Added user {0}:{1}",
+                        new Object[]{client.getHostString(), client.getPort()});
+            }
+        });
     }
 
     // remove object from observable list
     private void removeAddress(Client client) {
-        if (mUserList.remove(client)) {
-            logger.log(Level.INFO, "Removed user {0}:{1}",
-                    new Object[]{client.getHostString(), client.getPort()});
-        }
+        Platform.runLater(() -> {
+            if (mUserList.remove(client)) {
+                logger.log(Level.INFO, "Removed user {0}:{1}",
+                        new Object[]{client.getHostString(), client.getPort()});
+            }
+        });
     }
 
 }
