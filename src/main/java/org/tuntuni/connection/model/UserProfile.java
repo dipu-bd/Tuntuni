@@ -21,11 +21,24 @@ import java.io.Serializable;
  *
  */
 public class UserProfile implements Serializable {
-    
+
     public String name = "Sudipto Chandra";
 
     public UserProfile() {
 
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof UserProfile) {
+            return name.equals(((UserProfile) other).name);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
 }

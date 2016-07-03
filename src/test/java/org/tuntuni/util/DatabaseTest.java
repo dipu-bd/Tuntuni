@@ -35,68 +35,53 @@ public class DatabaseTest {
 
     @Before
     public void testNewDatabse() {
-        database = new Database(); 
+        database = new Database();
     }
 
-    @After
-    public void testClose() {        
-        //database.close();
-    }
-
-    public void testDatabaseFolder() {
-        System.out.println("testGetSavePath");
-        File result = Database.databaseFolder();
-        assertTrue(result.exists());
-        System.out.println("Database path: " + result);
-    }
-
-    public void testStringGet() {
+    @Test
+    public void testString() {
         System.out.println("testStringTransaction");
         String expResult = "this is a test data";
+        database.putData("Test", expResult);
         String result = database.getData("Test");
         assertEquals(expResult, result);
     }
 
-    public void testStringPut() {
-        System.out.println("testStringTransaction");
-        String expResult = "this is a test data";
-        database.putData("Test", expResult);
-    }
-
-    public void testObjectGet() {
+    @Test
+    public void testObject() {
         System.out.println("testObjectTransaction");
         UserProfile expResult = new UserProfile();
         assertNotNull(expResult);
+        database.putObject("Profile", expResult);
         UserProfile result = database.getObject("Profile", UserProfile.class);
         assertNotNull(result);
-        assertEquals(expResult.name, result.name);
-    }
- 
-    public void testObjectPut() {
-        System.out.println("testObjectTransaction");
-        database.putObject("Profile", new UserProfile());
+        assertEquals(expResult, result);
     }
 
     @Test
     public void testMultiple() {
         System.out.println("testMultiple");
-        testObjectPut();
-        testStringPut();
-        testObjectGet();
-        testObjectGet();
-        testStringGet();
-        testObjectGet();
-        testStringGet();
-        testStringGet();
-        testObjectPut();
-        testObjectGet();
-        testStringGet();
-        testObjectGet();
-        testStringPut();
-        testStringGet();
-        testObjectGet();
-        testStringGet();
-        testStringGet();
+        testString();
+        testString();
+        testString();
+        testObject();;
+        testString();
+        testObject();
+        testString();
+        testString();
+        testObject();
+        testString();
+        testObject();
+        testObject();
+        testString();
+        testString();
+        testObject();
+        testString();
+        testString();
+        testObject();
+        testObject();
+        testString();
+        testObject();
     }
 
 }

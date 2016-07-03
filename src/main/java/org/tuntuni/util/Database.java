@@ -16,57 +16,30 @@
 package org.tuntuni.util;
 
 import com.google.gson.Gson;
-import java.io.Closeable;
-import java.io.File;
-import java.lang.reflect.Type; 
-import jetbrains.exodus.ByteIterable; 
-import jetbrains.exodus.bindings.StringBinding;
-import jetbrains.exodus.env.Environment;
-import jetbrains.exodus.env.Environments;
-import jetbrains.exodus.env.Store;
-import jetbrains.exodus.env.StoreConfig;
-import jetbrains.exodus.env.Transaction; 
+import java.io.Serializable;
+import java.lang.reflect.Type;
+import java.util.prefs.Preferences;
 
 /**
  * A connector to JetBrains Xodus database system. Just to provide simple
  * key-value storage.
  */
-public class Database implements Closeable {
+public class Database {
 
-    public static File databaseFolder() {
-        return new File(System.getProperty("user.home") + File.separator + ".tuntuni");
-    }
-
-    public static final String DEFAULT_STORE = "Default";
+    public static final String DEFAULT_NODE = "org/tuntuni";
 
     private final Gson mGson;
-    private final Environment mEnvironment;
+    private final Preferences mDatabase;
 
     public Database() {
         // create gson parser instance
         mGson = new Gson();
         // open environment
-        mEnvironment = Environments.newInstance(Database.databaseFolder()); 
-    }
-
-    @Override
-    public void close() {        
-        mEnvironment.close();
-    }
-
-    public String getData(String storeName, String key) {
-        // begin readonly transaction
-        final Transaction txn = mEnvironment.beginReadonlyTransaction();
-        // open store by name
-        final Store store = mEnvironment.openStore(storeName,
-                StoreConfig.WITH_DUPLICATES_WITH_PREFIXING, txn);
-        // get data by key
-        ByteIterable bit = store.get(txn, StringBinding.stringToEntry(key));
-        return bit == null ? "" : StringBinding.entryToString(bit);
+        mDatabase = Preferences.userRoot().node(DEFAULT_NODE);
     }
 
     public String getData(String key) {
-        return getData(DEFAULT_STORE, key);
+        return mDatabase.get(key.toLowerCase(), "");
     }
 
     public <T extends Object> T getObject(String key, Type typeOfT) {
@@ -74,20 +47,8 @@ public class Database implements Closeable {
         return mGson.fromJson(data, typeOfT);
     }
 
-    public void putData(String storeName, String key, String value) {
-        // execute transaction to write
-        mEnvironment.executeInTransaction((txn) -> {
-            // open store by name
-            final Store store = mEnvironment.openStore(storeName,
-                    StoreConfig.WITH_DUPLICATES_WITH_PREFIXING, txn);
-            // save key->value pair
-            store.put(txn, StringBinding.stringToEntry(key),
-                    StringBinding.stringToEntry(value));
-        });
-    }
-
     public void putData(String key, String value) {
-        putData(DEFAULT_STORE, key, value);
+        mDatabase.put(key.toLowerCase(), value);
     }
 
     public void putObject(String key, Object data) {
