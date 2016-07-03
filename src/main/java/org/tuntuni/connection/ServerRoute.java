@@ -47,6 +47,6 @@ public class ServerRoute {
 
     // what to do when Status.PROFILE request arrived
     public static Object profile() {
-        return Core.instance().user();
+        return Core.instance().user().getData();
     }
 }
