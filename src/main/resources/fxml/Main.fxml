@@ -7,8 +7,34 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane id="BorderPane" prefHeight="400" prefWidth="680" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controller.Main">
+<BorderPane id="main-frame" prefHeight="400" prefWidth="680" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controller.MainController">
+    
+    <left>
+        <fx:include source="SideBar.fxml" />
+    </left>
+    
+   <center>
+      <TabPane id="tab-pane" fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="120.0" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="Messages">
+               <content>
+                  <fx:include source="Messaging.fxml" />
+               </content>
+            </Tab>
+            <Tab text="Video Call">
+               <content>
+                  <fx:include source="VideoCall.fxml" />
+               </content>
+            </Tab>
+          <Tab text="Profile">
+               <content>
+                  <fx:include source="Profile.fxml" />
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </center>
+   
     <bottom>
         <HBox prefHeight="20.0" prefWidth="600.0" styleClass="statusbar" BorderPane.alignment="CENTER">
             <children>
@@ -26,30 +52,5 @@
             </children>
         </HBox>
     </bottom>
-    <top>
-        <MenuBar BorderPane.alignment="CENTER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Profile" />
-                        <MenuItem mnemonicParsing="false" text="Messages" />
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="View">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Status Bar" />
-                        <MenuItem mnemonicParsing="false" text="Side Bar" />
-                        <MenuItem mnemonicParsing="false" text="Menu Bar" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
-                        <MenuItem mnemonicParsing="false" text="License" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-    </top>
+    
 </BorderPane>

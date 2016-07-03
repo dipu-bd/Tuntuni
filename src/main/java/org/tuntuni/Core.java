@@ -17,14 +17,14 @@ package org.tuntuni;
 
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
-import org.tuntuni.connection.ServerRoute;
 import org.tuntuni.connection.Subnet;
 import org.tuntuni.model.MetaData;
 import org.tuntuni.model.UserProfile;
-import org.tuntuni.controller.Main;
-import org.tuntuni.controller.Messaging;
-import org.tuntuni.controller.SideBar;
-import org.tuntuni.controller.VideoCall;
+import org.tuntuni.controller.MainController;
+import org.tuntuni.controller.MessagingController;
+import org.tuntuni.controller.ProfileController;
+import org.tuntuni.controller.SideBarController;
+import org.tuntuni.controller.VideoCallController;
 import org.tuntuni.util.Database;
 import org.tuntuni.util.Resources;
 
@@ -38,7 +38,7 @@ import org.tuntuni.util.Resources;
  * <p>
  * Note that, the controllers must be set after they are initialized. e.g: To
  * set MainController call {@code Core.instance().main(this)} in the
- * {@code Main.initialize()} method.</p>
+ * {@code MainController.initialize()} method.</p>
  */
 public class Core {
 
@@ -58,16 +58,17 @@ public class Core {
     private final Server mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
-    // controllers
-    private Main mMain;
-    private SideBar mSideBar;
-    private VideoCall mVideoCall;
-    private Messaging mMessaging;
     // data
     private final Resources mResources;
     private final Database mDatabase;
-    private final MetaData mMeta;    
-    private final UserProfile mProfile;    
+    private final MetaData mMeta;
+    private final UserProfile mUser;
+    // controllers
+    private MainController mMain;
+    private SideBarController mSideBar;
+    private VideoCallController mVideoCall;
+    private MessagingController mMessaging;
+    private ProfileController mProfile;
 
     // Creates a new context. hidden from public.
     private Core() {
@@ -78,9 +79,14 @@ public class Core {
         mServer = new Server();
         mSubnet = new Subnet();
         mMeta = new MetaData();
-        mProfile = new UserProfile();
+        mUser = new UserProfile();
     }
 
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    /// READONLY DATA: getter functions for readonly variables
+    ////////////////////////////////////////////////////////////////////////////
+    ///
     /**
      * Get an instance of the server.
      *
@@ -102,7 +108,7 @@ public class Core {
     /**
      * Sets the primary stage of the application.
      *
-     * @param primaryStage
+     * @param primaryStage stage to assign
      */
     public void stage(Stage primaryStage) {
         mPrimaryStage = primaryStage;
@@ -118,11 +124,52 @@ public class Core {
     }
 
     /**
+     * Gets the meta data
+     *
+     * @return an instance of the object
+     */
+    public MetaData meta() {
+        return mMeta;
+    }
+
+    /**
+     * Gets the current user user.
+     *
+     * @return an instance of the object
+     */
+    public UserProfile user() {
+        return mUser;
+    }
+
+    /**
+     * Gets the database.
+     *
+     * @return an instance of the object
+     */
+    public Database database() {
+        return mDatabase;
+    }
+
+    /**
+     * Gets the resource manager.
+     *
+     * @return an instance of the object
+     */
+    public Resources resource() {
+        return mResources;
+    }
+
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    /// CONTROLLERS : getter and setter functions for controllers
+    ////////////////////////////////////////////////////////////////////////////
+    ///
+    /**
      * Sets the MainController. Set when the main controller is initialized.
      *
-     * @param main
+     * @param main controller to assign
      */
-    public void main(Main main) {
+    public void main(MainController main) {
         mMain = main;
     }
 
@@ -130,19 +177,19 @@ public class Core {
      * Gets the main controller if it is initialized, otherwise a {@code null}
      * value is returned.
      *
-     * @return
+     * @return the assigned controller
      */
-    public Main main() {
+    public MainController main() {
         return mMain;
     }
 
     /**
-     * Sets the SideBar controller. Set when the side-bar controller is
-     * initialized.
+     * Sets the SideBarController controller. Set when the side-bar controller
+     * is initialized.
      *
-     * @param sidebar
+     * @param sidebar controller to assign
      */
-    public void sidebar(SideBar sidebar) {
+    public void sidebar(SideBarController sidebar) {
         mSideBar = sidebar;
     }
 
@@ -152,78 +199,68 @@ public class Core {
      *
      * @return
      */
-    public SideBar sidebar() {
+    public SideBarController sidebar() {
         return mSideBar;
     }
 
     /**
-     * Sets the VideoCall controller. Set when the controller is initialized.
+     * Sets the ProfileController controller. Set when the controller is
+     * initialized.
      *
-     * @param videocall
+     * @param profile controller to assign
      */
-    public void videocall(VideoCall videocall) {
+    public void profile(ProfileController profile) {
+        mProfile = profile;
+    }
+
+    /**
+     * Gets the profile controller if it is initialized, otherwise a
+     * {@code null} value is returned
+     *
+     * @return the assigned controller
+     */
+    public ProfileController profile() {
+        return mProfile;
+    }
+
+    /**
+     * Sets the VideoCallController controller. Set when the controller is
+     * initialized.
+     *
+     * @param videocall controller to assign
+     */
+    public void videocall(VideoCallController videocall) {
         mVideoCall = videocall;
     }
 
     /**
-     * Gets the VideoCall controller if it is initialized, otherwise a
+     * Gets the VideoCallController controller if it is initialized, otherwise a
      * {@code null} value is returned
      *
      * @return
      */
-    public VideoCall videocall() {
+    public VideoCallController videocall() {
         return mVideoCall;
     }
 
     /**
-     * Sets the Messaging controller. Set when the controller is initialized.
+     * Sets the MessagingController controller. Set when the controller is
+     * initialized.
      *
      * @param messaging
      */
-    public void messaging(Messaging messaging) {
+    public void messaging(MessagingController messaging) {
         mMessaging = messaging;
     }
 
     /**
-     * Gets the Messaging controller if it is initialized, otherwise a
+     * Gets the MessagingController controller if it is initialized, otherwise a
      * {@code null} value is returned
      *
      * @return
      */
-    public Messaging messaging() {
+    public MessagingController messaging() {
         return mMessaging;
     }
 
-    /** 
-     * Gets the meta data
-     * @return 
-     */
-    public MetaData meta() {
-        return mMeta;
-    }
-
-    /**
-     * Gets the current user profile.
-     *
-     * @return
-     */
-    public UserProfile profile() {
-        return mProfile;
-    }
-    
-    /**
-     * Gets the database.
-     * @return 
-     */
-    public Database database() {
-        return mDatabase;
-    }
-    
-    /**
-     * Gets the resource manager.
-     * @return 
-     */
-    public Resources resource() {
-        return mResources;
-    }
 }

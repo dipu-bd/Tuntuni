@@ -21,17 +21,13 @@ import javafx.fxml.Initializable;
 import org.tuntuni.Core;
 
 /**
- * SideBar appears in the left side of the main scene.
- * <p>
- * It shows a list of users, and options to manage them. Also, the side-bar is
- * collapsible. In collapsed mode only the top active users will appear. And in
- * expanded mode a list of users with search option will be available.</p>
+ * Controller for video calling. It shows video in background. 
  */
-public class SideBar implements Initializable {
-
+public class VideoCallController implements Initializable {
+ 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Core.instance().sidebar(this);        
-    }
-
+        Core.instance().videocall(this);
+    }    
+    
 }

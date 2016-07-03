@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TabPane;
 import org.tuntuni.Core;
 
 /**
@@ -33,12 +34,14 @@ import org.tuntuni.Core;
  * </p>
  *
  */
-public class Main implements Initializable {
+public class MainController implements Initializable {
 
     @FXML
     private Label statusLabel;
     @FXML
     private ProgressBar progressBar;
+    @FXML
+    private TabPane tabPane;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
