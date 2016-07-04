@@ -28,18 +28,18 @@
         <actionName>CUSTOM-Native Build</actionName>
         <displayName>Native Build</displayName>
         <goals>
-            <goal>clean</goal>
-            <goal>package</goal>
             <goal>jfx:native</goal>
+            
+            
         </goals>
     </action>
     <action>
             <actionName>CUSTOM-Native NoTest</actionName>
             <displayName>Native NoTest</displayName>
             <goals>
-                <goal>clean</goal>
-                <goal>package</goal>
                 <goal>jfx:native</goal>
+                
+                
             </goals>
             <properties>
                 <skipTests>true</skipTests>

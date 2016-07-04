@@ -193,7 +193,7 @@ public class Client {
     public boolean test() {
         // get meta data
         try {
-            Object[] data = (Object[]) request(Status.META);
+            Object[] data = (Object[]) request(Status.TEST);
             mMeta = (MetaData) data[0];
             mUser = (UserData) data[1];
             return true;

@@ -24,6 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage; 
+import org.tuntuni.util.Commons;
 
 /**
  * The entry point of the application.
@@ -44,11 +45,7 @@ public class Program extends Application {
         // build the default scene
         Scene scene = new Scene(root);
         // add custom styles to the scene
-        scene.getStylesheets().add("/css/default.css");
-
-        // set the icon
-        stage.getIcons().add(
-                new Image(getClass().getResourceAsStream("/img/tuntuni.png")));
+        scene.getStylesheets().add("/css/default.css");    
 
         // prepare the stage
         stage.setTitle(Core.instance().meta().title());
@@ -57,6 +54,13 @@ public class Program extends Application {
         // display the stage
         stage.show();
 
+        // set the icon
+        Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        
+        stage.getIcons().add(icon);
+        stage.getIcons().add(Commons.resizeImage(icon, 16, 16));
+        stage.getIcons().add(Commons.resizeImage(icon, 48, 48));
+        stage.getIcons().add(Commons.resizeImage(icon, 128, 128));    
+        
         // call other ui methods
         Platform.runLater(() -> {
             Core.instance().profile().setClient(null);
