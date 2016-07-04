@@ -17,8 +17,6 @@ package org.tuntuni.models;
 
 import javafx.beans.property.Property;
 import javafx.scene.image.Image;
-import javax.annotation.Resource;
-import org.tuntuni.Core;
 import org.tuntuni.util.Commons;
 import org.tuntuni.util.FileService;
 
@@ -41,7 +39,7 @@ public class UserProfile extends Persistent {
         mStatus = buildProperty("Status", "");
         mAboutMe = buildProperty("AboutMe", "");
         mUserName = buildProperty("UserName", System.getProperty("user.name"));
-        mAvatar = buildProperty("Avatar", Commons.getResource("avatar.png"));
+        mAvatar = buildProperty("Avatar", Commons.getResource("avatar.png"));        
     }
 
     /**
@@ -53,12 +51,33 @@ public class UserProfile extends Persistent {
         return new UserData(this);
     }
 
+    public Property<String> usernameProperty() {
+        return mUserName;
+    }
+
+    public Property<String> avatarProperty() {
+        return mAvatar;
+    }
+
+    public Property<String> statusProperty() {
+        return mStatus;
+    }
+
+    public Property<String> aboutmeProperty() {
+        return mAboutMe;
+    }
+
+    /**
+     * Gets the display user name
+     *
+     * @return
+     */
     public String username() {
         return mUserName.getValue();
     }
 
     /**
-     * Sets the display username of user.
+     * Sets the display username.
      *
      * @param value Value of the field
      */
@@ -89,7 +108,7 @@ public class UserProfile extends Persistent {
      *
      * @return Avatar image; or {@code null} if none.
      */
-    public Image avatarImage() { 
+    public Image avatarImage() {
         return FileService.instance().getImage(mAvatar.getValue());
     }
 

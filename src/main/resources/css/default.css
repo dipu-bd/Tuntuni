@@ -2,3 +2,81 @@
  * Add styles here. To learn more about styling FXML with css visit 
  * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html
  */
+
+.text-area {
+    -fx-text-fill: #e8f4db;    
+}
+
+.text-area .content {
+    -fx-padding: 10;      
+}
+
+.text-area .viewport, .text-area .content {
+    -fx-background-color: transparent ;
+}
+
+.list-view .list-cell {
+    -fx-padding: 5;
+    -fx-background-color: transparent;
+}
+
+.list-view .list-cell:selected { 
+    -fx-background-color: rgba(0,0,100,0.5);
+}
+
+.list-view .list-cell:selected * { 
+    -fx-text-fill: black;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-label {
+    -fx-text-fill: white;
+    -fx-font-size: 1.1em;
+}
+
+.tab-pane .tab {    
+    -fx-background-color: rgba(90,0,0,0.3);
+    -fx-effect: dropshadow(three-pass-box, #000, 10.0, 0.5, 0, 5.0); 
+}
+
+.tab-pane .tab:selected {        
+    -fx-effect: dropshadow(three-pass-box, #999, 10.0, 0.5, 0, 5.0); 
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: rgba(0,0,0,0.4);
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: rgba(0,0,0,0.25);
+}
+
+.tab-pane {
+    -fx-open-tab-animation: grow;
+}
+
+.highlight-button {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(10,10,80,0.2);
+}
+.highlight-button:hover {
+    -fx-background-color: rgba(10,10,80,0.35);
+}
+
+.avatar-button {
+    -fx-background-color: rgba(0,0,0,0.1);
+}
+.avatar-button:hover {
+    -fx-background-color: rgba(0,0,0,0.25);
+}
+
+.profile-button {
+    -fx-background-color: rgba(30,30,30,0.1);    
+}
+
+.profile-button:hover {
+    -fx-background-color: rgba(30,30,30,0.5);
+}

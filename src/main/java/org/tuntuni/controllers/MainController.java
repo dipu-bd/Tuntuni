@@ -17,13 +17,21 @@ package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
+import org.tuntuni.components.UserItem;
 
 /**
  * The controller for the main scene of this application.
@@ -37,24 +45,86 @@ import org.tuntuni.Core;
 public class MainController implements Initializable {
 
     @FXML
+    private ListView userList;
+    @FXML
     private Label statusLabel;
     @FXML
     private ProgressBar progressBar;
     @FXML
     private TabPane tabPane;
+    @FXML
+    private Button profileButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().main(this);
+
+        // build user list later
+        Platform.runLater(() -> {
+
+            // run build immediately
+            buildUserList();
+
+            // listen to user list change
+            Core.instance().subnet().userListProperty().addListener(
+                    (observable, oldVal, newVal) -> buildUserList());
+
+            // listen to selected item change
+            userList.getSelectionModel().selectedItemProperty().addListener(
+                    (observable, oldVal, newVal) -> showUser());
+
+            // bind profile button text
+            profileButton.textProperty().bind(
+                    Core.instance().user().usernameProperty());
+
+            // avatar image
+            updateAvatar();
+            Core.instance().user().avatarProperty()
+                    .addListener((ov, old, cur) -> updateAvatar());
+        });
+    }
+
+    public void selectProfile() {
+        tabPane.getSelectionModel().select(0);
+    }
+
+    public void selectMessaging() {
+        tabPane.getSelectionModel().select(1);
+    }
+
+    public void selectVideoCall() {
+        tabPane.getSelectionModel().select(2);
     }
 
     @FXML
-    private void onStatusClicked(ActionEvent event) {
-
+    private void handleProfileAction(ActionEvent event) {
+        selectProfile();
+        userList.getSelectionModel().clearSelection();
     }
 
-    @FXML
-    private void onProgressClicked(ActionEvent event) {
+    private void updateAvatar() {
+        ((ImageView) profileButton.getGraphic()).setImage(
+                Core.instance().user().avatarImage());
+    }
 
+    private void buildUserList() {
+        userList.getItems().clear();
+        Core.instance().subnet().userListProperty().stream().forEach((client) -> {
+            userList.getItems().add(UserItem.createInstance(client));
+        });
+    }
+
+    private void showUser() {
+        Object sel = userList.getSelectionModel().getSelectedItem();
+        if (sel != null && sel instanceof UserItem) {
+            UserItem item = (UserItem) sel;
+            Core.instance().profile().setClient(item.getClient());
+            Core.instance().messaging().setClient(item.getClient());
+            Core.instance().videocall().setClient(item.getClient());
+        } else {
+            Core.instance().profile().setClient(null);
+            Core.instance().messaging().setClient(null);
+            Core.instance().videocall().setClient(null);
+        }
     }
 }

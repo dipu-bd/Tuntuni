@@ -22,16 +22,13 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.tuntuni.Core;
@@ -50,13 +47,26 @@ public class ProfileController implements Initializable {
     @FXML
     private TextField statusText;
     @FXML
+    private TextArea aboutMe;
+    @FXML
     private Button avatarButton;
     @FXML
     private ImageView avatarImage;
+    @FXML
+    private GridPane aboutGridPane;
+    @FXML
+    private Button messageButton;
+    @FXML
+    private Button videoCallButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().profile(this);
+
+        // bind all 
+        userName.textProperty().addListener((a, b, c) -> changeName());
+        statusText.textProperty().addListener((a, b, c) -> changeStatus());
+        aboutMe.textProperty().addListener((a, b, c) -> changeAboutMe());
     }
 
     public void setClient(Client client) {
@@ -72,18 +82,46 @@ public class ProfileController implements Initializable {
         Image image = Core.instance().user().avatarImage();
 
         if (mClient != null) {
-            name = mClient.getUserData().getUserName();
-            status = mClient.getUserData().getStatus();
+            name = mClient.getUserData().getUserName() + " ";
+            status = mClient.getUserData().getStatus() + " ";
+            about = mClient.getUserData().getAboutMe() + " ";
             image = mClient.getUserData().getAvatar();
-            about = mClient.getUserData().getAboutMe();
         }
 
         userName.setText(name);
         statusText.setText(status);
+        aboutMe.setText(about);
         avatarImage.setImage(image);
 
+        aboutMe.setEditable(mClient == null);
         userName.setEditable(mClient == null);
         statusText.setEditable(mClient == null);
+        messageButton.setVisible(mClient != null);
+        videoCallButton.setVisible(mClient != null);
+        
+        if (mClient == null) { 
+            userName.setCursor(Cursor.TEXT);
+            statusText.setCursor(Cursor.TEXT);
+            avatarButton.setCursor(Cursor.HAND);
+            aboutGridPane.getColumnConstraints().get(1).setMinWidth(0);
+            aboutGridPane.getColumnConstraints().get(1).setMaxWidth(0);
+        } else { 
+            userName.setCursor(Cursor.DEFAULT);
+            statusText.setCursor(Cursor.DEFAULT);
+            avatarButton.setCursor(Cursor.DEFAULT);
+            aboutGridPane.getColumnConstraints().get(1).setMinWidth(60);
+            aboutGridPane.getColumnConstraints().get(1).setMaxWidth(60);
+        }
+    }
+
+    @FXML
+    private void handleSendMessage(ActionEvent event) {
+        Core.instance().main().selectMessaging();
+    }
+
+    @FXML
+    private void handleSendCall(ActionEvent event) {
+        Core.instance().main().selectVideoCall();
     }
 
     @FXML
@@ -91,31 +129,44 @@ public class ProfileController implements Initializable {
         if (mClient == null) {
             FileChooser fc = new FileChooser();
             fc.getExtensionFilters().setAll(
-                    new FileChooser.ExtensionFilter("Image Files", "*.PNG", "*.JPG", "*.BMP", "*.GIF"));
+                    new FileChooser.ExtensionFilter("Image Files",
+                            "*.png", "*.jpg", "*.bmp", "*.gif"));
             fc.setTitle("Choose your avatar...");
-
-            try {
-                File choosen = fc.showOpenDialog(Core.instance().stage());
-                String uploaded = FileService.instance().upload(choosen);
-                Image image = FileService.instance().getImage(uploaded);
-                Core.instance().user().avatar(uploaded);
-            } catch (IOException ex) {
-                ExceptionDialog dialog = new ExceptionDialog(ex);
-                dialog.setTitle("Failed to upload image");
-                dialog.showAndWait();
-            }
+            File choosen = fc.showOpenDialog(Core.instance().stage());
+            changeAvatar(choosen);
         }
         loadAll();
     }
 
-    @FXML
-    private void changeName(ActionEvent event) {
-        Core.instance().user().username(userName.getText());
+    private void changeName() {
+        if (mClient == null) {
+            Core.instance().user().username(userName.getText());
+        }
     }
 
-    @FXML
-    private void changeStatus(ActionEvent event) {
-        Core.instance().user().status(statusText.getText());
+    private void changeStatus() {
+        if (mClient == null) {
+            Core.instance().user().status(statusText.getText());
+        }
+    }
+
+    private void changeAboutMe() {
+        if (mClient == null) {
+            Core.instance().user().aboutme(aboutMe.getText());
+        }
+    }
+
+    private void changeAvatar(File choosen) {
+
+        try {
+            String uploaded = FileService.instance().upload(choosen);
+            Image image = FileService.instance().getImage(uploaded);
+            Core.instance().user().avatar(uploaded);
+        } catch (IOException ex) {
+            ExceptionDialog dialog = new ExceptionDialog(ex);
+            dialog.setTitle("Failed to upload image");
+            dialog.showAndWait();
+        }
     }
 
 }

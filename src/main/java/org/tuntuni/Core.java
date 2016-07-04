@@ -24,8 +24,7 @@ import org.tuntuni.models.MetaData;
 import org.tuntuni.models.UserProfile;
 import org.tuntuni.controllers.MainController;
 import org.tuntuni.controllers.MessagingController;
-import org.tuntuni.controllers.ProfileController;
-import org.tuntuni.controllers.SideBarController;
+import org.tuntuni.controllers.ProfileController; 
 import org.tuntuni.controllers.VideoCallController;
 import org.tuntuni.models.Logs;
 
@@ -66,8 +65,7 @@ public final class Core {
     private final MetaData mMeta;
     private final UserProfile mUser;
     // controllers
-    private MainController mMain;
-    private SideBarController mSideBar;
+    private MainController mMain; 
     private VideoCallController mVideoCall;
     private MessagingController mMessaging;
     private ProfileController mProfile;
@@ -176,27 +174,7 @@ public final class Core {
     public MainController main() {
         return mMain;
     }
-
-    /**
-     * Sets the SideBarController controller. Set when the side-bar controller
-     * is initialized.
-     *
-     * @param sidebar controller to assign
-     */
-    public void sidebar(SideBarController sidebar) {
-        mSideBar = sidebar;
-    }
-
-    /**
-     * Gets the side-bar controller if it is initialized, otherwise a
-     * {@code null} value is returned
-     *
-     * @return
-     */
-    public SideBarController sidebar() {
-        return mSideBar;
-    }
-
+ 
     /**
      * Sets the ProfileController controller. Set when the controller is
      * initialized.
