@@ -15,27 +15,28 @@
  */
 package org.tuntuni.models;
 
-import java.io.Serializable; 
+import java.io.Serializable;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
+import org.tuntuni.util.FileService;
 
 /**
  *
  */
 public class UserData implements Serializable {
- 
+
     private final String mName;
     private final String mStatus;
-    private final byte[] mAvatar; 
+    private final byte[] mAvatar;
     private final String mAboutMe;
 
     public UserData(UserProfile profile) {
-        mName = profile.username(); 
+        mName = profile.username();
         mStatus = profile.status();
-        mAboutMe = profile.aboutme(); 
-        mAvatar = Commons.imageToBytes(profile.avatar());
+        mAboutMe = profile.aboutme();
+        mAvatar = FileService.instance().read(profile.avatar());
     }
- 
+
     public String getUserName() {
         return mName;
     }

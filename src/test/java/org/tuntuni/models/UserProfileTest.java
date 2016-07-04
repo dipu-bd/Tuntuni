@@ -18,7 +18,6 @@ package org.tuntuni.models;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.Core;
 
 /**
  *
@@ -33,12 +32,7 @@ public class UserProfileTest {
      
     @Before
     public void testBefore() { 
-        profile = Core.instance().user();
-    }
-
-    @Test
-    public void testHasField() {
-        assertFalse(profile.hasField("nai_field"));
+        profile = new UserProfile();
     }
 
     @Test
@@ -48,7 +42,7 @@ public class UserProfileTest {
 
     @Test
     public void testAvatar_Image() {
-        assertNotNull(profile.avatar());
+        assertNotNull(profile.avatarImage());
     }
 
     @Test

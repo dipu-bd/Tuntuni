@@ -28,8 +28,6 @@ import org.tuntuni.controllers.ProfileController;
 import org.tuntuni.controllers.SideBarController;
 import org.tuntuni.controllers.VideoCallController;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.Database;
-import org.tuntuni.util.Resources;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -56,7 +54,7 @@ public final class Core {
      *
      * @return
      */
-    public static final Core instance() { 
+    public static final Core instance() {
         return mInstance;
     }
 
@@ -64,9 +62,7 @@ public final class Core {
     private final Server mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
-    // data
-    private final Resources mResources;
-    private final Database mDatabase;
+    // data 
     private final MetaData mMeta;
     private final UserProfile mUser;
     // controllers
@@ -79,13 +75,11 @@ public final class Core {
     // Creates a new context. hidden from public.
     private Core() {
         // order might be important here
-        // put simple & light constructors first
-        mResources = new Resources();
-        mDatabase = new Database();
+        // put simple & light constructors first 
         mServer = new Server();
         mSubnet = new Subnet();
         mMeta = new MetaData();
-        mUser = new UserProfile(); 
+        mUser = new UserProfile();
     }
 
     public void start() {
@@ -158,25 +152,7 @@ public final class Core {
     public UserProfile user() {
         return mUser;
     }
-
-    /**
-     * Gets the database.
-     *
-     * @return an instance of the object
-     */
-    public Database database() {
-        return mDatabase;
-    }
-
-    /**
-     * Gets the resource manager.
-     *
-     * @return an instance of the object
-     */
-    public Resources resource() {
-        return mResources;
-    }
-
+ 
     ///
     ////////////////////////////////////////////////////////////////////////////
     /// CONTROLLERS : getter and setter functions for controllers

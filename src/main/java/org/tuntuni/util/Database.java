@@ -16,7 +16,7 @@
 package org.tuntuni.util;
 
 import com.google.gson.Gson;
-import java.lang.reflect.Type;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -28,84 +28,45 @@ public class Database {
     public static final String DEFAULT_NODE = "org/tuntuni";
 
     private final Gson mGson;
+    private final String mName;
     private final Preferences mPrefs;
 
-    public Database() {
+    public Database(String storeName) {
+        mName = storeName;
         // create gson parser instance
         mGson = new Gson();
         // open environment
-        mPrefs = Preferences.userRoot().node(DEFAULT_NODE);
+        mPrefs = Preferences.userRoot()
+                .node(DEFAULT_NODE)
+                .node(storeName.toLowerCase());
     }
 
     /**
-     * Gets the database storage by name
+     * Gets the name of the current instance.
      *
-     * @param name Storage name
-     * @return Database storage
-     */
-    public Preferences store(String name) {
-        return mPrefs.node(name.toLowerCase());
-    }
-
-    /**
-     * Gets the value from a database store by key
-     *
-     * @param storeName Name of the store
-     * @param key Name of the key.
      * @return
      */
-    public String getString(String storeName, String key) {
-        return store(storeName).get(key.toLowerCase(), "");
+    public String getName() {
+        return mName;
     }
 
     /**
-     * Gets stored array of raw bytes.
-     *
-     * @param storeName Name of the store
-     * @param key Name of the key.
-     * @return Array of bytes or {@code null}.
+     * <b>CAUTION ADVICED!</b>. This method will delete the entire database.
+     * @throws java.util.prefs.BackingStoreException
      */
-    public byte[] getBytes(String storeName, String key) {
-        return store(storeName).getByteArray(key.toLowerCase(), null);
+    @Deprecated
+    public void deleteDatabase() throws BackingStoreException {
+        mPrefs.removeNode();
     }
 
     /**
-     * Gets a object stored in database by key
+     * Check if the database has a key
      *
-     * @param <T> Type of stored.object
-     * @param storeName Name of the store.
-     * @param key Name of the key.
-     * @param typeOfT Type of stored object
-     * @return The data stored in the database or {@code null} if anything went
-     * wrong.
-     */
-    public <T extends Object> T getObject(String storeName, String key, Type typeOfT) {
-        String data = getString(storeName, key);
-        return mGson.fromJson(data, typeOfT);
-    }
-
-    /**
-     * Store a key-value pair in the database.
-     *
-     * @param storeName Name of the storage.
      * @param key Key name
-     * @param value Value to store
+     * @return True only if key has a non-empty value.
      */
-    public void putString(String storeName, String key, String value) {
-        store(storeName).put(key.toLowerCase(), value);
-    }
-
-    /**
-     * Stores an array of raw bytes.
-     *
-     * @param storeName Name of the store.
-     * @param key Key name.
-     * @param data Array of bytes to save.
-     */
-    public void putBytes(String storeName, String key, byte[] data) {
-        if (data != null) {
-            store(storeName).putByteArray(key.toLowerCase(), data);
-        }
+    public boolean contains(String key) {
+        return !mPrefs.get(key.toLowerCase(), "").isEmpty();
     }
 
     /**
@@ -113,25 +74,79 @@ public class Database {
      * actually converts the object into JSON string. And stores the string into
      * database.
      *
-     * @param storeName Storage name.
      * @param key Key name.
      * @param data Value to store.
      */
-    public void putObject(String storeName, String key, Object data) {
-        if (data != null) {
-            String json = mGson.toJson(data);
-            putString(storeName, key, json);
-        }
+    public void put(String key, Object data) {
+        String json = data == null ? "" : mGson.toJson(data);
+        mPrefs.put(key.toLowerCase(), json);
     }
 
     /**
-     * Check if a key has non-empty value
+     * Gets a object stored in database by key
      *
-     * @param storeName Name of the storage
-     * @param key Key name
-     * @return True only if key has non-empty value.
+     * @param <T> Type of stored.object
+     * @param type Type of stored object
+     * @param key Key name.
+     * @param defaultValue The value to return if anything goes wrong
+     * @return The data stored in the database or the {@code defaultValue} if
+     * anything went wrong.
      */
-    public boolean hasField(String storeName, String key) {
-        return getString(storeName, key).length() > 0;
+    public <T> T get(Class<T> type, String key, T defaultValue) {
+        String json = mPrefs.get(key.toLowerCase(), "");
+        try {
+            // convert from json. if empty return defaultValue
+            return json.isEmpty() ? defaultValue : mGson.fromJson(json, type);
+        } catch (Exception ex) {
+            // if return type is string pass the json
+            return (type == String.class) ? (T) json : defaultValue;
+        }
     }
+    
+    /**
+     * Deletes a key and erase its value from database.
+     * @param key
+     */
+    public void delete(String key) {
+        mPrefs.remove(key); 
+    }
+
+    ////////////////////////////////////////////////////////////////////////////    
+    //// Implicit Methods that extends functionality of base methods
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Gets a object stored in database by key
+     *
+     * @param <T> Type of stored.object
+     * @param type Type of stored object
+     * @param key Key name.
+     * @return The data stored in the database or {@code null} if anything went
+     * wrong.
+     */
+    public <T> T get(Class<T> type, String key) {
+        return get(type, key, null);
+    }
+
+    /**
+     * Gets an string in database by key
+     *
+     * @param key Key name.
+     * @param defaultValue The value to return if anything goes wrong
+     * @return The data stored in the database or {@code null} if anything went
+     * wrong.
+     */
+    public String get(String key, String defaultValue) {
+        return get(String.class, key, defaultValue);
+    }
+
+    /**
+     * Gets an string in database by key
+     *
+     * @param key Key name.
+     * @return An empty string is returned if read fails
+     */
+    public String get(String key) {
+        return get(key, "");
+    }
+
 }

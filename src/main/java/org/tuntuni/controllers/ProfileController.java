@@ -15,14 +15,10 @@
  */
 package org.tuntuni.controllers;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -30,13 +26,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
-import org.tuntuni.util.Commons;
-import sun.security.krb5.JavaxSecurityAuthKerberosAccess;
+import org.tuntuni.util.FileService;
 
 /**
  * To view or edit user's profile
@@ -70,7 +64,7 @@ public class ProfileController implements Initializable {
         String name = Core.instance().user().username();
         String status = Core.instance().user().status();
         String about = Core.instance().user().aboutme();
-        Image image = Core.instance().user().avatar();
+        Image image = Core.instance().user().avatarImage();
 
         if (mClient != null) {
             editable = false;
@@ -97,17 +91,16 @@ public class ProfileController implements Initializable {
                 new FileChooser.ExtensionFilter("Image Files", "*.PNG", "*.JPG", "*.BMP", "*.GIF"));
         fc.setTitle("Choose your avatar...");
 
-        File choosen = fc.showOpenDialog(Core.instance().stage());
-        
-        if (choosen != null && choosen.exists()) {
-            String url = choosen.toURI().toString();
-            Image image = new Image(url, 128, 128, true, true);
-            BufferedImage bimg = new BufferedImage((int) image.getWidth(),
-                    (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
-            bimg.getGraphics().drawImage(
-                    SwingFXUtils.fromFXImage(image, null), 0, 0, null);
-            Core.instance().user().avatar(Commons.imageToBytes(bimg));
+        try {
+            File choosen = fc.showOpenDialog(Core.instance().stage());
+            String uploaded = FileService.instance().upload(choosen);
+            Image image = FileService.instance().getImage(uploaded);
+            Core.instance().user().avatar(uploaded);
             avatarImage.setImage(image);
+        } catch (IOException ex) {
+            ExceptionDialog dialog = new ExceptionDialog(ex);
+            dialog.setTitle("Failed to upload image");
+            dialog.showAndWait();
         }
     }
 

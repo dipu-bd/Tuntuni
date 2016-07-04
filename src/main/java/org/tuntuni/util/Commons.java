@@ -62,6 +62,10 @@ public class Commons {
         return control;
     }
 
+    public static String getResource(String fileName) {
+        return Commons.class.getResource("/img/" + fileName).toString();
+    }
+
     public static byte[] imageToBytes(BufferedImage img) {
         try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
             ImageIO.write(img, "png", byteOutput);

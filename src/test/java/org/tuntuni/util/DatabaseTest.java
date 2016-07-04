@@ -15,75 +15,79 @@
  */
 package org.tuntuni.util;
 
+import com.google.gson.Gson;
+import java.util.prefs.BackingStoreException;
+import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.Core;
 import org.tuntuni.models.MetaData;
-import org.tuntuni.models.UserProfile;
 
 /**
  *
  * @author Sudipto Chandra
  */
 public class DatabaseTest {
-
+    
+    String name;
     Database database;
-
+    
     public DatabaseTest() {
     }
-
+    
     @Before
     public void testNewDatabse() {
-        database = new Database();
+        database = new Database("Test");
     }
-
+    
+    @After
+    public void testAfters() throws BackingStoreException {
+         database.deleteDatabase();
+    }
+    
+    
     @Test
     public void testString() {
         System.out.println("testStringTransaction");
-        String expResult = "this is a test data";
-        database.putString("test", "test", expResult);
-        String result = database.getString("test", "test");
-        assertEquals(expResult, result);
+        
+        String real = "this is a test data";
+        database.put("test", real);
+        
+        assertEquals(real, database.get("test"));
+        assertEquals(real, database.get("test", "non-real"));
+        
+        assertEquals(real, database.get(String.class, "test"));
+        assertEquals(real, database.get(String.class, "test", null));
+        
+        assertEquals(real, database.get("imaginary", real));
     }
-
+    
     @Test
     public void testObject() {
         System.out.println("testObjectTransaction");
-        MetaData expResult = new MetaData();
-        assertNotNull(expResult);
-        database.putObject("test", "meta", expResult);
-        MetaData result = database.getObject("test", "meta", MetaData.class);
+        MetaData real, result;
+        
+        real = new MetaData();
+        assertNotNull(real);
+        database.put("meta", real);
+        
+        System.out.println("++meta = " + database.get("meta"));
+        
+        Gson gson = new Gson();
+        assertEquals(database.get("meta"), gson.toJson(real));
+        assertEquals(database.get("meta", "not teu"), gson.toJson(real));
+        
+        result = database.get(MetaData.class, "meta");
         assertNotNull(result);
-        assertEquals(expResult.hostName(), result.hostName());
-        assertEquals(expResult.title(), result.title());
-        assertEquals(expResult.version(), result.version());
+        assertEquals(real.hostName(), result.hostName());
+        assertEquals(real.title(), result.title());
+        assertEquals(real.version(), result.version());
+        
+        result = database.get(MetaData.class, "meta", real);
+        assertNotNull(result);
+        assertEquals(real.hostName(), result.hostName());
+        assertEquals(real.title(), result.title());
+        assertEquals(real.version(), result.version());
     }
-
-    @Test
-    public void testMultiple() {
-        System.out.println("testMultiple");
-        testString();
-        testString();
-        testString();
-        testObject();;
-        testString();
-        testObject();
-        testString();
-        testString();
-        testObject();
-        testString();
-        testObject();
-        testObject();
-        testString();
-        testString();
-        testObject();
-        testString();
-        testString();
-        testObject();
-        testObject();
-        testString();
-        testObject();
-    }
-
+    
 }

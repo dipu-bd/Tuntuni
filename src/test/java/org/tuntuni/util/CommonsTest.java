@@ -38,6 +38,17 @@ public class CommonsTest {
     }
 
     @Test
+    public void testResource() {
+        System.out.println("getResource()");
+        String fileName = "avatar.png"; 
+        String expResult = "/img/avatar.png";
+        String result = Commons.getResource(fileName);
+        System.out.println("++avatar=" + result);
+        assertTrue(result.endsWith(expResult));
+        System.out.println();
+    }
+    
+    @Test
     public void testImageToBytes() throws URISyntaxException, FileNotFoundException, IOException {
         System.out.println("imageToBytes");
 
