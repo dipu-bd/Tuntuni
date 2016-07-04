@@ -15,8 +15,7 @@
  */
 package org.tuntuni.models;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.io.Serializable; 
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
 
@@ -24,29 +23,21 @@ import org.tuntuni.util.Commons;
  *
  */
 public class UserData implements Serializable {
-
-    private final String mFullName;
-    private final String mUserName;
+ 
+    private final String mName;
     private final String mStatus;
+    private final byte[] mAvatar; 
     private final String mAboutMe;
-    private final byte[] mAvatar;
-    private final Date mDateOfBirth; 
 
     public UserData(UserProfile profile) {
-        mUserName = profile.username();
-        mFullName = profile.fullname();
+        mName = profile.username(); 
         mStatus = profile.status();
-        mAboutMe = profile.aboutme();
-        mDateOfBirth = profile.dateofBirth();
+        mAboutMe = profile.aboutme(); 
         mAvatar = Commons.imageToBytes(profile.avatar());
     }
-
-    public String getFullName() {
-        return mFullName;
-    }
-
+ 
     public String getUserName() {
-        return mUserName;
+        return mName;
     }
 
     public String getStatus() {
@@ -59,13 +50,5 @@ public class UserData implements Serializable {
 
     public Image getAvatar() {
         return Commons.bytesToImage(mAvatar);
-    }
-        
-    public Image getAvatar(int height, int width) {
-        return Commons.bytesToImage(mAvatar, height, width);
-    }
-
-    public Date getDateOfBirth() {
-        return mDateOfBirth;
     }
 }

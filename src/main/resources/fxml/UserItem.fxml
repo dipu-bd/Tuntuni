@@ -9,7 +9,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox xmlns:fx="http://javafx.com/fxml/1" id="user-item" prefHeight="50.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="org.tuntuni.components.UserItem">
+<HBox id="user-item" prefHeight="50.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.UserItem">
    <children>
       <ImageView fx:id="imageView" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
          <HBox.margin>

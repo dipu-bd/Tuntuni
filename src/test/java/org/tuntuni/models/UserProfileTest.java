@@ -42,11 +42,6 @@ public class UserProfileTest {
     }
 
     @Test
-    public void testFullname() {
-        assertNotNull(profile.fullname());
-    }
-
-    @Test
     public void testUsername_String() {
         assertNotNull(profile.username());
     }

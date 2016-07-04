@@ -15,9 +15,13 @@
  */
 package org.tuntuni.util;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -26,6 +30,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 
 /**
  * Some commonly used functions and methods
@@ -46,7 +51,7 @@ public class Commons {
         //init loader           
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Commons.class.getResource(resourcePath));
-         
+
         //load fxml
         Node node = (Node) loader.load();
         BorderPane control = (BorderPane) loader.getController();
@@ -55,6 +60,15 @@ public class Commons {
         control.setCenter(node);
 
         return control;
+    }
+
+    public static byte[] imageToBytes(BufferedImage img) {
+        try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
+            ImageIO.write(img, "png", byteOutput);
+            return byteOutput.toByteArray();
+        } catch (IOException ex) {
+            return null;
+        }
     }
 
     public static byte[] imageToBytes(Image img) {
@@ -74,9 +88,10 @@ public class Commons {
         }
     }
 
-    public static Image bytesToImage(byte[] data, int height, int width) {
+    public static Image resizeImage(Image img, double width, double height) {
+        byte[] data = imageToBytes(img);
         try (ByteArrayInputStream byteInput = new ByteArrayInputStream(data)) {
-            return new Image(byteInput, height, width, true, true);
+            return new Image(byteInput, width, height, true, true);
         } catch (IOException ex) {
             return null;
         }

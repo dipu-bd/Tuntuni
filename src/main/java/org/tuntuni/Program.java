@@ -18,6 +18,7 @@ package org.tuntuni;
 import java.io.IOException;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,7 +34,7 @@ public class Program extends Application {
         // set current stage to core
         Core.instance().stage(stage);
         Core.instance().start();
-        //catch on close
+        // catch on close
         stage.setOnCloseRequest((evt) -> Core.instance().close());
 
         // get the parent node
@@ -50,6 +51,13 @@ public class Program extends Application {
         stage.setScene(scene);
         // display the stage
         stage.show();
+
+        // call other ui methods
+        Platform.runLater(() -> {
+            Core.instance().profile().setClient(null);
+            Core.instance().messaging().setClient(null);
+            Core.instance().videocall().setClient(null);
+        });
     }
 
     /**

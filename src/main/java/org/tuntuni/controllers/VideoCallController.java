@@ -19,15 +19,26 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import org.tuntuni.Core;
+import org.tuntuni.connection.Client;
 
 /**
  * Controller for video calling. It shows video in background. 
  */
 public class VideoCallController implements Initializable {
  
+    private Client mClient; 
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
-    }    
-    
+    }     
+ 
+    public void setClient(Client client) {
+        mClient = client;
+        loadAll();
+    }
+
+    private void loadAll() {
+        
+    }
 }

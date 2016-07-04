@@ -1,11 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.ProfileController">
-    
-</AnchorPane>
+<VBox id="profile-pane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.ProfileController">      
+    <children>
+        <GridPane prefHeight="150.0" prefWidth="600.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="150.0" prefWidth="160.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="50.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="71.0" prefHeight="75.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="41.0" prefHeight="45.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <TextField fx:id="userName" editable="false" onAction="#changeName" promptText="Your full name" style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.valignment="BOTTOM">
+                    <font>
+                        <Font size="32.0" />
+                    </font>
+                    <GridPane.margin>
+                        <Insets bottom="1.0" left="5.0" right="5.0" top="1.0" />
+                    </GridPane.margin>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    </padding>
+                </TextField>                  
+                <TextField fx:id="statusText" editable="false" onAction="#changeStatus" promptText="What's on your mind?" style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                    <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    </GridPane.margin>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    </padding>
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </TextField>
+            <Button fx:id="avatarButton" disable="true" mnemonicParsing="false" onAction="#changeAvatar" prefHeight="130.0" prefWidth="140.0" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowSpan="2147483647">
+               <GridPane.margin>
+                  <Insets left="5.0" right="4.0" />
+               </GridPane.margin>
+               <graphic>
+                  <ImageView fx:id="avatarImage" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+            </Button>
+            </children>
+         <effect>
+            <DropShadow blurType="ONE_PASS_BOX" color="#bab6cf" height="5.0" radius="2.0" spread="0.25" width="5.0" />
+         </effect>
+        </GridPane> 
+    </children>
+</VBox>

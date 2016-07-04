@@ -42,8 +42,8 @@ public class DatabaseTest {
     public void testString() {
         System.out.println("testStringTransaction");
         String expResult = "this is a test data";
-        database.putData("test", "test", expResult);
-        String result = database.getData("test", "test");
+        database.putString("test", "test", expResult);
+        String result = database.getString("test", "test");
         assertEquals(expResult, result);
     }
 

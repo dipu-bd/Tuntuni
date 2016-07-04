@@ -19,6 +19,7 @@ import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import org.tuntuni.connection.Client;
@@ -58,9 +59,9 @@ public class UserItem extends BorderPane {
 
     private void initialize() {
         assert mClient != null;
-        fullName.setText(mClient.getUserData().getFullName());
+        fullName.setText(mClient.getUserData().getUserName());
         statusLabel.setText("Last seen 24 minutes ago");
-        imageView.setImage(mClient.getUserData().getAvatar(48, 48));
+        imageView.setImage(mClient.getUserData().getAvatar());
     }
 
     private void setClient(Client client) {

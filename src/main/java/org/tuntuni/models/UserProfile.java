@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package org.tuntuni.models;
- 
-import java.util.Date;
+
 import java.lang.reflect.Type;
-import javafx.scene.image.Image; 
+import javafx.scene.image.Image;
 import org.tuntuni.Core;
 import org.tuntuni.util.Commons;
 
@@ -44,10 +43,15 @@ public class UserProfile {
         return new UserData(this);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    //// DATBASE interactions
+    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
     /**
      * Checks if the user has any value set for the given field
      *
-     * @param key Field name
+     * @param key Field username
      * @return True if has value.
      */
     boolean hasField(String key) {
@@ -55,70 +59,78 @@ public class UserProfile {
     }
 
     /**
-     * Sets a string-type value to a field.
+     * Sets bytes into a field
      *
-     * @param key Field name.
-     * @param value Field value.
+     * @param key Field username
+     * @param value Object value
      */
     void setField(String key, String value) {
-        Core.instance().database().putData(STORE_NAME, key, value);
+        Core.instance().database().putString(STORE_NAME, key, value);
+    }
+
+    /**
+     * Sets bytes into a field
+     *
+     * @param key Field username
+     * @param value Object value
+     */
+    void setByteField(String key, byte[] value) {
+        Core.instance().database().putBytes(STORE_NAME, key, value);
     }
 
     /**
      * Sets any value into a field
      *
-     * @param key Field name
+     * @param key Field username
      * @param value Object value
      */
-    void setField(String key, Object value) {
+    void setObjectField(String key, Object value) {
         Core.instance().database().putObject(STORE_NAME, key, value);
     }
 
     /**
      * Gets a string-type field value.
      *
-     * @param key Field name.
+     * @param key Field username.
      * @return Value of the field
      */
     String getField(String key) {
-        return Core.instance().database().getData(STORE_NAME, key);
+        return Core.instance().database().getString(STORE_NAME, key);
+    }
+
+    /**
+     * Gets a string-type field value.
+     *
+     * @param key Field username.
+     * @return Value of the field
+     */
+    byte[] getByteField(String key) {
+        return Core.instance().database().getBytes(STORE_NAME, key);
     }
 
     /**
      * Gets any field value.
      *
      * @param <T> Type of field value
-     * @param key Field name
+     * @param key Field username
      * @param typeOfT Type of field value
      * @return Value of the field
      */
-    <T extends Object> T getField(String key, Type typeOfT) {
-        return Core.instance().database().getObject(STORE_NAME, key, typeOfT);
-    }
-
-    /**
-     * Gets the full name of the user.
-     *
-     * @return Value of the field
-     */
-    public String fullname() {
-        if (!hasField("FullName")) {
-            return username();
+    <T extends Object> T getObjectField(String key, Type typeOfT) {
+        if (typeOfT.equals(byte[].class)) {
+            return (T) Core.instance().database().getBytes(STORE_NAME, key);
+        } else {
+            return Core.instance().database().getObject(STORE_NAME, key, typeOfT);
         }
-        return getField("FullName");
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    //// PROPERTIES 
+    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
     /**
-     * Sets the full name of the user.
-     *
-     * @param value Value of the field
-     */
-    public void fullname(String value) {
-        setField("FullName", value.trim());
-    }
-
-    /**
-     * Gets the display name of user.
+     * Gets the display username of user.
      *
      * @return Value of the field
      */
@@ -131,7 +143,7 @@ public class UserProfile {
     }
 
     /**
-     * Sets the display name of user.
+     * Sets the display username of user.
      *
      * @param value Value of the field
      */
@@ -140,37 +152,16 @@ public class UserProfile {
     }
 
     /**
-     * Gets the user's date of birth
-     *
-     * @return Value of the field
-     */
-    public Date dateofBirth() {
-        if (!hasField("DateOfBirth")) {
-            return null;
-        }
-        return getField("DateOfBirth", Date.class);
-    }
-
-    /**
-     * Sets the user's date of birth
-     *
-     * @param value Value of the field
-     */
-    public void dateOfBirth(Date value) {
-        setField("DateOfBirth", value);
-    }
-
-    /**
      * Gets the avatar image
      *
      * @return Value of the field
      */
     public Image avatar() {
-        if (!hasField("Avatar")) {
+        byte[] data = getByteField("Avatar");
+        if (data == null) {
             return Core.instance().resource().getImage("avatar.png");
         } else {
-            return Commons.bytesToImage(
-                    getField("Avatar", byte[].class));
+            return Commons.bytesToImage(data);
         }
     }
 
@@ -179,8 +170,17 @@ public class UserProfile {
      *
      * @param value Value of the field
      */
+    public void avatar(byte[] value) {
+        setByteField("Avatar", value);
+    }
+
+    /**
+     * Sets the avatar image
+     *
+     * @param value Value of the field
+     */
     public void avatar(Image value) {
-        setField("Avatar", Commons.imageToBytes(value));
+        setByteField("Avatar", Commons.imageToBytes(value));
     }
 
     /**
@@ -198,7 +198,7 @@ public class UserProfile {
      * @param value Value of the field
      */
     public void status(String value) {
-        setField("Status", value);
+        setField("Status", value.trim());
     }
 
     /**

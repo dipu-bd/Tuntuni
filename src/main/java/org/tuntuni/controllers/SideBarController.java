@@ -44,27 +44,37 @@ public class SideBarController implements Initializable {
 
         // build user list later
         Platform.runLater(() -> {
-            buildUserList(Core.instance().subnet().userListProperty());
-            // add user list change listener
-            Core.instance().subnet().userListProperty().addListener(
-                    (observable, oldVal, newVal) -> buildUserList(newVal));
 
-            // catch user list change event            
-            userList.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> {
-                UserItem uitem = (UserItem) userList.getSelectionModel().getSelectedItem();
-                System.out.println(uitem + " selected");
-            });
+            // run build immediately
+            buildUserList();
+
+            // listen to user list change
+            Core.instance().subnet().userListProperty().addListener(
+                    (observable, oldVal, newVal) -> buildUserList());
+
+            // listen to selected item change
+            userList.getSelectionModel().selectedItemProperty().addListener(
+                    (observable, oldVal, newVal) -> showUser());
         });
     }
 
-    private void buildUserList(ObservableSet<Client> clients) {
+    private void buildUserList() {
 
         userList.getItems().clear();
 
-        clients.stream().forEach((client) -> {
+        Core.instance().subnet().userListProperty().stream().forEach((client) -> {
             //cell.setText(client.user().fullname());
             //cell.setGraphic(new ImageView(client.user().avatar()));
             userList.getItems().add(UserItem.createInstance(client));
         });
+    }
+
+    private void showUser() {
+        UserItem uitem = (UserItem) userList.getSelectionModel().getSelectedItem();
+        System.out.println(uitem + " selected");
+
+        Core.instance().profile().setClient(uitem.getClient());
+        Core.instance().messaging().setClient(uitem.getClient());
+        Core.instance().videocall().setClient(uitem.getClient());
     }
 }
