@@ -37,7 +37,7 @@ public class DatabaseTest {
     
     @Before
     public void testNewDatabse() {
-        database = new Database("Test");
+        database = Database.instance("Test");
     }
     
     @After

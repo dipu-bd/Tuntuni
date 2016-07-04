@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.models;
+package org.tuntuni.connection;
 
 import java.io.Serializable;
 
@@ -25,5 +25,7 @@ public enum Status implements Serializable {
     // to pass meta information
     META,
     // to pass user profile information
-    PROFILE
+    PROFILE,
+    // to test if server is ok
+    TEST,
 }

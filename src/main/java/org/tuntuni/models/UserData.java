@@ -52,4 +52,8 @@ public class UserData implements Serializable {
     public Image getAvatar() {
         return Commons.bytesToImage(mAvatar);
     }
+
+    public Image getAvatar(double width, double height) {
+        return Commons.resizeImage(getAvatar(), width, height);
+    }
 }

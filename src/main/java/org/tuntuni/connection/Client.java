@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.MetaData;
-import org.tuntuni.models.Status;
 import org.tuntuni.models.UserData;
 
 /**
@@ -36,9 +35,9 @@ import org.tuntuni.models.UserData;
  * {@linkplain Client.open()} method.</p>
  */
 public class Client {
-
+    
     public static final int DEFAULT_TIMEOUT = 500;
-
+    
     private static final Logger logger = Logger.getGlobal();
 
     // to connect with server
@@ -55,7 +54,7 @@ public class Client {
         // set the socket
         mAddress = socket;
     }
-
+    
     @Override
     public boolean equals(Object other) {
         if (other instanceof Client) {
@@ -63,12 +62,12 @@ public class Client {
         }
         return false;
     }
-
+    
     @Override
     public int hashCode() {
         return mAddress.hashCode();
     }
-
+    
     @Override
     public String toString() {
         return mAddress.toString();
@@ -100,7 +99,7 @@ public class Client {
      */
     public String getHostName() {
         return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
-
+        
     }
 
     /**
@@ -162,7 +161,7 @@ public class Client {
         try (Socket socket = new Socket()) {
             // connect the socket with given address
             socket.connect(getAddress(), getTimeout());
-
+            
             try ( // get input-output 
                     OutputStream out = socket.getOutputStream();
                     ObjectOutputStream req = new ObjectOutputStream(out);
@@ -176,7 +175,7 @@ public class Client {
 
                 // return result
                 return res.readObject();
-
+                
             } catch (IOException | ClassNotFoundException ex) {
                 logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);
             }
@@ -193,16 +192,14 @@ public class Client {
      */
     public boolean test() {
         // get meta data
-        Object data = request(Status.META);
-        if (data != null && data instanceof MetaData) {
-            mMeta = (MetaData) data;
-            // get user profile
-            Object user = request(Status.PROFILE);
-            if (user != null && user instanceof UserData) {
-                mUser = (UserData) user;
-                return true;
-            }
+        try {
+            Object[] data = (Object[]) request(Status.META);
+            mMeta = (MetaData) data[0];
+            mUser = (UserData) data[1];
+            return true;
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
+            return false;
         }
-        return false;
     }
 }

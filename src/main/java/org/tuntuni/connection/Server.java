@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.tuntuni.connection.Server.PORTS;
-import org.tuntuni.models.Status;
 import org.tuntuni.models.Logs;
 
 /**

@@ -18,8 +18,7 @@ package org.tuntuni.controllers;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,7 +27,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.components.UserItem;
@@ -78,9 +76,13 @@ public class MainController implements Initializable {
                     Core.instance().user().usernameProperty());
 
             // avatar image
-            updateAvatar();
-            Core.instance().user().avatarProperty()
-                    .addListener((ov, old, cur) -> updateAvatar());
+            ChangeListener updateAvatar = (ov, old, cur) -> {
+                ((ImageView) profileButton.getGraphic())
+                        .setImage(Core.instance().user().getAvatarImage(32, 32));
+            };
+            updateAvatar.changed(null, null, null);
+
+            Core.instance().user().avatarProperty().addListener(updateAvatar);
         });
     }
 
@@ -100,11 +102,6 @@ public class MainController implements Initializable {
     private void handleProfileAction(ActionEvent event) {
         selectProfile();
         userList.getSelectionModel().clearSelection();
-    }
-
-    private void updateAvatar() {
-        ((ImageView) profileButton.getGraphic()).setImage(
-                Core.instance().user().avatarImage());
     }
 
     private void buildUserList() {

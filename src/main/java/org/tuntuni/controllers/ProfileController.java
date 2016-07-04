@@ -33,6 +33,7 @@ import javafx.stage.FileChooser;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
+import org.tuntuni.util.Database;
 import org.tuntuni.util.FileService;
 
 /**
@@ -76,16 +77,19 @@ public class ProfileController implements Initializable {
 
     private void loadAll() {
 
+        double width = avatarImage.getFitWidth();
+        double height = avatarImage.getFitHeight();
+
         String name = Core.instance().user().username();
         String status = Core.instance().user().status();
         String about = Core.instance().user().aboutme();
-        Image image = Core.instance().user().avatarImage();
+        Image image = Core.instance().user().getAvatarImage(width, height);
 
         if (mClient != null) {
             name = mClient.getUserData().getUserName() + " ";
             status = mClient.getUserData().getStatus() + " ";
             about = mClient.getUserData().getAboutMe() + " ";
-            image = mClient.getUserData().getAvatar();
+            image = mClient.getUserData().getAvatar(width, height);
         }
 
         userName.setText(name);
@@ -98,14 +102,14 @@ public class ProfileController implements Initializable {
         statusText.setEditable(mClient == null);
         messageButton.setVisible(mClient != null);
         videoCallButton.setVisible(mClient != null);
-        
-        if (mClient == null) { 
+
+        if (mClient == null) {
             userName.setCursor(Cursor.TEXT);
             statusText.setCursor(Cursor.TEXT);
             avatarButton.setCursor(Cursor.HAND);
             aboutGridPane.getColumnConstraints().get(1).setMinWidth(0);
             aboutGridPane.getColumnConstraints().get(1).setMaxWidth(0);
-        } else { 
+        } else {
             userName.setCursor(Cursor.DEFAULT);
             statusText.setCursor(Cursor.DEFAULT);
             avatarButton.setCursor(Cursor.DEFAULT);
@@ -128,12 +132,17 @@ public class ProfileController implements Initializable {
     private void changeAvatar(ActionEvent event) {
         if (mClient == null) {
             FileChooser fc = new FileChooser();
+            fc.setInitialDirectory(
+                    Database.instance().get(File.class, "Initial Directory"));
             fc.getExtensionFilters().setAll(
                     new FileChooser.ExtensionFilter("Image Files",
                             "*.png", "*.jpg", "*.bmp", "*.gif"));
             fc.setTitle("Choose your avatar...");
             File choosen = fc.showOpenDialog(Core.instance().stage());
-            changeAvatar(choosen);
+            if (choosen != null) {
+                changeAvatar(choosen);
+                Database.instance().put("Initial Directory", choosen.getParentFile());
+            }
         }
         loadAll();
     }
@@ -157,7 +166,6 @@ public class ProfileController implements Initializable {
     }
 
     private void changeAvatar(File choosen) {
-
         try {
             String uploaded = FileService.instance().upload(choosen);
             Image image = FileService.instance().getImage(uploaded);

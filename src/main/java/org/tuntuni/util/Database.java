@@ -27,18 +27,48 @@ public class Database {
 
     public static final String DEFAULT_NODE = "org/tuntuni";
 
+    private String mName;
+    private Preferences mPrefs;
     private final Gson mGson;
-    private final String mName;
-    private final Preferences mPrefs;
 
-    public Database(String storeName) {
-        mName = storeName;
-        // create gson parser instance
+    // constructor. hidden from public.
+    private Database() {
+        mName = "Default";
+        // create gson parser instance        
         mGson = new Gson();
         // open environment
-        mPrefs = Preferences.userRoot()
-                .node(DEFAULT_NODE)
-                .node(storeName.toLowerCase());
+        mPrefs = Preferences.userRoot().node(DEFAULT_NODE);
+    } 
+    
+    /**
+     * Gets an instance of the database.
+     *
+     * @return
+     */
+    public static Database instance() {
+        return new Database();
+    }
+
+    /**
+     * Gets an instance of the database of given store.
+     *
+     * @param storeName Name of the store.
+     * @return
+     */
+    public static Database instance(String storeName) {
+        return instance().store(storeName);
+    }
+
+    /**
+     * Gets the sub database store by name.
+     *
+     * @param storeName Name of the sub store under current store.
+     * @return
+     */
+    public final Database store(String storeName) {
+        mName = storeName;
+        mPrefs = mPrefs.node(storeName.trim().toLowerCase());
+        return this;
     }
 
     /**
@@ -52,6 +82,7 @@ public class Database {
 
     /**
      * <b>CAUTION ADVICED!</b>. This method will delete the entire database.
+     *
      * @throws java.util.prefs.BackingStoreException
      */
     @Deprecated
@@ -102,13 +133,14 @@ public class Database {
             return (type == String.class) ? (T) json : defaultValue;
         }
     }
-    
+
     /**
      * Deletes a key and erase its value from database.
+     *
      * @param key
      */
     public void delete(String key) {
-        mPrefs.remove(key); 
+        mPrefs.remove(key);
     }
 
     ////////////////////////////////////////////////////////////////////////////    

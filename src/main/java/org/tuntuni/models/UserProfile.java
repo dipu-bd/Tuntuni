@@ -39,7 +39,7 @@ public class UserProfile extends Persistent {
         mStatus = buildProperty("Status", "");
         mAboutMe = buildProperty("AboutMe", "");
         mUserName = buildProperty("UserName", System.getProperty("user.name"));
-        mAvatar = buildProperty("Avatar", Commons.getResource("avatar.png"));        
+        mAvatar = buildProperty("Avatar", Commons.getResource("avatar.png"));
     }
 
     /**
@@ -108,8 +108,19 @@ public class UserProfile extends Persistent {
      *
      * @return Avatar image; or {@code null} if none.
      */
-    public Image avatarImage() {
+    public Image getAvatarImage() {
         return FileService.instance().getImage(mAvatar.getValue());
+    }
+
+    /**
+     * Gets the avatar image of specified width and height
+     *
+     * @param width Preferred width
+     * @param height Preferred height
+     * @return Avatar image; or {@code null} if none.
+     */
+    public Image getAvatarImage(double width, double height) {
+        return Commons.resizeImage(getAvatarImage(), width, height);
     }
 
     /**

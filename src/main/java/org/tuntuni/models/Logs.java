@@ -23,6 +23,8 @@ public abstract class Logs {
     public static final String //--- begin : log message list ---
             // Program
             PROGRAM_CLOSING = "Closing all active executors and schedulars.",
+            // Used in Client
+            CLIENT_TEST_FAILED = "Could not parse data sent from server",
             // Used in Server and Client
             SERVER_BIND_SUCCESS = "Server is bound to port {0}",
             SERVER_BIND_FAILS = "Server could not be bound to to port {0}",

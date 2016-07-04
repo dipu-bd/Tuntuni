@@ -16,7 +16,6 @@
 package org.tuntuni.connection;
 
 import org.tuntuni.Core;
-import org.tuntuni.models.Status;
 
 /**
  * To build proper response for a request coming from server.
@@ -31,15 +30,17 @@ public class ServerRoute {
      * @return The response object. Can be {@code null}.
      */
     public static Object request(Status status, Object... data) {
-        switch (status) { 
+        switch (status) {
             case META:
                 return meta();
             case PROFILE:
                 return profile();
+            case TEST:
+                return test();
         }
         return null;
     }
- 
+
     // what to do when Status.META request arrived
     public static Object meta() {
         return Core.instance().meta();
@@ -49,4 +50,10 @@ public class ServerRoute {
     public static Object profile() {
         return Core.instance().user().getData();
     }
+
+    // what to do when Status.PROFILE request arrived
+    public static Object test() {
+        return new Object[]{meta(), profile()};
+    }
+
 }

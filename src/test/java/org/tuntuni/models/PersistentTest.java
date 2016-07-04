@@ -38,7 +38,7 @@ public class PersistentTest {
 
     @After
     public void testAfters() throws BackingStoreException {
-        (new Database(dbname)).deleteDatabase();
+        Database.instance(dbname).deleteDatabase();
     }
 
     public class PersistentImpl extends Persistent {

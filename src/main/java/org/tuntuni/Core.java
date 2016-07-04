@@ -27,6 +27,7 @@ import org.tuntuni.controllers.MessagingController;
 import org.tuntuni.controllers.ProfileController; 
 import org.tuntuni.controllers.VideoCallController;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Database;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -63,7 +64,7 @@ public final class Core {
     private Stage mPrimaryStage;
     // data 
     private final MetaData mMeta;
-    private final UserProfile mUser;
+    private final UserProfile mUser; 
     // controllers
     private MainController mMain; 
     private VideoCallController mVideoCall;
@@ -77,7 +78,7 @@ public final class Core {
         mServer = new Server();
         mSubnet = new Subnet();
         mMeta = new MetaData();
-        mUser = new UserProfile();
+        mUser = new UserProfile(); 
     }
 
     public void start() {
