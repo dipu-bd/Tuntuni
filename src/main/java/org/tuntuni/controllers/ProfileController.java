@@ -132,8 +132,10 @@ public class ProfileController implements Initializable {
     private void changeAvatar(ActionEvent event) {
         if (mClient == null) {
             FileChooser fc = new FileChooser();
-            fc.setInitialDirectory(
-                    Database.instance().get(File.class, "Initial Directory"));
+            File init = new File(Database.instance().get("Initial Directory"));
+            if (init.exists()) {
+                fc.setInitialDirectory(init);
+            }
             fc.getExtensionFilters().setAll(
                     new FileChooser.ExtensionFilter("Image Files",
                             "*.png", "*.jpg", "*.bmp", "*.gif"));
@@ -141,7 +143,8 @@ public class ProfileController implements Initializable {
             File choosen = fc.showOpenDialog(Core.instance().stage());
             if (choosen != null) {
                 changeAvatar(choosen);
-                Database.instance().put("Initial Directory", choosen.getParentFile());
+                Database.instance().set("Initial Directory",
+                        choosen.getParentFile().toString());
             }
         }
         loadAll();

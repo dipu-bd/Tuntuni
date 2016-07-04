@@ -108,7 +108,7 @@ public class Database {
      * @param key Key name.
      * @param data Value to store.
      */
-    public void put(String key, Object data) {
+    public void set(String key, Object data) {
         String json = data == null ? "" : mGson.toJson(data);
         mPrefs.put(key.toLowerCase(), json);
     }

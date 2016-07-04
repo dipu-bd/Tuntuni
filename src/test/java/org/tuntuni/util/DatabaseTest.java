@@ -51,7 +51,7 @@ public class DatabaseTest {
         System.out.println("testStringTransaction");
         
         String real = "this is a test data";
-        database.put("test", real);
+        database.set("test", real);
         
         assertEquals(real, database.get("test"));
         assertEquals(real, database.get("test", "non-real"));
@@ -69,7 +69,7 @@ public class DatabaseTest {
         
         real = new MetaData();
         assertNotNull(real);
-        database.put("meta", real);
+        database.set("meta", real);
         
         System.out.println("++meta = " + database.get("meta"));
         

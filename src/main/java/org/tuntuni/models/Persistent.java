@@ -53,7 +53,7 @@ public abstract class Persistent {
 
         @Override
         public void set(T value) {
-            mDatabase.put(mKey, value);
+            mDatabase.set(mKey, value);
         }
     }
 
