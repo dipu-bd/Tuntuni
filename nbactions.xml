@@ -23,5 +23,26 @@
             <runfx.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -jar "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
             <jpda.listen>true</jpda.listen>
         </properties>
-    </action>        
+    </action>
+    <action>
+        <actionName>CUSTOM-Native Build</actionName>
+        <displayName>Native Build</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>package</goal>
+            <goal>jfx:native</goal>
+        </goals>
+    </action>
+    <action>
+            <actionName>CUSTOM-Native NoTest</actionName>
+            <displayName>Native NoTest</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>package</goal>
+                <goal>jfx:native</goal>
+            </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </action>        
 </actions>

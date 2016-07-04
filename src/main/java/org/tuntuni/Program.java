@@ -22,7 +22,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.stage.Stage; 
 
 /**
  * The entry point of the application.
@@ -44,6 +45,10 @@ public class Program extends Application {
         Scene scene = new Scene(root);
         // add custom styles to the scene
         scene.getStylesheets().add("/css/default.css");
+
+        // set the icon
+        stage.getIcons().add(
+                new Image(getClass().getResourceAsStream("/img/tuntuni.png")));
 
         // prepare the stage
         stage.setTitle(Core.instance().meta().title());

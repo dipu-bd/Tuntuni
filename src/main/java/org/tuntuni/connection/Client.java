@@ -198,7 +198,7 @@ public class Client {
             mUser = (UserData) data[1];
             return true;
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
+            //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
             return false;
         }
     }
