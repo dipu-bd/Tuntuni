@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="main-pane" prefHeight="400" prefWidth="680" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MainController">
+<BorderPane id="main-pane" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MainController">
    
     <bottom>
         <HBox prefHeight="20.0" prefWidth="600.0" styleClass="statusbar" BorderPane.alignment="CENTER">
@@ -27,7 +27,7 @@
         </HBox>
     </bottom>
     <center>
-        <SplitPane dividerPositions="0.35" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <SplitPane dividerPositions="0.3" BorderPane.alignment="CENTER">
             <items>
                 <fx:include source="SideBar.fxml" />
                 <TabPane id="tab-pane" fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="120.0">

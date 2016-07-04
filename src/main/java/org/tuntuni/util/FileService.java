@@ -43,14 +43,12 @@ public class FileService {
         mFolder.mkdirs();
     }
 
-    public File resolve(String... names) {
-        File file = FileUtils.getFile(mFolder, names);
-        file.getParentFile().mkdirs();
-        return file;
+    public boolean exists(String ... relative) {
+        return resolve(relative).exists();
     }
 
-    public boolean exists(String relative) {
-        return resolve(relative).exists();
+    public File resolve(String... names) {
+        return FileUtils.getFile(mFolder, names);
     }
 
     public String relative(File path) {
@@ -65,14 +63,15 @@ public class FileService {
     }
 
     public Image getImage(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            file = resolve(path);
+        try {
+            return new Image(path);
+        } catch (Exception a) {
+            try {
+                return new Image(resolve(path).toURI().toString());
+            } catch (Exception b) {
+            }
         }
-        if (!file.exists()) {
-            return null;
-        }
-        return new Image(file.toURI().toString());
+        return null;
     }
 
     public byte[] read(String fileName) {

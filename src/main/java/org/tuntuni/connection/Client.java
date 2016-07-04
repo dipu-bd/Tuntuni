@@ -93,6 +93,17 @@ public class Client {
     }
 
     /**
+     * Gets the host name of the client. It returns an empty string if host-name
+     * is equals the host string.
+     *
+     * @return
+     */
+    public String getHostName() {
+        return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
+
+    }
+
+    /**
      * Gets the port number associated with this client.
      *
      * @return the port number
@@ -129,7 +140,7 @@ public class Client {
     public UserData getUserData() {
         return mUser;
     }
-    
+
     /**
      * Gets the meta data associated with it.
      *

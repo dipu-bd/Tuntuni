@@ -60,8 +60,10 @@ public class UserItem extends BorderPane {
     private void initialize() {
         assert mClient != null;
         fullName.setText(mClient.getUserData().getUserName());
-        statusLabel.setText("Last seen 24 minutes ago");
         imageView.setImage(mClient.getUserData().getAvatar());
+
+        String status = mClient.getUserData().getStatus();
+        statusLabel.setText(status.isEmpty() ? toString() : status);
     }
 
     private void setClient(Client client) {
@@ -74,7 +76,7 @@ public class UserItem extends BorderPane {
 
     @Override
     public String toString() {
-        return mClient.getUserData().getUserName()
+        return mClient.getHostString()
                 + "@" + mClient.getHostString()
                 + ":" + mClient.getPort();
     }

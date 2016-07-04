@@ -62,19 +62,22 @@ public class SideBarController implements Initializable {
 
         userList.getItems().clear();
 
-        Core.instance().subnet().userListProperty().stream().forEach((client) -> {
-            //cell.setText(client.user().fullname());
-            //cell.setGraphic(new ImageView(client.user().avatar()));
+        Core.instance().subnet().userListProperty().stream().forEach((client) -> {            
             userList.getItems().add(UserItem.createInstance(client));
         });
     }
 
     private void showUser() {
-        UserItem uitem = (UserItem) userList.getSelectionModel().getSelectedItem();
-        System.out.println(uitem + " selected");
-
-        Core.instance().profile().setClient(uitem.getClient());
-        Core.instance().messaging().setClient(uitem.getClient());
-        Core.instance().videocall().setClient(uitem.getClient());
+        Object sel = userList.getSelectionModel().getSelectedItem();
+        if (sel != null && sel instanceof UserItem) {
+            UserItem item = (UserItem) sel;
+            Core.instance().profile().setClient(item.getClient());
+            Core.instance().messaging().setClient(item.getClient());
+            Core.instance().videocall().setClient(item.getClient());
+        } else {
+            Core.instance().profile().setClient(null);
+            Core.instance().messaging().setClient(null);
+            Core.instance().videocall().setClient(null);
+        }
     }
 }
