@@ -42,7 +42,7 @@ public class UserProfileTest {
 
     @Test
     public void testAvatar_Image() {
-        assertNotNull(profile.avatarImage());
+        assertNotNull(profile.avatar());
     }
 
     @Test

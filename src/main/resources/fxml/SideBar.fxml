@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
@@ -15,18 +16,18 @@
    
     <fx:define>  
         <Double fx:id="EXPANDED_WIDTH" fx:value="200.0" />
-        <Double fx:id="COLLAPSED_WIDTH" fx:value="48.0" />
+        <Double fx:id="COLLAPSED_WIDTH" fx:value="54.0" />
     </fx:define>
     
     <children>
-        <HBox fillHeight="false">
+        <HBox fillHeight="false" prefHeight="60.0" style="-fx-background-color: #435;">
             <children>             
-                <Label prefHeight="45.0" text="Tuntuni">
+                <Label prefHeight="60.0" prefWidth="10000.0" text="Tuntuni" textFill="#fcfcfc" HBox.hgrow="ALWAYS">
                     <font>
-                        <Font name="Segoe Print" size="24.0" />
+                        <Font name="Segoe Print" size="28.0" />
                     </font>
                     <graphic>
-                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image url="@../img/tuntuni.png" />
                             </image>
@@ -35,9 +36,16 @@
                     <padding>
                         <Insets left="10.0" right="10.0" />
                     </padding>
+                    <effect>
+                        <DropShadow color="#a8a5d7" />
+                    </effect>
                 </Label>
             </children>
         </HBox>
-        <ListView fx:id="userList" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+        <ListView fx:id="userList" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: rgba(0,0,0,0.15);" VBox.vgrow="ALWAYS">
+            <effect>
+                <InnerShadow color="#aeb2bf" offsetY="6.0" width="0.0" />
+            </effect>
+        </ListView>
     </children>
 </VBox>

@@ -89,7 +89,7 @@ public class UserProfile extends Persistent {
      *
      * @return Avatar image; or {@code null} if none.
      */
-    public Image avatarImage() {
+    public Image avatarImage() { 
         return FileService.instance().getImage(mAvatar.getValue());
     }
 

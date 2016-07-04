@@ -43,7 +43,7 @@ public class FileService {
         mFolder.mkdirs();
     }
 
-    public boolean exists(String ... relative) {
+    public boolean exists(String... relative) {
         return resolve(relative).exists();
     }
 
@@ -63,13 +63,10 @@ public class FileService {
     }
 
     public Image getImage(String path) {
-        try {
+        if (exists(path)) {
+            return new Image(resolve(path).toURI().toString());
+        } else if ((new File(path)).exists()) {
             return new Image(path);
-        } catch (Exception a) {
-            try {
-                return new Image(resolve(path).toURI().toString());
-            } catch (Exception b) {
-            }
         }
         return null;
     }

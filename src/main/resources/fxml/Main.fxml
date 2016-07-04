@@ -27,10 +27,10 @@
         </HBox>
     </bottom>
     <center>
-        <SplitPane dividerPositions="0.3" BorderPane.alignment="CENTER">
+        <SplitPane dividerPositions="0.3" style="-fx-background-image: url(/img/large1.jpg);" BorderPane.alignment="CENTER">
             <items>
                 <fx:include source="SideBar.fxml" />
-                <TabPane id="tab-pane" fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="120.0">
+                <TabPane id="tab-pane" fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="120.0">
                     <tabs>
                         <Tab text="Profile">
                             <content>
