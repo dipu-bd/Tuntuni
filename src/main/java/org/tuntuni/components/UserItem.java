@@ -15,27 +15,37 @@
  */
 package org.tuntuni.components;
 
+import java.io.IOException;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import org.tuntuni.connection.Client;
+import org.tuntuni.util.Commons;
 
 /**
  * FXML Controller class
  *
  * @author Sudipto Chandra
  */
-public class UserItem {
+public class UserItem extends BorderPane {
 
-    private Node mNode;
-    private final Client mClient;
+    public static UserItem createInstance(Client client) {
+        try {
+            // build the component
+            UserItem uitem = (UserItem) Commons.loadPaneFromFXML("/fxml/UserItem.fxml");
+            // set client
+            uitem.setClient(client);
+            //post load work      
+            uitem.initialize();
+            // return main object
+            return uitem;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 
     @FXML
     private ImageView imageView;
@@ -44,43 +54,27 @@ public class UserItem {
     @FXML
     private Label statusLabel;
 
-    private UserItem(Client client) {
-        mClient = client;
-    }
+    private Client mClient;
 
-    public static UserItem createInstance(Client client) {
-        try {
-            UserItem uitem = new UserItem(client);
-            //init loader           
-            FXMLLoader loader = new FXMLLoader();
-            loader.setBuilderFactory(new JavaFXBuilderFactory());
-            loader.setController(uitem);
-            loader.setLocation(UserItem.class
-                    .getResource("/fxml/UserItem.fxml"));
-            //load fxml
-            uitem.setNode(loader.load());
-            //post load work               
-            Platform.runLater(() -> uitem.initialize());
-            // return main object
-            return uitem;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    public void initialize() {
+    private void initialize() {
+        assert mClient != null;
         fullName.setText(mClient.getUserData().getFullName());
-        statusLabel.setText(mClient.getUserData().getStatus());
+        statusLabel.setText("Last seen 24 minutes ago");
         imageView.setImage(mClient.getUserData().getAvatar(48, 48));
     }
 
-    void setNode(Node node) {
-        mNode = node;
+    private void setClient(Client client) {
+        mClient = client;
     }
 
-    public Node getNode() {
-        return mNode;
+    public Client getClient() {
+        return mClient;
     }
 
+    @Override
+    public String toString() {
+        return mClient.getUserData().getUserName()
+                + "@" + mClient.getHostString()
+                + ":" + mClient.getPort();
+    }
 }

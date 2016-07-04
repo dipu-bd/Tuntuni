@@ -48,6 +48,12 @@ public class SideBarController implements Initializable {
             // add user list change listener
             Core.instance().subnet().userListProperty().addListener(
                     (observable, oldVal, newVal) -> buildUserList(newVal));
+
+            // catch user list change event            
+            userList.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> {
+                UserItem uitem = (UserItem) userList.getSelectionModel().getSelectedItem();
+                System.out.println(uitem + " selected");
+            });
         });
     }
 
@@ -58,7 +64,7 @@ public class SideBarController implements Initializable {
         clients.stream().forEach((client) -> {
             //cell.setText(client.user().fullname());
             //cell.setGraphic(new ImageView(client.user().avatar()));
-            userList.getItems().add(UserItem.createInstance(client).getNode());
+            userList.getItems().add(UserItem.createInstance(client));
         });
     }
 }

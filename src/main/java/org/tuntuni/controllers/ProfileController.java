@@ -19,15 +19,26 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import org.tuntuni.Core;
+import org.tuntuni.connection.Client;
 
 /**
  * To view or edit user's profile
  */
 public class ProfileController implements Initializable {
 
+    private Client mClient; 
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().profile(this);
     }
 
+    public void setClient(Client client) {
+        mClient = client;
+        loadAll();
+    }
+
+    private void loadAll() {
+        
+    }
 }

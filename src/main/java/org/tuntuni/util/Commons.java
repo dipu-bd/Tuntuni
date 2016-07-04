@@ -19,13 +19,43 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javax.imageio.ImageIO;
 
 /**
  * Some commonly used functions and methods
  */
 public class Commons {
+
+    /**
+     * Create a new custom pane from FXML data. <br>
+     * Restraints: Name and package of FXML file should be the same as
+     * <code>resourceClass</code>. <code>resourceClass</code> should extend
+     * <code>BorderPane</code> or one of its descendents.
+     *
+     * @param resourcePath Resource path to FXML file.
+     * @return Pane type object containing loaded node.
+     * @throws java.io.IOException
+     */
+    public static Pane loadPaneFromFXML(String resourcePath) throws IOException {
+        //init loader           
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(Commons.class.getResource(resourcePath));
+         
+        //load fxml
+        Node node = (Node) loader.load();
+        BorderPane control = (BorderPane) loader.getController();
+
+        BorderPane.setAlignment(node, Pos.CENTER);
+        control.setCenter(node);
+
+        return control;
+    }
 
     public static byte[] imageToBytes(Image img) {
         try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
