@@ -24,7 +24,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.MetaData;
@@ -140,8 +139,7 @@ public class Client extends ClientData {
      * @param toSent Message to be sent
      * @return True if success, false otherwise.
      */
-    public boolean message(Message toSent) {
-        System.out.println("Sent to " + toSent.getText());
+    public boolean message(Message toSent) { 
         Object result = request(Status.MESSAGE, toSent);
         if (result instanceof Boolean) {
             return (boolean) result;

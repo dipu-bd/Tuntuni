@@ -22,6 +22,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -51,7 +52,9 @@ public class MessageBox extends BorderPane {
     }
 
     @FXML
-    private ImageView senderAvatar;
+    private Button senderButton;
+    @FXML
+    private ImageView senderImage;
     @FXML
     private Label timegapLabel;
     @FXML
@@ -63,14 +66,14 @@ public class MessageBox extends BorderPane {
     private final PrettyTime mPrettyTime;
     private final Timeline mTimeline;
 
-    private MessageBox() {
+    public MessageBox() {
         mDate = new Date();
         mPrettyTime = new PrettyTime();
         mTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), (evt) -> updateTime()));
     }
 
-    private void initialize(Message message) {
+    public void initialize(Message message) {
         mMessage = message;
 
         mDate = mMessage.getTime();
@@ -80,12 +83,12 @@ public class MessageBox extends BorderPane {
         mTimeline.play();
 
         if (mMessage.isReceiver()) {
-            senderAvatar.setImage(mMessage.getSender().getAvatar(
-                    senderAvatar.getFitWidth(), senderAvatar.getFitHeight()));
-            senderAvatar.setVisible(true);
+            senderImage.setImage(mMessage.getSender().getAvatar(
+                    senderImage.getFitWidth(), senderImage.getFitHeight()));
+            senderButton.setVisible(true);
             this.setId("message-receiver");
         } else {
-            senderAvatar.setVisible(false);
+            senderButton.setVisible(false);
             this.setId("message-sender");
         }
     }

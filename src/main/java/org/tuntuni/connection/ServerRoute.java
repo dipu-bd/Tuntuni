@@ -82,9 +82,8 @@ public class ServerRoute extends Object {
             message.setReceiver(true);
             message.setClient(client);
             message.setTime(new Date());
-            // response success
-            logger.log(Level.INFO, "\n+++{0} sent {1}\n", new Object[]{message.getSender().getUserName(), message.getText()});
             return true;
+
         } catch (Exception ex) {
             ex.printStackTrace();
             // response failure
