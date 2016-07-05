@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
-        <action>
-            <actionName>run</actionName>
-            <packagings>
-                <packaging>jar</packaging>
-            </packagings>
+    <action>
+        <actionName>run</actionName>
+        <goals>
+            <goal>clean</goal>
+            <goal>package</goal>
+            <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+        </goals>
+        <properties>
+            <runfx.args>-jar "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
+            <skipTests>true</skipTests>
+        </properties>
+    </action>
+    <action>
+        <actionName>debug</actionName>
+        <goals>
+            <goal>clean</goal>
+            <goal>package</goal>
+            <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+        </goals>
+        <properties>
+            <runfx.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -jar "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
+            <jpda.listen>true</jpda.listen>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-Native Build</actionName>
+        <displayName>Native Build</displayName>
+        <goals>
+            <goal>jfx:native</goal>
+            
+            
+        </goals>
+    </action>
+    <action>
+            <actionName>CUSTOM-Native NoTest</actionName>
+            <displayName>Native NoTest</displayName>
             <goals>
+<<<<<<< HEAD
                 <goal>clean</goal>
                 <goal>package</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
@@ -13,7 +45,14 @@
             <properties>
                 <exec.args>-classpath %classpath org.tuntuni.Program</exec.args>
                 <exec.executable>java</exec.executable>
+=======
+                <goal>jfx:native</goal>
+                
+                
+            </goals>
+            <properties>
+>>>>>>> f588a345277cc9f2a14d5cd42792e01eab1d3d22
                 <skipTests>true</skipTests>
             </properties>
-        </action>
-    </actions>
+        </action>        
+</actions>

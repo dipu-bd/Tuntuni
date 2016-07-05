@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sudipto Chandra.
+ * Copyright 2016 Tuntuni.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection;
-
-import java.io.Serializable;
+package org.tuntuni.util;
 
 /**
- * Defined a few types of connection status client and server.
+ * To store and get messages
  */
-public enum Status implements Serializable {
-      
-    // to pass user profile information
-    PROFILE, 
-    // to pass a single message
-    MESSAGE,
+public class MessageStore {
+    
+    public MessageStore() {
+        
+    }
+     
 }

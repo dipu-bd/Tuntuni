@@ -15,15 +15,28 @@
  */
 package org.tuntuni.connection;
 
-import java.io.Serializable;
+import org.junit.Test;
 
 /**
- * Defined a few types of connection status client and server.
+ *
+ * @author Sudipto Chandra
  */
-public enum Status implements Serializable {
-      
-    // to pass user profile information
-    PROFILE, 
-    // to pass a single message
-    MESSAGE,
+public class SubnetTest {
+
+    public SubnetTest() {
+    }
+
+    /**
+     * Test of getUserList method, of class Subnet.
+     */
+    @Test
+    public void testSubnet() throws InterruptedException {
+        System.out.println("testSubnet()");
+        Subnet subnet = new Subnet();
+        subnet.start();
+        Thread.sleep(3_000);  // wait a moment
+        System.out.println("++Users:" + subnet.userListProperty().getSize());
+        subnet.stop();
+        System.out.println();
+    }
 }

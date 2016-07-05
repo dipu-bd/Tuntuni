@@ -15,12 +15,70 @@
  */
 package org.tuntuni;
 
+import java.io.IOException;
+import javafx.application.Application;
+import static javafx.application.Application.launch;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage; 
+import org.tuntuni.util.Commons;
+
 /**
  * The entry point of the application.
  */
-public class Program {
+public class Program extends Application {
 
-    public static void main(String[] args) {
-        System.out.println("Nothing has been implemented yet.");
+    @Override
+    public void start(Stage stage) throws IOException {
+        // set current stage to core
+        Core.instance().stage(stage);
+        Core.instance().start();
+        // catch on close
+        stage.setOnCloseRequest((evt) -> Core.instance().close());
+
+        // get the parent node
+        Parent root = (Parent) FXMLLoader.load(
+                getClass().getResource("/fxml/Main.fxml"));
+        // build the default scene
+        Scene scene = new Scene(root);
+        // add custom styles to the scene
+        scene.getStylesheets().add("/css/default.css");    
+
+        // prepare the stage
+        stage.setTitle("Tuntuni");
+        // set the scene to stage
+        stage.setScene(scene);
+        // display the stage
+        stage.show();
+
+        // set the icon
+        Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        
+        stage.getIcons().add(icon);
+        stage.getIcons().add(Commons.resizeImage(icon, 16, 16));
+        stage.getIcons().add(Commons.resizeImage(icon, 48, 48));
+        stage.getIcons().add(Commons.resizeImage(icon, 128, 128));    
+        
+        // call other ui methods
+        Platform.runLater(() -> {
+            Core.instance().profile().setClient(null);
+            Core.instance().messaging().setClient(null);
+            Core.instance().videocall().setClient(null);
+        });
     }
+
+    /**
+     * The main() method is ignored in correctly deployed JavaFX application.
+     * main() serves only as fallback in case the application can not be
+     * launched through deployment artifacts, e.g., in IDEs with limited FX
+     * support. NetBeans ignores main().
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+
 }
