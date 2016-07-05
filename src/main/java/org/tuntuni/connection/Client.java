@@ -114,7 +114,7 @@ public class Client extends ClientData {
         }
         // otherwise just check if server is alive
         try (Socket socket = new Socket()) {
-            socket.connect(getAddress(), getTimeout());
+            socket.connect(getAddress(), getTimeout()); 
             return true;
         } catch (Exception ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
@@ -125,12 +125,11 @@ public class Client extends ClientData {
 
     public boolean getProfile() {
         // get getProfile data
-        try {  
-            Object data = (Object) request(Status.PROFILE);  
-            setUserData((UserData) data);
-            System.out.println("Set profile ");
+        try {
+            UserData profile = (UserData) request(Status.PROFILE);
+            setUserData(profile);
             setConnected(true);
-            return true;
+            return profile != null;
         } catch (NullPointerException ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
             return false;
