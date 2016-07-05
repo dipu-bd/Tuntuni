@@ -15,45 +15,72 @@
  */
 package org.tuntuni.connection;
 
+import java.net.Socket;
 import org.tuntuni.Core;
+import org.tuntuni.models.Message;
 
 /**
- * To build proper response for a request coming from server.
+ * Extended by Server. It provides functions to deal with a request arrived in
+ * Server from a client socket.
  */
-public class ServerRoute {
+public class ServerRoute extends Object {
 
     /**
      * A function to which the server requests to get response.
      *
-     * @param status the status of the request
+     * @param status the status of the getResponse
+     * @param from The socket involving this request.
      * @param data parameters sent by client
-     * @return The response object. Can be {@code null}.
+     * @return The getResponse object. Can be {@code null}.
      */
-    public static Object request(Status status, Object... data) {
+    public Object getResponse(Status status, Socket from, Object... data) {
         switch (status) {
-            case META:
+            case META: // send meta data
                 return meta();
-            case PROFILE:
+            case PROFILE: // send user data
                 return profile();
-            case TEST:
+            case TEST: // request to send test data (meta + user)
                 return test();
+            case MESSAGE: // a message arrived
+                return message(from, data);
         }
         return null;
     }
 
-    // what to do when Status.META request arrived
-    public static Object meta() {
+    // what to do when Status.META getResponse arrived
+    public Object meta() {
         return Core.instance().meta();
     }
 
-    // what to do when Status.PROFILE request arrived
-    public static Object profile() {
+    // what to do when Status.PROFILE getResponse arrived
+    public Object profile() {
         return Core.instance().user().getData();
     }
 
-    // what to do when Status.PROFILE request arrived
-    public static Object test() {
+    // what to do when Status.PROFILE getResponse arrived
+    public Object test() {
         return new Object[]{meta(), profile()};
+    }
+
+    // display the message 
+    public Object message(Socket from, Object... data) {
+        try {
+            // get message
+            Message message = (Message) data[0];
+            // sender's address
+            String remote = from.getRemoteSocketAddress().toString();
+            // get client
+            Client client = Core.instance().subnet().getClientByAddress(remote);
+            // add this message
+            client.addMessage(message);
+            message.setReceiver(true);
+            message.setClient(client);
+            // response success
+            return true;
+        } catch (Exception ex) {
+            // response failure
+            return false;
+        }
     }
 
 }

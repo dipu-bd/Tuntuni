@@ -25,25 +25,24 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import static org.tuntuni.connection.Server.PORTS;
+import java.util.logging.Logger; 
 import org.tuntuni.models.Logs;
 
 /**
  * To listen and respond to clients sockets.
  */
-public final class Server {
+public final class Server extends ServerRoute {
 
     // logger
     private static final Logger logger = Logger.getGlobal();
 
-    public static final int MAX_SOCKET_THREAD = 10;
-    public static final String SECRET_CODE = "B33KS83JNF";
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
 
+    public static final int MAX_EXECUTOR_THREAD = 10; 
+    
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
     private Exception mError;
@@ -57,7 +56,7 @@ public final class Server {
      * to run server.</p>
      */
     public Server() {
-        mExecutor = Executors.newFixedThreadPool(MAX_SOCKET_THREAD);
+        mExecutor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREAD);
     }
 
     /**
@@ -102,15 +101,13 @@ public final class Server {
      */
     public void initialize() throws IOException {
         // try create server channel for each of the given ports
-        for (int i = 0; i < PORTS.length; ++i) {
+        for (int i = 0; i < Server.PORTS.length; ++i) {
             try {
                 // Create the server socket channel
-                mSSocket = new ServerSocket(PORTS[i]);
-                // successfully created a server
-                logger.log(Level.INFO, Logs.SERVER_BIND_SUCCESS, PORTS[i]);
+                mSSocket = new ServerSocket(Server.PORTS[i]); 
                 break;
             } catch (IOException ex) {
-                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, PORTS[i]);
+                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, Server.PORTS[i]);
             }
         }
     }
@@ -138,7 +135,7 @@ public final class Server {
     }
 
     /**
-     * Sends the request to stop the server.
+     * Sends the getResponse to stop the server.
      * <p>
      * It may take a while to stop the server completely.</p>
      */
@@ -163,7 +160,7 @@ public final class Server {
         while (isOpen()) {
             try {
                 Socket socket = mSSocket.accept();
-                // process the request in a separate thread
+                // process the getResponse in a separate thread
                 mExecutor.submit(() -> {
                     processSocket(socket);
                 });
@@ -186,7 +183,7 @@ public final class Server {
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream res = new ObjectOutputStream(out);) {
 
-            // get request type
+            // get getResponse type
             Status status = (Status) req.readObject();
             // get params
             Object[] data = (Object[]) req.readObject();
@@ -194,7 +191,7 @@ public final class Server {
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{socket.getRemoteSocketAddress(), status, data.length});
             // routing by status type
-            Object result = ServerRoute.request(status, data);
+            Object result = getResponse(status, socket, data);
             // send the result
             if (res != null) {
                 res.writeObject(result);

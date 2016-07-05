@@ -16,30 +16,33 @@
 package org.tuntuni.components;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.Date;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import org.tuntuni.connection.Client;
+import org.tuntuni.models.Message;
 import org.tuntuni.util.Commons;
 
 /**
- * FXML Controller class
- *
- * @author Sudipto Chandra
+ * A single message item view
  */
-public class UserItem extends BorderPane {
-
-    public static UserItem createInstance(Client client) {
+public class MessageBox extends BorderPane {
+ 
+    public static MessageBox createInstance(Message message) {
         try {
             // build the component
-            UserItem uitem = (UserItem) Commons.loadPaneFromFXML("/fxml/UserItem.fxml");
+            MessageBox mbox = (MessageBox) Commons.loadPaneFromFXML("/fxml/MessageBox.fxml");
             // set client
-            uitem.setClient(client);
+            mbox.setMessage(message);
             //post load work      
-            uitem.initialize();
+            mbox.initialize();
             // return main object
-            return uitem;
+            return mbox;
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -47,35 +50,24 @@ public class UserItem extends BorderPane {
     }
 
     @FXML
-    private ImageView imageView;
+    private ImageView senderAvatar;
     @FXML
-    private Label fullName;
+    private ImageView receiverAvatar;
     @FXML
-    private Label statusLabel;
+    private Label arrivalTime;
+    @FXML
+    private Label messageBody;
 
-    private Client mClient;
+    private Message mMessage;
 
+    public void setMessage(Message message) {
+        mMessage = message;
+    }
+    
     private void initialize() {
-        assert mClient != null;
-        fullName.setText(mClient.getUserData().getUserName());
-        imageView.setImage(mClient.getUserData().getAvatar());
-
-        String status = mClient.getUserData().getStatus();
-        statusLabel.setText(status.isEmpty() ? toString() : status);
+        assert mMessage != null;
+        
+        
     }
 
-    private void setClient(Client client) {
-        mClient = client;
-    }
-
-    public Client getClient() {
-        return mClient;
-    }
-
-    @Override
-    public String toString() {
-        return mClient.getHostString()
-                + "@" + mClient.getHostString()
-                + ":" + mClient.getPort();
-    }
 }

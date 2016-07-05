@@ -50,7 +50,7 @@ public class Subnet {
 
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;
-    private final SimpleSetProperty<Client> mUserList; 
+    private final SimpleSetProperty<Client> mUserList;
 
     /**
      * Creates a new instance of Subnet.
@@ -59,7 +59,6 @@ public class Subnet {
         mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mSchedular = Executors.newSingleThreadScheduledExecutor();
-
     }
 
     /**
@@ -222,4 +221,21 @@ public class Subnet {
         });
     }
 
+    /**
+     * Search for the user client on the user list and returns the client if
+     * found, otherwise a null value is returned
+     *
+     * @param address Address of the user to search for
+     * @return null if not found.
+     */
+    public Client getClientByAddress(String address) {
+        synchronized (mUserList) {
+            for (Client client : mUserList) {
+                if (client.getHostString().equals(address)) {
+                    return client;
+                }
+            }
+        }
+        return null;
+    }
 }

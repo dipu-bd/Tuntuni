@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MessagingController">
-    
-</AnchorPane>
+
+<VBox id="message-pane" prefHeight="400.0" prefWidth="249.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MessagingController">
+   <children>
+      <ListView prefHeight="314.0" VBox.vgrow="ALWAYS" />
+      <TextArea fx:id="messageText" onDragDetected="#handleSendMessage" prefHeight="70.0" promptText="Write something and press Enter" wrapText="true">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </TextArea>
+   </children>
+</VBox>

@@ -25,6 +25,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
+import org.tuntuni.models.Message;
 import org.tuntuni.models.MetaData;
 import org.tuntuni.models.UserData;
 
@@ -34,119 +35,36 @@ import org.tuntuni.models.UserData;
  * You can not create new client directly. To create a client use
  * {@linkplain Client.open()} method.</p>
  */
-public class Client {
-    
+public class Client extends ClientData {
+
     public static final int DEFAULT_TIMEOUT = 500;
-    
+
     private static final Logger logger = Logger.getGlobal();
 
-    // to connect with server
-    private int mTimeout;
-    private final InetSocketAddress mAddress;
-    // local data from server
-    private MetaData mMeta;
-    private UserData mUser;
-
     // hidesthe constructor and handle it with static open() method
-    public Client(InetSocketAddress socket) throws IOException {
-        // default settings
-        mTimeout = DEFAULT_TIMEOUT;
-        // set the socket
-        mAddress = socket;
+    public Client(InetSocketAddress socket) {
+        super(socket);
     }
-    
+
+    //
+    // Some functions that has been overridden for equality tests in Subnet.
+    // 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Client) {
-            return mAddress.equals(((Client) other).getAddress());
+            return getAddress().equals(((Client) other).getAddress());
         }
         return false;
     }
-    
+
     @Override
     public int hashCode() {
-        return mAddress.hashCode();
+        return getAddress().hashCode();
     }
-    
+
     @Override
     public String toString() {
-        return mAddress.toString();
-    }
-
-    /**
-     * Gets the socket address associated with this client.
-     *
-     * @return the socket address
-     */
-    public InetSocketAddress getAddress() {
-        return mAddress;
-    }
-
-    /**
-     * Gets the host address associated with this client.
-     *
-     * @return the host address as string
-     */
-    public String getHostString() {
-        return mAddress.getHostString();
-    }
-
-    /**
-     * Gets the host name of the client. It returns an empty string if host-name
-     * is equals the host string.
-     *
-     * @return
-     */
-    public String getHostName() {
-        return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
-        
-    }
-
-    /**
-     * Gets the port number associated with this client.
-     *
-     * @return the port number
-     */
-    public int getPort() {
-        return mAddress.getPort();
-    }
-
-    /**
-     * Gets the timeout for a connection
-     *
-     * @return Timeout for a connection
-     */
-    public int getTimeout() {
-        return mTimeout;
-    }
-
-    /**
-     * Set the timeout for an attempt to connect with server.
-     * <p>
-     * Default is {@value #DEFAULT_TIMEOUT}.</p>
-     *
-     * @param timeout in milliseconds.
-     */
-    public void setTimeout(int timeout) {
-        mTimeout = timeout;
-    }
-
-    /**
-     * Gets the user data associated with it.
-     *
-     * @return
-     */
-    public UserData getUserData() {
-        return mUser;
-    }
-
-    /**
-     * Gets the meta data associated with it.
-     *
-     * @return
-     */
-    public MetaData getMetaData() {
-        return mMeta;
+        return getAddress().toString();
     }
 
     /**
@@ -161,7 +79,7 @@ public class Client {
         try (Socket socket = new Socket()) {
             // connect the socket with given address
             socket.connect(getAddress(), getTimeout());
-            
+
             try ( // get input-output 
                     OutputStream out = socket.getOutputStream();
                     ObjectOutputStream req = new ObjectOutputStream(out);
@@ -175,7 +93,7 @@ public class Client {
 
                 // return result
                 return res.readObject();
-                
+
             } catch (IOException | ClassNotFoundException ex) {
                 logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);
             }
@@ -194,11 +112,26 @@ public class Client {
         // get meta data
         try {
             Object[] data = (Object[]) request(Status.TEST);
-            mMeta = (MetaData) data[0];
-            mUser = (UserData) data[1];
+            setMetaData((MetaData) data[0]);
+            setUserData((UserData) data[1]);
             return true;
         } catch (Exception ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
+            return false;
+        }
+    }
+
+    /**
+     * Send a message to this client
+     *
+     * @param toSent Message to be sent
+     * @return True if success, false otherwise.
+     */
+    public boolean message(Message toSent) {
+        Object result = request(Status.MESSAGE, toSent);
+        if (result instanceof Boolean) {
+            return (boolean) result;
+        } else {
             return false;
         }
     }
