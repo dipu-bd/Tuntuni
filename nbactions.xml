@@ -36,12 +36,10 @@
     <action>
             <actionName>CUSTOM-Native NoTest</actionName>
             <displayName>Native NoTest</displayName>
-            <goals>
+            <goals> 
                 <goal>jfx:native</goal>
-                
-                
             </goals>
-            <properties>
+            <properties> 
                 <skipTests>true</skipTests>
             </properties>
         </action>        

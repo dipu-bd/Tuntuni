@@ -142,5 +142,14 @@
             <artifactId>prettytime</artifactId>
             <version>4.0.1.Final</version>
         </dependency>
+
     </dependencies>
+    <repositories>
+    <repository>
+      <id>forplay-legacy</id>
+      <url>http://forplay.googlecode.com/svn/mavenrepo</url>
+    </repository>
+  </repositories>
+    
+</project>
 </project>
