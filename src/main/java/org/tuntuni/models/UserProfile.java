@@ -15,6 +15,8 @@
  */
 package org.tuntuni.models;
 
+import java.beans.PropertyChangeEvent;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
@@ -29,7 +31,7 @@ public class UserProfile extends Persistent {
     private final Property<String> mUserName;
     private final Property<String> mAvatar;
     private final Property<String> mStatus;
-    private final Property<String> mAboutMe;
+    private final Property<String> mAboutMe;            
 
     /**
      * Initializes a new User Profile
@@ -65,8 +67,8 @@ public class UserProfile extends Persistent {
 
     public Property<String> aboutmeProperty() {
         return mAboutMe;
-    }
-
+    } 
+    
     /**
      * Gets the display user name
      *
@@ -158,5 +160,4 @@ public class UserProfile extends Persistent {
     public void aboutme(String value) {
         mAboutMe.setValue(value);
     }
-
 }

@@ -64,24 +64,23 @@ public class MainController implements Initializable {
             buildUserList();
 
             // listen to user list change
-            Core.instance().subnet().userListProperty().addListener(
-                    (observable, oldVal, newVal) -> buildUserList());
+            Core.instance().subnet().userListProperty()
+                    .addListener((ov, o, n) -> buildUserList());
 
             // listen to selected item change
-            userList.getSelectionModel().selectedItemProperty().addListener(
-                    (observable, oldVal, newVal) -> showUser());
+            userList.getSelectionModel().selectedItemProperty()
+                    .addListener((ov, o, n) -> showUser());
 
             // bind profile button text
-            profileButton.textProperty().bind(
-                    Core.instance().user().usernameProperty());
+            profileButton.setText(Core.instance().user().username());
+            Core.instance().user().usernameProperty().addListener(
+                    (ov, o, n) -> profileButton.setText(n));
 
             // avatar image
-            ChangeListener updateAvatar = (ov, old, cur) -> {
-                ((ImageView) profileButton.getGraphic())
-                        .setImage(Core.instance().user().getAvatarImage(32, 32));
-            };
+            ChangeListener updateAvatar = (ov, o, n)
+                    -> ((ImageView) profileButton.getGraphic())
+                    .setImage(Core.instance().user().getAvatarImage(32, 32));
             updateAvatar.changed(null, null, null);
-
             Core.instance().user().avatarProperty().addListener(updateAvatar);
         });
     }

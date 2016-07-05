@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -58,14 +59,20 @@ public class MessagingController implements Initializable {
         loadAll();
     }
 
-    private void loadAll() {
+    private void loadAll() {                
         messageText.clear();
         messageText.setEditable(mClient != null);
-        // load list past messages
-        messageList.getItems().clear();
+        
+        messageList.getItems().clear();        
+        
+        // load list of past messages
+        messageList.getItems().clear();        
         if (mClient != null) {
             showHistory();
-            mClient.messageProperty().addListener((a, b, c) -> showHistory());
+            mClient.messageProperty().get().addListener(
+                    (ListChangeListener.Change<? extends Message> c) -> {
+                        showHistory();
+                    });
         }
     }
 

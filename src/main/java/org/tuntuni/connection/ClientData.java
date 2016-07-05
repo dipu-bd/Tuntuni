@@ -17,8 +17,6 @@ package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
-import javafx.application.Platform;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;

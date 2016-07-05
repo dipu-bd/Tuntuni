@@ -15,8 +15,8 @@
  */
 package org.tuntuni.models;
 
+import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.util.Database;
 
 /**
@@ -32,28 +32,41 @@ public abstract class Persistent {
 
     // build a property. called from parent class
     <T> Property<T> buildProperty(String key, T initialValue) {
-        return new ExtendedSimpleObjectProperty<>(key, initialValue);
+        return new ExtendedSimpleObjectProperty<>(key, initialValue, this);
     }
 
-    private class ExtendedSimpleObjectProperty<T> extends SimpleObjectProperty<T> {
+    private class ExtendedSimpleObjectProperty<T> extends ObjectPropertyBase<T> {
 
-        private final T mValue;
         private final String mKey;
+        private final Object mBean;
+        private final Class<T> mType;
 
-        public ExtendedSimpleObjectProperty(String key, T initialValue) {
-            super(initialValue);
+        public ExtendedSimpleObjectProperty(String key, T value, Object bean) {
+            super(value);
             mKey = key;
-            mValue = initialValue;
+            mBean = bean;
+            mType = (Class<T>) value.getClass();
         }
 
         @Override
         public T get() {
-            return mDatabase.get((Class<T>) mValue.getClass(), mKey, mValue);
+            return mDatabase.get(mType, mKey, super.get());
         }
 
         @Override
         public void set(T value) {
             mDatabase.set(mKey, value);
+            super.set(value);
+        }
+
+        @Override
+        public Object getBean() {
+            return mBean;
+        }
+
+        @Override
+        public String getName() {
+            return mKey;
         }
     }
 
