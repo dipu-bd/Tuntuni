@@ -40,14 +40,11 @@ public class Client extends ClientData {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private static final Logger logger = Logger.getGlobal();
-
-    private final Gson mGson;
+    private static final Logger logger = Logger.getGlobal(); 
 
     // hidesthe constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
-        super(socket);
-        mGson = new Gson();
+        super(socket); 
     }
 
     //
@@ -92,7 +89,7 @@ public class Client extends ClientData {
 
                 // send params
                 req.writeObject(status);
-                req.writeObject(mGson.toJson(data));
+                req.writeObject(data);
                 req.flush();
 
                 // return result

@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -26,7 +25,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.Logger; 
 import org.tuntuni.models.Logs;
 
 /**
@@ -36,18 +35,17 @@ public final class Server extends ServerRoute {
 
     // logger
     private static final Logger logger = Logger.getGlobal();
-
+   
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
 
-    public static final int MAX_EXECUTOR_THREAD = 10;
-
+    public static final int MAX_EXECUTOR_THREAD = 10; 
+    
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
     private Exception mError;
-    private final Gson mGson;
 
     /**
      * Creates a new Server.
@@ -58,7 +56,6 @@ public final class Server extends ServerRoute {
      * to run server.</p>
      */
     public Server() {
-        mGson = new Gson();
         mExecutor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREAD);
     }
 
@@ -107,7 +104,7 @@ public final class Server extends ServerRoute {
         for (int i = 0; i < Server.PORTS.length; ++i) {
             try {
                 // Create the server socket channel
-                mSSocket = new ServerSocket(Server.PORTS[i]);
+                mSSocket = new ServerSocket(Server.PORTS[i]); 
                 break;
             } catch (IOException ex) {
                 logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, Server.PORTS[i]);
@@ -189,8 +186,7 @@ public final class Server extends ServerRoute {
             // get getResponse type
             Status status = (Status) req.readObject();
             // get params
-            String input = (String) req.readObject();
-            Object[] data = mGson.fromJson(input, Object[].class);
+            Object[] data = (Object[]) req.readObject();
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{socket.getRemoteSocketAddress(), status, data.length});

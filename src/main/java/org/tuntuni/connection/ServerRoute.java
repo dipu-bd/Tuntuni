@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import com.google.gson.Gson;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
