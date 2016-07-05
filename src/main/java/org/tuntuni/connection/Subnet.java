@@ -95,6 +95,7 @@ public class Subnet {
     }
 
     // to scan over whole subnet of all networks for active users
+    // if new network interfaces are added, it also includes them on the fly
     private final Runnable performScan = () -> {
         logger.log(Level.INFO, Logs.SUBNET_SCAN_START);
         try {

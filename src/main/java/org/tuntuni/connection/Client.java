@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.MetaData;
@@ -109,11 +110,23 @@ public class Client extends ClientData {
      * @return {@code true} if available, {@code false} otherwise
      */
     public boolean test() {
+        if (isConnected()) {
+            // just check if server is alive
+            try (Socket socket = new Socket()) {
+                socket.connect(getAddress(), getTimeout());
+                return true;
+            } catch (Exception ex) {
+                //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
+                setConnected(false);
+                return false;
+            }
+        }
         // get meta data
         try {
             Object[] data = (Object[]) request(Status.TEST);
             setMetaData((MetaData) data[0]);
             setUserData((UserData) data[1]);
+            setConnected(true);
             return true;
         } catch (Exception ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
@@ -128,6 +141,7 @@ public class Client extends ClientData {
      * @return True if success, false otherwise.
      */
     public boolean message(Message toSent) {
+        System.out.println("Sent to " + toSent.getText());
         Object result = request(Status.MESSAGE, toSent);
         if (result instanceof Boolean) {
             return (boolean) result;

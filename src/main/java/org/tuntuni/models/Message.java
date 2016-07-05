@@ -23,7 +23,7 @@ import org.tuntuni.connection.Client;
 /**
  * To pass message between two users
  */
-public class Message implements Serializable {
+public class Message extends Object implements Serializable {
 
     // to be serialized
     private Date mTime;

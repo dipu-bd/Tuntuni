@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.MetaData;
 import org.tuntuni.models.UserData;
@@ -29,7 +30,7 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class ClientData extends Object {
-
+    
     private static final Logger logger = Logger.getGlobal();
 
     // to connect with server
@@ -38,18 +39,20 @@ public class ClientData extends Object {
     // local data from server
     private MetaData mMeta;
     private UserData mUser;
-    private final ListProperty<Message> mMessages;
+    private boolean mConnected;
+    private final SimpleListProperty<Message> mMessages;
 
     // hidesthe constructor and handle it with static open() method
     public ClientData(InetSocketAddress socket) {
+        mConnected = false;
         // default settings
         mTimeout = Client.DEFAULT_TIMEOUT;
         // set the socket
         mAddress = socket;
         // load messages
         // TODO: save and restore messages
-        mMessages = new SimpleListProperty<>();
-    } 
+        mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
+    }
 
     /**
      * Gets the socket address associated with this client.
@@ -77,7 +80,7 @@ public class ClientData extends Object {
      */
     public String getHostName() {
         return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
-
+        
     }
 
     /**
@@ -148,7 +151,7 @@ public class ClientData extends Object {
      *
      * @return
      */
-    public ListProperty<Message> messageProperty() {
+    public SimpleListProperty<Message> messageProperty() {
         return mMessages;
     }
 
@@ -157,7 +160,15 @@ public class ClientData extends Object {
      *
      * @param message
      */
-    public void addMessage(Message message) {
-        Platform.runLater(() -> mMessages.add(message));
+    public void addMessage(Message message) {        
+        mMessages.add(message);
+    }
+    
+    public boolean isConnected() {
+        return mConnected;
+    }
+    
+    public void setConnected(boolean connected) {
+        mConnected = connected;
     }
 }

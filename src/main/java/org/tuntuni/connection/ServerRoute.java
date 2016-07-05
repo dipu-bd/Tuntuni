@@ -15,7 +15,11 @@
  */
 package org.tuntuni.connection;
 
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
 
@@ -25,6 +29,8 @@ import org.tuntuni.models.Message;
  */
 public class ServerRoute extends Object {
 
+    private static final Logger logger = Logger.getGlobal();
+
     /**
      * A function to which the server requests to get response.
      *
@@ -33,7 +39,7 @@ public class ServerRoute extends Object {
      * @param data parameters sent by client
      * @return The getResponse object. Can be {@code null}.
      */
-    public Object getResponse(Status status, Socket from, Object... data) {
+    public Object getResponse(Status status, Socket from, Object[] data) {
         switch (status) {
             case META: // send meta data
                 return meta();
@@ -63,21 +69,24 @@ public class ServerRoute extends Object {
     }
 
     // display the message 
-    public Object message(Socket from, Object... data) {
+    public Object message(Socket from, Object[] data) {
         try {
             // get message
             Message message = (Message) data[0];
             // sender's address
-            String remote = from.getRemoteSocketAddress().toString();
+            String remote = ((InetSocketAddress) from.getRemoteSocketAddress()).getHostString();
             // get client
             Client client = Core.instance().subnet().getClientByAddress(remote);
             // add this message
             client.addMessage(message);
             message.setReceiver(true);
             message.setClient(client);
+            message.setTime(new Date());
             // response success
+            logger.log(Level.INFO, "\n+++{0} sent {1}\n", new Object[]{message.getSender().getUserName(), message.getText()});
             return true;
         } catch (Exception ex) {
+            ex.printStackTrace();
             // response failure
             return false;
         }
