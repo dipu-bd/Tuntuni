@@ -19,9 +19,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -30,7 +27,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 
 /**
  * Some commonly used functions and methods
@@ -64,15 +60,6 @@ public class Commons {
 
     public static String getResource(String fileName) {
         return Commons.class.getResource("/img/" + fileName).toString();
-    }
-
-    public static byte[] imageToBytes(BufferedImage img) {
-        try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
-            ImageIO.write(img, "png", byteOutput);
-            return byteOutput.toByteArray();
-        } catch (IOException ex) {
-            return null;
-        }
     }
 
     public static byte[] imageToBytes(Image img) {

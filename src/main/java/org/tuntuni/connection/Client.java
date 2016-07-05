@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -41,9 +42,12 @@ public class Client extends ClientData {
 
     private static final Logger logger = Logger.getGlobal();
 
+    private final Gson mGson;
+
     // hidesthe constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
         super(socket);
+        mGson = new Gson();
     }
 
     //
@@ -88,7 +92,7 @@ public class Client extends ClientData {
 
                 // send params
                 req.writeObject(status);
-                req.writeObject(data);
+                req.writeObject(mGson.toJson(data));
                 req.flush();
 
                 // return result
@@ -139,7 +143,7 @@ public class Client extends ClientData {
      * @param toSent Message to be sent
      * @return True if success, false otherwise.
      */
-    public boolean message(Message toSent) { 
+    public boolean message(Message toSent) {
         Object result = request(Status.MESSAGE, toSent);
         if (result instanceof Boolean) {
             return (boolean) result;

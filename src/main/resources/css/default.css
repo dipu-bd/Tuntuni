@@ -79,12 +79,27 @@
 
 .profile-button:hover {
     -fx-background-color: rgba(30,30,30,0.5);
-}
+} 
 
 #message-receiver {
-    -fx-margin: 3px 50px 3px 5px;
+    -fx-padding: 3px 6px 3px 50px;      
+}
+#message-receiver   {
+    -fx-backround-color: rgba(230,255,230,1);
+}
+
+#message-receiver button {
+    -fx-min-width: 0;
+    -fx-visible: false;
+}
+#message-receiver image-view {
+    -fx-fit-width: 0;
+    -fx-image: url();
 }
 
 #message-sender {
-    -fx-margin: 3px 5px 3px 50px;
+    -fx-padding: 3px 50px 3px 6px;    
+}
+#message-sender  {
+    -fx-backround-color: rgba(230,230,255,1);
 }

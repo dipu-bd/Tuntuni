@@ -10,33 +10,34 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane hgap="3.0" prefWidth="300.0" style="-fx-background-radius: 10; -fx-background-color: rgba(255,255,255,0.9);" styleClass="message-box" vgap="2.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox">
+<GridPane hgap="5.0" minHeight="60.0" minWidth="120.0" prefWidth="300.0" styleClass="message-box" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox">
     <rowConstraints>
-        <RowConstraints fillHeight="false" vgrow="NEVER" />
-        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
+        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="26.0" vgrow="ALWAYS" />
+      <RowConstraints fillHeight="false" />
     </rowConstraints>
     <columnConstraints>
         <ColumnConstraints fillWidth="false" hgrow="NEVER" />
         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
     </columnConstraints>
     <children>
-      <Button fx:id="senderButton" mnemonicParsing="false" onAction="#handleShowSender" GridPane.halignment="RIGHT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
-         <graphic>
-              <ImageView fx:id="senderImage" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" />
-         </graphic>
-         <padding>
-            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-         </padding>
-      </Button>
-        <Label fx:id="timegapLabel" text="Label" textFill="#6f6c6c" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP">
-            <font>
-                <Font name="System Italic" size="12.0" />
-            </font>
+        <Button fx:id="senderButton" mnemonicParsing="false" onAction="#handleShowSender" styleClass="highlight-button" GridPane.halignment="RIGHT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
+            <graphic>
+                <ImageView fx:id="senderImage" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" />
+            </graphic>
             <padding>
-                <Insets left="3.0" />
+                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
             </padding>
+        </Button>
+        <Label fx:id="messageBody" alignment="TOP_LEFT" text="This is going to be a loooooooooooooong status!" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+         <font>
+            <Font size="13.0" />
+         </font>
         </Label>
-        <Label fx:id="messageBody" alignment="TOP_LEFT" text="Wee..... How are you! Been a long time since we last meet. How about a drink and a bottle of bloods of fresh young girls. Come to my place tonight" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+      <Label fx:id="timegapLabel" text="moments ago" textFill="#725c5c" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="BOTTOM">
+         <font>
+            <Font name="System Italic" size="12.0" />
+         </font>
+      </Label>
     </children>
     <padding>
         <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />

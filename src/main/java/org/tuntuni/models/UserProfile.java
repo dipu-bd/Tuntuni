@@ -31,7 +31,7 @@ public class UserProfile extends Persistent {
     private final Property<String> mUserName;
     private final Property<String> mAvatar;
     private final Property<String> mStatus;
-    private final Property<String> mAboutMe;            
+    private final Property<String> mAboutMe;
 
     /**
      * Initializes a new User Profile
@@ -67,8 +67,8 @@ public class UserProfile extends Persistent {
 
     public Property<String> aboutmeProperty() {
         return mAboutMe;
-    } 
-    
+    }
+
     /**
      * Gets the display user name
      *
@@ -84,7 +84,10 @@ public class UserProfile extends Persistent {
      * @param value Value of the field
      */
     public void username(String value) {
-        mUserName.setValue(value);
+        value = value.trim();
+        if (!value.isEmpty()) {
+            mUserName.setValue(value);
+        }
     }
 
     /**
@@ -140,7 +143,7 @@ public class UserProfile extends Persistent {
      * @param value Value of the field
      */
     public void status(String value) {
-        mStatus.setValue(value);
+        mStatus.setValue(value.trim());
     }
 
     /**
@@ -158,6 +161,6 @@ public class UserProfile extends Persistent {
      * @param value Value of the field
      */
     public void aboutme(String value) {
-        mAboutMe.setValue(value);
+        mAboutMe.setValue(value.trim());
     }
 }

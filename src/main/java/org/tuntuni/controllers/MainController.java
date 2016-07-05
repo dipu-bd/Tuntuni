@@ -108,6 +108,11 @@ public class MainController implements Initializable {
         Core.instance().subnet().userListProperty().stream().forEach((client) -> {
             userList.getItems().add(UserItem.createInstance(client));
         });
+        if (userList.getItems().size() > 0) {
+            userList.setPrefWidth(250);
+        } else {
+            userList.setPrefWidth(0);
+        }
     }
 
     private void showUser() {

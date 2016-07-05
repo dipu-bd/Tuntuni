@@ -34,7 +34,7 @@ public class UserData implements Serializable {
         mName = profile.username();
         mStatus = profile.status();
         mAboutMe = profile.aboutme();
-        mAvatar = FileService.instance().read(profile.avatar());
+        mAvatar = Commons.imageToBytes(profile.getAvatarImage(128, 128));
     }
 
     public String getUserName() {

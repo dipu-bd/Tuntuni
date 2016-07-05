@@ -18,7 +18,6 @@ package org.tuntuni.connection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;

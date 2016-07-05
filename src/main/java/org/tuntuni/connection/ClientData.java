@@ -17,6 +17,7 @@ package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
@@ -28,7 +29,7 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class ClientData extends Object {
-    
+
     private static final Logger logger = Logger.getGlobal();
 
     // to connect with server
@@ -78,7 +79,7 @@ public class ClientData extends Object {
      */
     public String getHostName() {
         return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
-        
+
     }
 
     /**
@@ -158,14 +159,17 @@ public class ClientData extends Object {
      *
      * @param message
      */
-    public void addMessage(Message message) {        
-        mMessages.add(message);
+    public void addMessage(Message message) {
+        // to be thread safe
+        Platform.runLater(() -> {
+            mMessages.add(message);
+        });
     }
-    
+
     public boolean isConnected() {
         return mConnected;
     }
-    
+
     public void setConnected(boolean connected) {
         mConnected = connected;
     }

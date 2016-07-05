@@ -20,12 +20,14 @@ import java.util.Date;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.tuntuni.Core;
@@ -59,6 +61,8 @@ public class MessageBox extends BorderPane {
     private Label timegapLabel;
     @FXML
     private Label messageBody;
+    @FXML
+    private GridPane gridPane;
 
     private Message mMessage;
 
@@ -70,7 +74,7 @@ public class MessageBox extends BorderPane {
         mDate = new Date();
         mPrettyTime = new PrettyTime();
         mTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), (evt) -> updateTime()));
+                new KeyFrame(Duration.seconds(10), (evt) -> updateTime()));
     }
 
     public void initialize(Message message) {
@@ -83,25 +87,26 @@ public class MessageBox extends BorderPane {
         mTimeline.play();
 
         if (mMessage.isReceiver()) {
+            setId("message-sender");
             senderImage.setImage(mMessage.getSender().getAvatar(
-                    senderImage.getFitWidth(), senderImage.getFitHeight()));
-            senderButton.setVisible(true);
-            this.setId("message-receiver");
-        } else {
-            senderButton.setVisible(false);
-            this.setId("message-sender");
-        }
-    }
+                    senderImage.getFitWidth(), senderImage.getFitHeight()));  
 
-    // updates the view of time
-    private void updateTime() {
-        timegapLabel.setText(mPrettyTime.format(mDate));
+        } else {
+            setId("message-receiver"); 
+        }
     }
 
     @FXML
     private void handleShowSender(ActionEvent evt) {
         Core.instance().profile().setClient(mMessage.getClient());
         Core.instance().main().selectProfile();
+    }
+
+    // updates the view of time
+    private void updateTime() {
+        Platform.runLater(() -> {
+            timegapLabel.setText(mPrettyTime.format(mDate));
+        });
     }
 
 }
