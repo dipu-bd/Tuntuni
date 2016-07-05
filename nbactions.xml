@@ -6,12 +6,14 @@
                 <packaging>jar</packaging>
             </packagings>
             <goals>
-                <goal>process-classes</goal>
+                <goal>clean</goal>
+                <goal>package</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
                 <exec.args>-classpath %classpath org.tuntuni.Program</exec.args>
                 <exec.executable>java</exec.executable>
+                <skipTests>true</skipTests>
             </properties>
         </action>
     </actions>
