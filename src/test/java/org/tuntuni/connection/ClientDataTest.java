@@ -20,8 +20,7 @@ import javafx.beans.property.SimpleListProperty;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.tuntuni.Core;
-import org.tuntuni.models.Message;
-import org.tuntuni.models.MetaData;
+import org.tuntuni.models.Message; 
 import org.tuntuni.models.UserData;
 
 /**
@@ -91,19 +90,7 @@ public class ClientDataTest {
         assertEquals(expResult.getUserName(), result.getUserName());
         assertEquals(expResult.getStatus(), result.getStatus());
         assertEquals(expResult.getAboutMe(), result.getAboutMe());
-    }
-
-    @Test
-    public void testGetMetaData() {
-        System.out.println("getMetaData");
-        ClientData instance = new ClientData(new InetSocketAddress(1223));
-        instance.setMetaData(Core.instance().meta());
-        MetaData expResult = Core.instance().meta();
-        MetaData result = instance.getMetaData();
-        assertEquals(expResult.hostName(), result.hostName());
-        assertEquals(expResult.version(), result.version());
-        assertEquals(expResult.title(), result.title());
-    }
+    } 
 
     @Test
     public void testMessageProperty() {

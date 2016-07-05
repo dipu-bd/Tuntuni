@@ -21,73 +21,72 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.models.MetaData;
+import org.tuntuni.Core;
+import org.tuntuni.models.UserData;
 
 /**
  *
  * @author Sudipto Chandra
  */
 public class DatabaseTest {
-    
+
     String name;
     Database database;
-    
+
     public DatabaseTest() {
     }
-    
+
     @Before
     public void testNewDatabse() {
         database = Database.instance("Test");
     }
-    
+
     @After
     public void testAfters() throws BackingStoreException {
-         database.deleteDatabase();
+        database.deleteDatabase();
     }
-    
-    
+
     @Test
     public void testString() {
         System.out.println("testStringTransaction");
-        
+
         String real = "this is a test data";
         database.set("test", real);
-        
+
         assertEquals(real, database.get("test"));
         assertEquals(real, database.get("test", "non-real"));
-        
+
         assertEquals(real, database.get(String.class, "test"));
         assertEquals(real, database.get(String.class, "test", null));
-        
+
         assertEquals(real, database.get("imaginary", real));
     }
-    
+
     @Test
     public void testObject() {
         System.out.println("testObjectTransaction");
-        MetaData real, result;
-        
-        real = new MetaData();
+
+        String[] real, result;
+
+        real = new String[]{"hi", "its me"};
         assertNotNull(real);
-        database.set("meta", real);
-        
-        System.out.println("++meta = " + database.get("meta"));
-        
+        database.set("user", real);
+
+        System.out.println("++user = " + database.get("user"));
+
         Gson gson = new Gson();
-        assertEquals(database.get("meta"), gson.toJson(real));
-        assertEquals(database.get("meta", "not teu"), gson.toJson(real));
-        
-        result = database.get(MetaData.class, "meta");
+        assertEquals(database.get("user"), gson.toJson(real));
+        assertEquals(database.get("user", "not teu"), gson.toJson(real));
+
+        result = database.get(String[].class, "user");
         assertNotNull(result);
-        assertEquals(real.hostName(), result.hostName());
-        assertEquals(real.title(), result.title());
-        assertEquals(real.version(), result.version());
-        
-        result = database.get(MetaData.class, "meta", real);
+        assertEquals(real[0], result[0]);
+        assertEquals(real[1], result[1]);
+
+        result = database.get(String[].class, "user", real);
         assertNotNull(result);
-        assertEquals(real.hostName(), result.hostName());
-        assertEquals(real.title(), result.title());
-        assertEquals(real.version(), result.version());
+        assertEquals(real[0], result[0]);
+        assertEquals(real[1], result[1]);
     }
-    
+
 }
