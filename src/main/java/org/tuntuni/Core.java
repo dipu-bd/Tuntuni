@@ -19,15 +19,13 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import javafx.stage.Stage;
 import org.tuntuni.connection.Server;
-import org.tuntuni.connection.Subnet;
-import org.tuntuni.models.MetaData;
+import org.tuntuni.connection.Subnet; 
 import org.tuntuni.models.UserProfile;
 import org.tuntuni.controllers.MainController;
 import org.tuntuni.controllers.MessagingController;
 import org.tuntuni.controllers.ProfileController; 
 import org.tuntuni.controllers.VideoCallController;
-import org.tuntuni.models.Logs;
-import org.tuntuni.util.Database;
+import org.tuntuni.models.Logs; 
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -62,8 +60,7 @@ public final class Core {
     private final Server mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
-    // data 
-    private final MetaData mMeta;
+    // data  
     private final UserProfile mUser; 
     // controllers
     private MainController mMain; 
@@ -76,8 +73,7 @@ public final class Core {
         // order might be important here
         // put simple & light constructors first 
         mServer = new Server();
-        mSubnet = new Subnet();
-        mMeta = new MetaData();
+        mSubnet = new Subnet(); 
         mUser = new UserProfile(); 
     }
 
@@ -133,16 +129,7 @@ public final class Core {
     public Stage stage() {
         return mPrimaryStage;
     }
-
-    /**
-     * Gets the meta data
-     *
-     * @return an instance of the object
-     */
-    public MetaData meta() {
-        return mMeta;
-    }
-
+ 
     /**
      * Gets the current user user.
      *

@@ -48,7 +48,7 @@ public class Program extends Application {
         scene.getStylesheets().add("/css/default.css");    
 
         // prepare the stage
-        stage.setTitle(Core.instance().meta().title());
+        stage.setTitle("Tuntuni");
         // set the scene to stage
         stage.setScene(scene);
         // display the stage

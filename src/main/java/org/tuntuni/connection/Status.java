@@ -21,14 +21,9 @@ import java.io.Serializable;
  * Defined a few types of connection status client and server.
  */
 public enum Status implements Serializable {
-     
-    // to pass meta information
-// to pass meta information
-    META,
+      
     // to pass user profile information
-    PROFILE,
-    // to test if server is ok
-    TEST,
+    PROFILE, 
     // to pass a single message
     MESSAGE,
 }

@@ -20,8 +20,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import org.tuntuni.models.Message;
-import org.tuntuni.models.MetaData;
+import org.tuntuni.models.Message; 
 import org.tuntuni.models.UserData;
 
 /**
@@ -35,8 +34,7 @@ public class ClientData extends Object {
     // to connect with server
     private int mTimeout;
     private final InetSocketAddress mAddress;
-    // local data from server
-    private MetaData mMeta;
+    // local data from server 
     private UserData mUser;
     private boolean mConnected;
     private final SimpleListProperty<Message> mMessages;
@@ -126,25 +124,8 @@ public class ClientData extends Object {
      */
     void setUserData(UserData user) {
         mUser = user;
-    }
-
-    /**
-     * Gets the meta data associated with it.
-     *
-     * @return
-     */
-    public MetaData getMetaData() {
-        return mMeta;
-    }
-
-    /**
-     * Sets the user data
-     *
-     */
-    void setMetaData(MetaData meta) {
-        mMeta = meta;
-    }
-
+    } 
+    
     /**
      * Gets the message list property of this client
      *

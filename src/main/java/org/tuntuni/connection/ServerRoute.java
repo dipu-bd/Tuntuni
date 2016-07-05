@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import com.google.gson.Gson;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
@@ -40,24 +39,15 @@ public class ServerRoute extends Object {
      * @return The getResponse object. Can be {@code null}.
      */
     public Object getResponse(Status status, Socket from, Object[] data) {
-        switch (status) {
-            case META: // send meta data
-                return meta();
+        switch (status) {  
             case PROFILE: // send user data
                 return profile();
-            case TEST: // request to send test data (meta + user)
-                return test();
             case MESSAGE: // a message arrived
                 return message(from, data);
         }
         return null;
     }
-
-    // what to do when Status.META getResponse arrived
-    public Object meta() {
-        return Core.instance().meta();
-    }
-
+ 
     // what to do when Status.PROFILE getResponse arrived
     public Object profile() {
         return Core.instance().user().getData();
@@ -65,7 +55,7 @@ public class ServerRoute extends Object {
 
     // what to do when Status.PROFILE getResponse arrived
     public Object test() {
-        return new Object[]{meta(), profile()};
+        return true;
     }
 
     // display the message 

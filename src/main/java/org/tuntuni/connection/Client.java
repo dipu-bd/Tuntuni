@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -27,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
-import org.tuntuni.models.MetaData;
 import org.tuntuni.models.UserData;
 
 /**
@@ -40,11 +38,11 @@ public class Client extends ClientData {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private static final Logger logger = Logger.getGlobal(); 
+    private static final Logger logger = Logger.getGlobal();
 
     // hidesthe constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
-        super(socket); 
+        super(socket);
     }
 
     //
@@ -123,9 +121,8 @@ public class Client extends ClientData {
         }
         // get meta data
         try {
-            Object[] data = (Object[]) request(Status.TEST);
-            setMetaData((MetaData) data[0]);
-            setUserData((UserData) data[1]);
+            Object[] data = (Object[]) request(Status.PROFILE); 
+            setUserData((UserData) data[0]);
             setConnected(true);
             return true;
         } catch (Exception ex) {
@@ -142,10 +139,6 @@ public class Client extends ClientData {
      */
     public boolean message(Message toSent) {
         Object result = request(Status.MESSAGE, toSent);
-        if (result instanceof Boolean) {
-            return (boolean) result;
-        } else {
-            return false;
-        }
+        return (result instanceof Boolean) ? (boolean) result : false;
     }
 }
