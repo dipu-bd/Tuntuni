@@ -17,6 +17,7 @@ package org.tuntuni.models;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 
 /**
@@ -30,14 +31,16 @@ public class Message implements Serializable {
     private Serializable mContent;
 
     // not to be serialized
-    private transient boolean mReceiver;
     private transient Client mClient;
+    private transient boolean mReceiver;
 
     /**
      * Creates an instance of this class
      */
     public Message() {
-
+        mClient = null;
+        mReceiver = false;
+        mTime = new Date();
     }
 
     /**
@@ -112,5 +115,31 @@ public class Message implements Serializable {
      */
     public void setClient(Client client) {
         this.mClient = client;
+    }
+
+    /**
+     * Gets the user data of the sender of this message
+     *
+     * @return UserData of sender
+     */
+    public UserData getSender() {
+        if (mReceiver) { // current machine is reciever
+            return mClient.getUserData();
+        } else {
+            return Core.instance().user().getData();
+        }
+    }
+
+    /**
+     * Gets the user data of the receiver of this message
+     *
+     * @return UserData of receiver
+     */
+    public UserData getReceiver() {
+        if (mReceiver) { // current machine is reciever
+            return Core.instance().user().getData();
+        } else {
+            return mClient.getUserData();
+        }
     }
 }

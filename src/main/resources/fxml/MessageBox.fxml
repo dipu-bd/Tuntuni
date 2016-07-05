@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane styleClass="message-box" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox" />
+<GridPane hgap="3.0" prefWidth="300.0" style="-fx-background-radius: 10;" styleClass="message-box" vgap="2.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox">
+    <rowConstraints>
+        <RowConstraints fillHeight="false" vgrow="NEVER" />
+        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+    </columnConstraints>
+    <children>
+        <ImageView fx:id="senderImage" fitHeight="48.0" fitWidth="48.0" onDragDetected="#handleShowSender" pickOnBounds="true" preserveRatio="true" GridPane.halignment="RIGHT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
+            <GridPane.margin>
+                <Insets />
+            </GridPane.margin>
+        </ImageView>
+        <Label fx:id="timegapLabel" text="Label" textFill="#6f6c6c" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP">
+            <font>
+                <Font name="System Italic" size="12.0" />
+            </font>
+            <padding>
+                <Insets left="3.0" />
+            </padding>
+        </Label>
+        <Label fx:id="messageBody" alignment="TOP_LEFT" text="Wee..... How are you! Been a long time since we last meet. How about a drink and a bottle of bloods of fresh young girls. Come to my place tonight" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+    </children>
+    <padding>
+        <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+    </padding>
+</GridPane>

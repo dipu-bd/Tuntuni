@@ -16,15 +16,18 @@
 package org.tuntuni.components;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Date;
-import java.util.ResourceBundle;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import org.tuntuni.connection.Client;
+import javafx.util.Duration;
+import org.ocpsoft.prettytime.PrettyTime;
+import org.tuntuni.Core;
 import org.tuntuni.models.Message;
 import org.tuntuni.util.Commons;
 
@@ -32,15 +35,13 @@ import org.tuntuni.util.Commons;
  * A single message item view
  */
 public class MessageBox extends BorderPane {
- 
+
     public static MessageBox createInstance(Message message) {
         try {
             // build the component
             MessageBox mbox = (MessageBox) Commons.loadPaneFromFXML("/fxml/MessageBox.fxml");
-            // set client
-            mbox.setMessage(message);
-            //post load work      
-            mbox.initialize();
+            //post load work                           
+            mbox.initialize(message);
             // return main object
             return mbox;
         } catch (IOException ex) {
@@ -52,22 +53,52 @@ public class MessageBox extends BorderPane {
     @FXML
     private ImageView senderAvatar;
     @FXML
-    private ImageView receiverAvatar;
-    @FXML
-    private Label arrivalTime;
+    private Label timegapLabel;
     @FXML
     private Label messageBody;
 
     private Message mMessage;
 
-    public void setMessage(Message message) {
-        mMessage = message;
+    private Date mDate;
+    private final PrettyTime mPrettyTime;
+    private final Timeline mTimeline;
+
+    private MessageBox() {
+        mDate = new Date();
+        mPrettyTime = new PrettyTime();
+        mTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), (evt) -> updateTime()));
     }
-    
-    private void initialize() {
-        assert mMessage != null;
-        
-        
+
+    private void initialize(Message message) {
+        mMessage = message;
+
+        mDate = mMessage.getTime();
+        messageBody.setText(mMessage.getText());
+
+        mTimeline.setCycleCount(Animation.INDEFINITE);
+        mTimeline.play();
+
+        if (mMessage.isReceiver()) {
+            senderAvatar.setImage(mMessage.getSender().getAvatar(
+                    senderAvatar.getFitWidth(), senderAvatar.getFitHeight()));
+            senderAvatar.setVisible(true);
+            this.setId("message-receiver");
+        } else {
+            senderAvatar.setVisible(false);
+            this.setId("message-sender");
+        }
+    }
+
+    // updates the view of time
+    private void updateTime() {
+        timegapLabel.setText(mPrettyTime.format(mDate));
+    }
+
+    @FXML
+    private void handleShowSender(ActionEvent evt) {
+        Core.instance().profile().setClient(mMessage.getClient());
+        Core.instance().main().selectProfile();
     }
 
 }
