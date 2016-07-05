@@ -88,13 +88,12 @@
     -fx-backround-color: rgba(230,255,230,1);
 }
 
-#message-receiver button {
+#message-receiver .button {
     -fx-min-width: 0;
     -fx-visible: false;
 }
-#message-receiver image-view {
+#message-receiver .image-view {
     -fx-fit-width: 0;
-    -fx-image: url();
 }
 
 #message-sender {

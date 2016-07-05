@@ -25,7 +25,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger; 
+import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 
 /**
@@ -35,14 +35,14 @@ public final class Server extends ServerRoute {
 
     // logger
     private static final Logger logger = Logger.getGlobal();
-   
+
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
 
-    public static final int MAX_EXECUTOR_THREAD = 10; 
-    
+    public static final int MAX_EXECUTOR_THREAD = 10;
+
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
     private Exception mError;
@@ -104,7 +104,7 @@ public final class Server extends ServerRoute {
         for (int i = 0; i < Server.PORTS.length; ++i) {
             try {
                 // Create the server socket channel
-                mSSocket = new ServerSocket(Server.PORTS[i]); 
+                mSSocket = new ServerSocket(Server.PORTS[i]);
                 break;
             } catch (IOException ex) {
                 logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, Server.PORTS[i]);
@@ -195,8 +195,8 @@ public final class Server extends ServerRoute {
             // send the result
             if (res != null) {
                 res.writeObject(result);
-                res.flush();
             }
+            res.flush();
         } catch (IOException ex) {
             logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {

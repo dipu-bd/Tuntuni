@@ -89,7 +89,7 @@ public class MessagingController implements Initializable {
     private void sendMessage(String text) {
         Message message = new Message();
         message.setText(text);
-        if (!mClient.message(message)) {
+        if (!mClient.sendMessage(message)) {
             showAlert("Could not send message.");
             messageText.setText(text + "\r\n" + messageText.getText());
             return;

@@ -190,7 +190,7 @@ public class Subnet {
                 // blocking call to check if reachable
                 Client client = new Client(remote);
                 client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
-                if (client.test()) {
+                if (client.checkServer()) {
                     addAddress(client);
                     break;  // found at least one port reachable
                 } else {

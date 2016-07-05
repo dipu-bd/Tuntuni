@@ -107,37 +107,43 @@ public class Client extends ClientData {
      *
      * @return {@code true} if available, {@code false} otherwise
      */
-    public boolean test() {
-        if (isConnected()) {
-            // just check if server is alive
-            try (Socket socket = new Socket()) {
-                socket.connect(getAddress(), getTimeout());
-                return true;
-            } catch (Exception ex) {
-                //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
-                setConnected(false);
-                return false;
-            }
+    public boolean checkServer() {
+        // if not connected request getProfile
+        if (!isConnected()) {
+            return getProfile();
         }
-        // get meta data
-        try {
-            Object[] data = (Object[]) request(Status.PROFILE); 
-            setUserData((UserData) data[0]);
-            setConnected(true);
+        // otherwise just check if server is alive
+        try (Socket socket = new Socket()) {
+            socket.connect(getAddress(), getTimeout());
             return true;
         } catch (Exception ex) {
+            //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
+            setConnected(false);
+            return false;
+        }
+    }
+
+    public boolean getProfile() {
+        // get getProfile data
+        try {  
+            Object data = (Object) request(Status.PROFILE);  
+            setUserData((UserData) data);
+            System.out.println("Set profile ");
+            setConnected(true);
+            return true;
+        } catch (NullPointerException ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
             return false;
         }
     }
 
     /**
-     * Send a message to this client
+     * Send a sendMessage to this client
      *
      * @param toSent Message to be sent
      * @return True if success, false otherwise.
      */
-    public boolean message(Message toSent) {
+    public boolean sendMessage(Message toSent) {
         Object result = request(Status.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
     }

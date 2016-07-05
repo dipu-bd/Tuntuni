@@ -18,17 +18,16 @@ package org.tuntuni.models;
 import java.io.Serializable;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
-import org.tuntuni.util.FileService;
 
 /**
- *
+ * Data that is passed between server and client as User Profile
  */
 public class UserData implements Serializable {
 
     private final String mName;
     private final String mStatus;
-    private final byte[] mAvatar;
     private final String mAboutMe;
+    private final byte[] mAvatar;
 
     public UserData(UserProfile profile) {
         mName = profile.username();

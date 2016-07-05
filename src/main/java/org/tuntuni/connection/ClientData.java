@@ -27,7 +27,7 @@ import org.tuntuni.models.UserData;
  * Extended by client. It separates data part of client from its connection
  * part.
  */
-public class ClientData extends Object {
+public class ClientData {
 
     private static final Logger logger = Logger.getGlobal();
 

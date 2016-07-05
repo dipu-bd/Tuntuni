@@ -55,7 +55,7 @@ public class ClientTest {
         Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
         assertNotNull(instance);
         System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.test();
+        boolean result = instance.checkServer();
         System.out.println("++result= " + result);
         System.out.println();
     }
@@ -67,7 +67,7 @@ public class ClientTest {
                 new InetSocketAddress("192.121.11.23", Server.PORTS[0]));
         assertNotNull(instance);
         System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.test();
+        boolean result = instance.checkServer();
         System.out.println("++result= " + result);
         System.out.println();
     }
@@ -78,7 +78,7 @@ public class ClientTest {
         Client instance = new Client(new InetSocketAddress(22));
         assertNotNull(instance);
         System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.test();
+        boolean result = instance.checkServer();
         System.out.println("++result= " + result);
         System.out.println();
     }

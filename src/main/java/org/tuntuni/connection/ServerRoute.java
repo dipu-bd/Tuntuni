@@ -18,7 +18,6 @@ package org.tuntuni.connection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
-import java.util.logging.Logger;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
 
@@ -26,10 +25,8 @@ import org.tuntuni.models.Message;
  * Extended by Server. It provides functions to deal with a request arrived in
  * Server from a client socket.
  */
-public class ServerRoute extends Object {
-
-    private static final Logger logger = Logger.getGlobal();
-
+public abstract class ServerRoute {
+    
     /**
      * A function to which the server requests to get response.
      *
@@ -44,19 +41,14 @@ public class ServerRoute extends Object {
                 return profile();
             case MESSAGE: // a message arrived
                 return message(from, data);
-        }
+        } 
         return null;
     }
  
     // what to do when Status.PROFILE getResponse arrived
     public Object profile() {
-        return Core.instance().user().getData();
-    }
-
-    // what to do when Status.PROFILE getResponse arrived
-    public Object test() {
-        return true;
-    }
+        return Core.instance().user().getData();        
+    } 
 
     // display the message 
     public Object message(Socket from, Object[] data) {
