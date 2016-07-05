@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,14 +60,12 @@ public class MessagingController implements Initializable {
         loadAll();
     }
 
-    private void loadAll() {                
+    private void loadAll() {
         messageText.clear();
-        messageText.setEditable(mClient != null);
-        
-        messageList.getItems().clear();        
-        
+        messageList.getItems().clear();
+
         // load list of past messages
-        messageList.getItems().clear();        
+        messageList.getItems().clear();
         if (mClient != null) {
             showHistory();
             mClient.messageProperty().get().addListener(
@@ -80,20 +79,29 @@ public class MessagingController implements Initializable {
     private void handleSendMessage(ActionEvent event) {
         String text = messageText.getText().trim();
         if (text.isEmpty()) {
+            showAlert("Message is too short");
             return;
-        }
+        } 
         sendMessage(text);
         messageText.clear();
     }
 
     private void sendMessage(String text) {
+        if (mClient == null) {
+            showAlert("The receiver is unknown");
+            return;
+        }
+
         Message message = new Message();
         message.setText(text);
         if (!mClient.sendMessage(message)) {
             showAlert("Could not send message.");
-            messageText.setText(text + "\r\n" + messageText.getText());
+            Platform.runLater(() -> {
+                messageText.setText(text + "\r\n" + messageText.getText());
+            });
             return;
         }
+
         mClient.addMessage(message);
         message.setClient(mClient);
     }
@@ -110,6 +118,6 @@ public class MessagingController implements Initializable {
     }
 
     private void showAlert(String message) {
-        new Alert(Alert.AlertType.ERROR, message).showAndWait();
+        new Alert(Alert.AlertType.INFORMATION, message).showAndWait();
     }
 }

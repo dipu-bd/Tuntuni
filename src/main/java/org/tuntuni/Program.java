@@ -51,8 +51,6 @@ public class Program extends Application {
         stage.setTitle("Tuntuni");
         // set the scene to stage
         stage.setScene(scene);
-        // display the stage
-        stage.show();
 
         // set the icon
         Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        
@@ -67,6 +65,9 @@ public class Program extends Application {
             Core.instance().messaging().setClient(null);
             Core.instance().videocall().setClient(null);
         });
+        
+        // display the stage
+        stage.show();        
     }
 
     /**

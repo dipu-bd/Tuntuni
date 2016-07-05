@@ -86,19 +86,23 @@ public class MessageBox extends BorderPane {
         mTimeline.setCycleCount(Animation.INDEFINITE);
         mTimeline.play();
 
-        if (mMessage.isReceiver()) {
-            setId("message-sender");
-            senderImage.setImage(mMessage.getSender().getAvatar(
-                    senderImage.getFitWidth(), senderImage.getFitHeight()));  
+        senderImage.setImage(mMessage.getSender().getAvatar(
+                senderImage.getFitWidth(), senderImage.getFitHeight()));
 
+        if (mMessage.isReceiver()) {
+            setId("message-receiver");
         } else {
-            setId("message-receiver"); 
+            setId("message-sender");
         }
     }
 
     @FXML
     private void handleShowSender(ActionEvent evt) {
-        Core.instance().profile().setClient(mMessage.getClient());
+        if (mMessage.isReceiver()) {
+            Core.instance().profile().setClient(mMessage.getClient());
+        } else {
+            Core.instance().profile().setClient(null);
+        }
         Core.instance().main().selectProfile();
     }
 

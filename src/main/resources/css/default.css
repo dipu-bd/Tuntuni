@@ -81,11 +81,31 @@
     -fx-background-color: rgba(30,30,30,0.5);
 } 
 
-#message-receiver {
-    -fx-padding: 3px 6px 3px 50px;      
+
+#message-list .list-cell:selected { 
+    -fx-background-color: transparent;
 }
-#message-receiver   {
-    -fx-backround-color: rgba(230,255,230,1);
+
+.message-box {
+    -fx-background-color: transparent;
+}
+
+#message-receiver {
+    //-fx-padding: 3px 50px 3px 6px;      
+}
+
+#message-receiver .inner-grid {
+    -fx-background-radius: 10;
+    -fx-background-color:  rgba(240,255,240,0.8);     
+}
+
+#message-sender { 
+    //-fx-padding: 3px 6px 3px 50px;     
+}
+
+#message-sender .inner-grid {
+    -fx-background-radius: 10;
+    -fx-background-color:  rgba(240,240,255,0.8);       
 }
 
 #message-receiver .button {
@@ -94,11 +114,4 @@
 }
 #message-receiver .image-view {
     -fx-fit-width: 0;
-}
-
-#message-sender {
-    -fx-padding: 3px 50px 3px 6px;    
-}
-#message-sender  {
-    -fx-backround-color: rgba(230,230,255,1);
 }
