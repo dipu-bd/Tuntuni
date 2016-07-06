@@ -22,6 +22,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,8 +30,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleMapProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.SocketUtils;
@@ -42,12 +48,13 @@ public class Subnet {
 
     // logger
     private static final Logger logger = Logger.getGlobal();
-
+    
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
     public static final int SCAN_INTERVAL_MILLIS = 15_000;
     public static final int REACHABLE_THREAD_COUNT = 20;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
-
+    
+    private final StringProperty mState;
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;
     private final SimpleMapProperty<String, Client> mUserList;
@@ -56,9 +63,23 @@ public class Subnet {
      * Creates a new instance of Subnet.
      */
     public Subnet() {
+        mState = new SimpleStringProperty(UUID.randomUUID().toString());
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mSchedular = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Properties and public methods
+    ////////////////////////////////////////////////////////////////////////////    
+    /**
+     * Gets the current state of the subnet. Every time a client arrives or
+     * leaves, the state changes.
+     *
+     * @return
+     */
+    public StringProperty stateProperty() {
+        return mState;
     }
 
     /**
@@ -73,6 +94,33 @@ public class Subnet {
         return mUserList;
     }
 
+    /**
+     * Adds the address as client if not already exists
+     *
+     * @param address Address to check
+     */
+    public void addAsClient(String address) {
+        if (getClient(address) == null) {
+            mExecutor.submit(checkAddress(address));
+        }
+    }
+
+    /**
+     * Search for the user client on the user list and returns the client if
+     * found, otherwise a null value is returned
+     *
+     * @param address Address of the user to search for
+     * @return null if not found.
+     */
+    public Client getClient(String address) {
+        synchronized (mUserList) {
+            return mUserList.get(address);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MOST IMPORTANT: Start or stop subnet scans
+    ////////////////////////////////////////////////////////////////////////////    
     /**
      * Start the periodic task that scan through all possible subnets.
      * <p>
@@ -140,7 +188,7 @@ public class Subnet {
                         || !(address instanceof Inet4Address)) {
                     return;
                 }
-
+                
                 logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
 
                 // get network's first and last hosts
@@ -167,7 +215,7 @@ public class Subnet {
 
             // wait until all tasks are done
             mExecutor.invokeAll(taskList);
-
+            
         } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
         } catch (InterruptedException iex) {
@@ -181,57 +229,43 @@ public class Subnet {
         return () -> {
             // calculate the remote network address
             // first check if it is on the list 
-            Client client = getClient(address);
-            if (client != null) {
-                if (client.checkServer()) {
-                    return 0;
-                }
+            Client real = getClient(address);
+            if (real != null && real.checkServer()) {
+                // has connection
+                return 1;
             }
             // check if the server is up in any port of other server
             for (int i = Server.PORTS.length - 1; i >= 0; --i) {
-                // make new client  
-                client = new Client(new InetSocketAddress(address, Server.PORTS[i]));
-                if (client.checkServer()) {                    
-                    logger.log(Level.INFO, "New user {0}:{1}",
-                            new Object[]{client.getHostString(), client.getPort()});
-                    
-                    addAddress(client);                    
-                    return 0;
+                Client sub = new Client(
+                        new InetSocketAddress(address, Server.PORTS[i]));
+                if (sub.checkServer()) {
+                    // new connection
+                    addUser(sub);
+                    // change state
+                    changeState();
+                    return 2;
                 }
             }
-            return 1;
+            if (real != null) {
+                // lost connection                
+                changeState();
+                return 0;
+            }
+            // not alive
+            return -1;
         };
     }
-
-    // add address to the observable list
-    private void addAddress(Client client) {
+    
+    private void addUser(Client client) {
         synchronized (mUserList) {
             mUserList.put(client.getHostString(), client);
         }
     }
-
-    /**
-     * Adds the address as client if not already exists
-     *
-     * @param address Address to check
-     */
-    public void addAsClient(String address) {
-        if (getClient(address) == null) {
-            mExecutor.submit(checkAddress(address));
+    
+    private void changeState() {
+        synchronized (mState) {
+            mState.set(UUID.randomUUID().toString());
         }
     }
-
-    /**
-     * Search for the user client on the user list and returns the client if
-     * found, otherwise a null value is returned
-     *
-     * @param address Address of the user to search for
-     * @return null if not found.
-     */
-    public Client getClient(String address) {
-        synchronized (mUserList) {
-            return mUserList.get(address);
-        }
-    }
-
+    
 }

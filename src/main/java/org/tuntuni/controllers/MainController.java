@@ -64,7 +64,7 @@ public class MainController implements Initializable {
             buildUserList();
 
             // listen to user list change
-            Core.instance().subnet().userListProperty()
+            Core.instance().subnet().stateProperty()
                     .addListener((ov, o, n) -> buildUserList());
 
             // bind profile button text
@@ -77,11 +77,11 @@ public class MainController implements Initializable {
                     -> ((ImageView) profileButton.getGraphic())
                     .setImage(Core.instance().user().getAvatarImage(32, 32));
             updateAvatar.changed(null, null, null);
-            Core.instance().user().avatarProperty().addListener(updateAvatar);
+            Core.instance().user().avatarProperty().addListener(updateAvatar);            
         });
     }
 
-    public void selectProfile() {
+    public void selectProfile() {        
         tabPane.getSelectionModel().select(0);
     }
 
@@ -96,7 +96,8 @@ public class MainController implements Initializable {
     @FXML
     private void handleProfileAction(ActionEvent event) {
         selectProfile();
-        userList.getSelectionModel().clearSelection();
+        Core.instance().profile().setClient(null);
+        userList.getSelectionModel().clearSelection();        
     }
 
     private void buildUserList() {
@@ -121,6 +122,9 @@ public class MainController implements Initializable {
         } else {
             userList.setPrefWidth(0);
         }
+        
+        // refresh last user
+        Core.instance().profile().refresh();
     }
 
     private void showUser(UserItem item) {

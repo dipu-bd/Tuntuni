@@ -17,8 +17,11 @@ package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
 import javafx.beans.property.SimpleListProperty;
+import javafx.embed.swing.JFXPanel;
+import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message; 
 import org.tuntuni.models.UserData;
@@ -30,6 +33,14 @@ import org.tuntuni.models.UserData;
 public class ClientDataTest {
 
     public ClientDataTest() {
+        
+    }
+
+    @Before
+    public void initToolkit() {
+        SwingUtilities.invokeLater(() -> {
+            JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
+        });
     }
 
     @Test

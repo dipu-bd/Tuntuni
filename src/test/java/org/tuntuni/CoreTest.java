@@ -15,13 +15,7 @@
  */
 package org.tuntuni;
 
-import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel; 
-import javafx.scene.SceneBuilder;
-import javafx.scene.control.LabelBuilder;
-import javafx.scene.text.Font;
-import javafx.stage.StageBuilder;
-import javafx.stage.WindowEvent;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;

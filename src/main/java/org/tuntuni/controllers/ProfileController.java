@@ -71,11 +71,15 @@ public class ProfileController implements Initializable {
     }
 
     public void setClient(Client client) {
-        mClient = client;
-        loadAll();
+        if (mClient != null) {
+            mClient = client;
+            refresh();
+        }
     }
 
-    private void loadAll() {
+    public void refresh() {
+
+        boolean showme = mClient == null || !mClient.isConnected();
 
         double width = avatarImage.getFitWidth();
         double height = avatarImage.getFitHeight();
@@ -85,7 +89,7 @@ public class ProfileController implements Initializable {
         String about = Core.instance().user().aboutme();
         Image image = Core.instance().user().getAvatarImage(width, height);
 
-        if (mClient != null) {
+        if (!showme) {
             name = mClient.getUserData().getUserName() + " ";
             status = mClient.getUserData().getStatus() + " ";
             about = mClient.getUserData().getAboutMe() + " ";
@@ -97,13 +101,13 @@ public class ProfileController implements Initializable {
         aboutMe.setText(about);
         avatarImage.setImage(image);
 
-        aboutMe.setEditable(mClient == null);
-        userName.setEditable(mClient == null);
-        statusText.setEditable(mClient == null);
-        messageButton.setVisible(mClient != null);
-        videoCallButton.setVisible(mClient != null);
+        aboutMe.setEditable(showme);
+        userName.setEditable(showme);
+        statusText.setEditable(showme);
+        messageButton.setVisible(showme);
+        videoCallButton.setVisible(showme);
 
-        if (mClient == null) {
+        if (showme) {
             userName.setCursor(Cursor.TEXT);
             statusText.setCursor(Cursor.TEXT);
             avatarButton.setCursor(Cursor.HAND);
@@ -146,8 +150,7 @@ public class ProfileController implements Initializable {
                 Database.instance().set("Initial Directory",
                         choosen.getParentFile().toString());
             }
-        }
-        loadAll();
+        } 
     }
 
     private void changeName() {

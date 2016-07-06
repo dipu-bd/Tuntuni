@@ -16,11 +16,12 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
-import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import org.tuntuni.models.Message; 
+import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
 
 /**
@@ -28,25 +29,26 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class ClientData {
- 
+
     // to connect with server    
     private final InetSocketAddress mAddress;
     private int mTimeout;
     // local data from server 
     private UserData mUser;
-    private boolean mConnected;
+    private final BooleanProperty mConnected;
     private final SimpleListProperty<Message> mMessages;
 
     // hidesthe constructor and handle it with static open() method
     public ClientData(InetSocketAddress socket) {
-        mConnected = false;
         // default settings
         mTimeout = Client.DEFAULT_TIMEOUT;
         // set the socket
         mAddress = socket;
+        // initialize properties
+        mConnected = new SimpleBooleanProperty(false);
+        mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
         // load messages
         // TODO: save and restore messages
-        mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
     }
 
     /**
@@ -86,7 +88,7 @@ public class ClientData {
     public int getPort() {
         return mAddress.getPort();
     }
-     
+
     /**
      * Gets the timeout for a connection
      *
@@ -122,8 +124,8 @@ public class ClientData {
      */
     void setUserData(UserData user) {
         mUser = user;
-    } 
-    
+    }
+
     /**
      * Gets the message list property of this client
      *
@@ -145,11 +147,15 @@ public class ClientData {
         });
     }
 
-    public boolean isConnected() {
+    public BooleanProperty connectedProperty() {
         return mConnected;
     }
 
+    public boolean isConnected() {
+        return mConnected.get();
+    }
+
     public void setConnected(boolean connected) {
-        mConnected = connected;
+        mConnected.set(connected);
     }
 }

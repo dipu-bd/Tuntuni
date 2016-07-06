@@ -15,7 +15,6 @@
  */
 package org.tuntuni.controllers;
 
-import com.sun.javafx.tk.Toolkit;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.collections.ListChangeListener;

@@ -34,7 +34,7 @@ public abstract class Logs {
             SERVER_IO_FAILED = "Failed to read or write from server",
             SOCKET_CLASS_FAILED = "Request data could not be recognized.",
             SERVER_CLOSING_ERROR = "Failed to close the socket",
-            SERVER_RECEIVED_CLIENT = "{0} requested {1}; has {2} params",
+            SERVER_RECEIVED_CLIENT = "{0} requested with {1} params from {2}",
             // Used in Subnet
             SUBNET_SCAN_START = "Performing a scan for active subnet users",
             SUBNET_INTERFACE_ENUMERATION_FAILED = "Failed to get network interfaces",

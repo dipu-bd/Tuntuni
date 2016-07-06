@@ -20,10 +20,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -31,28 +34,39 @@ import org.junit.Test;
  */
 public class CommonsTest {
 
-    private final String inputFile = "D:\\Pictures\\Monogram.PNG";
-    private final String outputFile = "C:\\Users\\Dipu\\Desktop\\test.png";
+    private final File inputFile = new File("D:\\Pictures\\Monogram.PNG");
+    private final File outputFile = new File("C:\\Users\\Dipu\\Desktop\\test.png");
 
     public CommonsTest() {
+    }
+
+    @Before
+    public void initToolkit() {
+        SwingUtilities.invokeLater(() -> {
+            JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
+        });
     }
 
     @Test
     public void testResource() {
         System.out.println("getResource()");
-        String fileName = "avatar.png"; 
+        String fileName = "avatar.png";
         String expResult = "/img/avatar.png";
         String result = Commons.getResource(fileName);
         System.out.println("++avatar=" + result);
         assertTrue(result.endsWith(expResult));
         System.out.println();
     }
-    
+
     @Test
     public void testImageToBytes() throws URISyntaxException, FileNotFoundException, IOException {
         System.out.println("imageToBytes");
 
-        FileInputStream fis = new FileInputStream(new File(inputFile));
+        if (!inputFile.exists()) {
+            System.out.println("--Set input file first.");
+            return;
+        }
+        FileInputStream fis = new FileInputStream(inputFile);
         Image img = new Image(fis);
         fis.close();
 
@@ -64,7 +78,11 @@ public class CommonsTest {
     public void testBytesToImage() throws FileNotFoundException, IOException {
         System.out.println("bytesToImage");
 
-        FileInputStream fis = new FileInputStream(new File(inputFile));
+        if (!inputFile.exists()) {
+            System.out.println("--Set input file first.");
+            return;
+        }
+        FileInputStream fis = new FileInputStream(inputFile);
         Image img = new Image(fis);
         fis.close();
 
@@ -74,7 +92,11 @@ public class CommonsTest {
         Image result = Commons.bytesToImage(data);
         assertNotNull(result);
 
-        ImageIO.write(SwingFXUtils.fromFXImage(result, null), "png", new File(outputFile));
+        if (!outputFile.exists()) {
+            System.out.println("--Set output file first.");
+            return;
+        }
+        ImageIO.write(SwingFXUtils.fromFXImage(result, null), "png", outputFile);
     }
 
 }
