@@ -15,8 +15,11 @@
  */
 package org.tuntuni.models;
 
+import java.util.UUID;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.tuntuni.util.Database;
 
 /**
@@ -25,9 +28,11 @@ import org.tuntuni.util.Database;
 public abstract class Persistent {
 
     private final Database mDatabase;
+    private final StringProperty mState;
 
     public Persistent(String name) {
         mDatabase = Database.instance(name);
+        mState = new SimpleStringProperty(UUID.randomUUID().toString());
     }
 
     // build a property. called from parent class
@@ -35,13 +40,25 @@ public abstract class Persistent {
         return new ExtendedSimpleObjectProperty<>(key, initialValue, this);
     }
 
+    void changeState() {
+        mState.set(UUID.randomUUID().toString());
+    }
+
+    public String getState() {
+        return mState.get();
+    }
+
+    public StringProperty stateProperty() {
+        return mState;
+    }
+
     private class ExtendedSimpleObjectProperty<T> extends ObjectPropertyBase<T> {
 
         private final String mKey;
-        private final Object mBean;
+        private final Persistent mBean;
         private final Class<T> mType;
 
-        public ExtendedSimpleObjectProperty(String key, T value, Object bean) {
+        public ExtendedSimpleObjectProperty(String key, T value, Persistent bean) {
             super(value);
             mKey = key;
             mBean = bean;
@@ -55,8 +72,9 @@ public abstract class Persistent {
 
         @Override
         public void set(T value) {
-            mDatabase.set(mKey, value);
-            super.set(value);
+            mDatabase.set(mKey, value); // set the database value
+            super.set(value); // notify all listenner connected to this property
+            mBean.changeState(); // notify all that are connected to persistent
         }
 
         @Override

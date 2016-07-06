@@ -15,9 +15,10 @@
  */
 package org.tuntuni.models;
 
-import java.beans.PropertyChangeEvent;
-import javafx.beans.InvalidationListener;
+import java.util.UUID;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
 import org.tuntuni.util.FileService;
@@ -32,7 +33,7 @@ public class UserProfile extends Persistent {
     private final Property<String> mAvatar;
     private final Property<String> mStatus;
     private final Property<String> mAboutMe;
-
+    
     /**
      * Initializes a new User Profile
      */

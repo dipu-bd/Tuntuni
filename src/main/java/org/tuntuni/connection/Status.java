@@ -22,7 +22,7 @@ import java.io.Serializable;
  */
 public enum Status implements Serializable {
       
-    EMPTY,
+    STATE,
     // to pass user profile information
     PROFILE, 
     // to pass a single message

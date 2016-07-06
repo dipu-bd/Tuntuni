@@ -23,7 +23,7 @@ import org.tuntuni.util.Commons;
  * Data that is passed between server and client as User Profile
  */
 public class UserData implements Serializable {
-
+    
     private final String mName;
     private final String mStatus;
     private final String mAboutMe;

@@ -37,14 +37,18 @@ public abstract class ServerRoute {
      */
     public Object getResponse(Status status, Socket from, Object[] data) {
         switch (status) {
-            case EMPTY:
-                return true;
+            case STATE:
+                return state();
             case PROFILE: // send user data
                 return profile(from);
             case MESSAGE: // a message arrived
                 return message(from, data);
         }
         return null;
+    }
+    
+    public Object state() {
+        return Core.instance().user().getState();
     }
 
     // what to do when Status.PROFILE getResponse arrived

@@ -20,6 +20,8 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
@@ -30,6 +32,7 @@ import org.tuntuni.models.UserData;
  */
 public class ClientData {
 
+    private final StringProperty mState;
     // to connect with server    
     private final InetSocketAddress mAddress;
     private int mTimeout;
@@ -45,10 +48,19 @@ public class ClientData {
         // set the socket
         mAddress = socket;
         // initialize properties
+        mState = new SimpleStringProperty("");
         mConnected = new SimpleBooleanProperty(false);
         mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
         // load messages
         // TODO: save and restore messages
+    }
+
+    public String getState() {
+        return mState.get();
+    }
+
+    public StringProperty stateProperty() {
+        return mState;
     }
 
     /**

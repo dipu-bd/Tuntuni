@@ -96,10 +96,17 @@ public class Client extends ClientData {
             return getProfile();
         }
         // check if server is alive
-        Object ob = request(Status.EMPTY);
-        boolean result = (ob instanceof Boolean) && (boolean) ob;
-        setConnected(result);
-        return result;
+        Object ob = request(Status.STATE);
+        if (ob == null || !(ob instanceof String)) {
+            setConnected(false);
+            return false;
+        }
+        // now check if states are the same
+        String result = (String) ob;
+        if (!result.equals(getState())) {
+            return getProfile();
+        }
+        return true;
     }
 
     public boolean getProfile() {
