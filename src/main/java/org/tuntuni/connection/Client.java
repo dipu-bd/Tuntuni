@@ -44,7 +44,7 @@ public class Client extends ClientData {
     public Client(InetSocketAddress socket) {
         super(socket);
     }
- 
+
     @Override
     public String toString() {
         return getAddress().toString();
@@ -92,19 +92,16 @@ public class Client extends ClientData {
      * @return {@code true} if available, {@code false} otherwise
      */
     public boolean checkServer() {
-        // if not connected request getProfile
-        if (!isConnected()) {
-            return getProfile();
+        // check if server is alive
+        Object result = request(Status.EMPTY);
+        if (result instanceof Boolean && (boolean) result) {
+            if (getUserData() == null) {
+                setConnected(true);
+                return getProfile();
+            }
         }
-        // otherwise just check if server is alive
-        try (Socket socket = new Socket()) {
-            socket.connect(getAddress(), getTimeout()); 
-            return true;
-        } catch (Exception ex) {
-            //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
-            setConnected(false);
-            return false;
-        }
+        setConnected(false);
+        return false;
     }
 
     public boolean getProfile() {
@@ -112,7 +109,6 @@ public class Client extends ClientData {
         try {
             UserData profile = (UserData) request(Status.PROFILE);
             setUserData(profile);
-            setConnected(true);
             return profile != null;
         } catch (NullPointerException ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);

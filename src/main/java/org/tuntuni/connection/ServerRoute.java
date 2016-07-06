@@ -15,9 +15,9 @@
  */
 package org.tuntuni.connection;
 
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
+import javafx.application.Platform;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
 import org.tuntuni.util.SocketUtils;
@@ -38,6 +38,8 @@ public abstract class ServerRoute {
      */
     public Object getResponse(Status status, Socket from, Object[] data) {
         switch (status) {
+            case EMPTY:
+                return true;
             case PROFILE: // send user data
                 return profile(from);
             case MESSAGE: // a message arrived
@@ -48,8 +50,10 @@ public abstract class ServerRoute {
 
     // what to do when Status.PROFILE getResponse arrived
     public Object profile(Socket from) {
-        Core.instance().subnet().addAsClient(
-                SocketUtils.getRemoteHost(from));
+        Platform.runLater(() -> {
+            Core.instance().subnet().addAsClient(
+                    SocketUtils.getRemoteHost(from));
+        });
         return Core.instance().user().getData();
     }
 

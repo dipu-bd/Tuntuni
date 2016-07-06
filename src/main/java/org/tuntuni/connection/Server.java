@@ -177,11 +177,9 @@ public final class Server extends ServerRoute {
     // process a selection key
     private void processSocket(Socket socket) {
 
-        try ( // get all input and output streams from socket
+        try ( // get all input streams from socket
                 InputStream in = socket.getInputStream();
-                ObjectInputStream req = new ObjectInputStream(in);
-                OutputStream out = socket.getOutputStream();
-                ObjectOutputStream res = new ObjectOutputStream(out);) {
+                ObjectInputStream req = new ObjectInputStream(in)) {
 
             // get getResponse type
             Status status = (Status) req.readObject();
@@ -190,13 +188,18 @@ public final class Server extends ServerRoute {
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{socket.getRemoteSocketAddress(), status, data.length});
-            // routing by status type
+
+            // get response
             Object result = getResponse(status, socket, data);
-            // send the result
-            if (res != null) {
-                res.writeObject(result);
+            if (result != null) {
+                try ( // get all output streams from socket
+                        OutputStream out = socket.getOutputStream();
+                        ObjectOutputStream res = new ObjectOutputStream(out)) {
+                    // write out result
+                    res.writeObject(result);
+                    res.flush();
+                }
             }
-            res.flush();
         } catch (IOException ex) {
             logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {

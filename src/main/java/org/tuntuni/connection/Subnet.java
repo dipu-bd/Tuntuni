@@ -181,7 +181,7 @@ public class Subnet {
         return () -> {
             // calculate the remote network address
             // first check if it is on the list
-            {
+            {            
                 Client client = mUserList.get(address);
                 if (client != null) {
                     client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
