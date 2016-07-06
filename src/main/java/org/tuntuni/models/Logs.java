@@ -37,7 +37,8 @@ public abstract class Logs {
             SERVER_RECEIVED_CLIENT = "{0} requested with {1} params from {2}",
             // Used in Subnet
             SUBNET_SCAN_START = "Performing a scan for active subnet users",
-            SUBNET_INTERFACE_ENUMERATION_FAILED = "Failed to get network interfaces",
+            SUBNET_SCAN_SUCCESS = "Performed a scan over the whole networks",
+            SUBNET_SCAN_FAILED = "Failed to get network interfaces",
             SUBNET_INTERFACE_CHECK_ERROR = "Failed to check network interface",
             SUBNET_CHECKING_SUBNETS = "Checking up all subnets of {0}",
             SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from {0}",

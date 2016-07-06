@@ -47,8 +47,8 @@ public class Subnet {
     private static final Logger logger = Logger.getGlobal();
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
-    public static final int SCAN_INTERVAL_MILLIS = 15_000;
-    public static final int REACHABLE_THREAD_COUNT = 20;
+    public static final int SCAN_INTERVAL_MILLIS = 30_000;
+    public static final int REACHABLE_THREAD_COUNT = 100;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
     private final StringProperty mState;
@@ -110,7 +110,7 @@ public class Subnet {
      * @param address Address to check
      */
     public void addAsClient(String address) {
-        mExecutor.submit(checkAddress(address));
+        mExecutor.submit(() -> checkAddress(address, true));
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -149,9 +149,11 @@ public class Subnet {
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
             }
+            logger.log(Level.INFO, Logs.SUBNET_SCAN_SUCCESS);
         } catch (SocketException ex) {
-            logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_ENUMERATION_FAILED, ex);
+            logger.log(Level.SEVERE, Logs.SUBNET_SCAN_FAILED, ex);
         }
+
     };
 
     // check all address avaiable in a network interface
@@ -204,7 +206,7 @@ public class Subnet {
                         continue;
                     }
                     String host = SocketUtils.addressAsString(ip);
-                    taskList.add(checkAddress(host));
+                    taskList.add(checkAddress(host, false));
                 }
             });
 
@@ -220,7 +222,7 @@ public class Subnet {
     }
 
     // check if the given address is active.    
-    private Callable<Integer> checkAddress(String address) {
+    private Callable<Integer> checkAddress(String address, boolean changeStateNow) {
         // returns 1 only when something changes
         return () -> {
             // the address might be on the list. check it first
@@ -240,10 +242,12 @@ public class Subnet {
             }
             if (real == null || i < 0) {
                 return 0;  // no change
-            }            
+            }
             // has change
-            changeState();
-            return 1; 
+            if (changeStateNow) {
+                changeState(); // update change
+            }
+            return 1;
         };
     }
 
