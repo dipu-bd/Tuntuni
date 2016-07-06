@@ -15,6 +15,8 @@
  */
 package org.tuntuni.models;
 
+import javafx.embed.swing.JFXPanel;
+import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -29,34 +31,45 @@ public class UserProfileTest {
     }
 
     UserProfile profile;
-     
+
     @Before
-    public void testBefore() { 
+    public void testBefore() {
+        SwingUtilities.invokeLater(() -> {
+            JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
+        });
         profile = new UserProfile();
     }
 
     @Test
     public void testUsername_String() {
+        System.out.println("testUsername_String");
         assertNotNull(profile.username());
     }
 
     @Test
     public void testAvatar_Image() {
+        System.out.println("testAvatar_Image");
+        System.out.println("++" + profile.avatar());
         assertNotNull(profile.avatar());
+        assertNotNull(profile.getAvatarImage());
+        assertNotNull(profile.getAvatarImage(63, 83));
     }
 
     @Test
     public void testStatus_String() {
+        System.out.println("testStatus_String");
         assertNotNull(profile.status());
     }
 
     @Test
     public void testAboutme_String() {
+        System.out.println("testAboutme_String");
         assertNotNull(profile.aboutme());
     }
 
     @Test
     public void testGetData() {
+        System.out.println("testGetData");
         assertNotNull(profile.getData());
     }
 }

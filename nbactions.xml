@@ -5,10 +5,9 @@
         <goals>
             <goal>clean</goal>
             <goal>package</goal>
-            <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
-            
+            <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal> 
         </goals>
-        <properties>
+        <properties> 
             <runfx.args>-jar "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
             <skipTests>true</skipTests>
         </properties>
@@ -45,3 +44,4 @@
             </properties>
         </action>        
 </actions>
+  

@@ -5,7 +5,7 @@ build/
 nbbuild/
 dist/
 nbdist/
-nbactions.xml
+#nbactions.xml
 .nb-gradle/
 ### Java template
 *.class

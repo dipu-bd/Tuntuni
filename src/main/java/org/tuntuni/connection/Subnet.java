@@ -47,8 +47,8 @@ public class Subnet {
     private static final Logger logger = Logger.getGlobal();
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
-    public static final int SCAN_INTERVAL_MILLIS = 30_000;
-    public static final int REACHABLE_THREAD_COUNT = 254;
+    public static final int SCAN_INTERVAL_MILLIS = 15_000;
+    public static final int REACHABLE_THREAD_COUNT = 256;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
     private final StringProperty mState;

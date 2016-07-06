@@ -23,7 +23,9 @@ import org.tuntuni.util.Commons;
  * Data that is passed between server and client as User Profile
  */
 public class UserData implements Serializable {
-    
+
+    private static final int AVATAR_MAX_SIZE = 128;
+
     private final String mName;
     private final String mStatus;
     private final String mAboutMe;
@@ -35,7 +37,8 @@ public class UserData implements Serializable {
         mStatus = profile.status();
         mAboutMe = profile.aboutme();
         mState = profile.getState();
-        mAvatar = Commons.imageToBytes(profile.getAvatarImage(128, 128));        
+        mAvatar = Commons.imageToBytes(
+                profile.getAvatarImage(AVATAR_MAX_SIZE, AVATAR_MAX_SIZE));
     }
 
     public String getUserName() {
