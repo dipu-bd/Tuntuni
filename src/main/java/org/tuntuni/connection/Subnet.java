@@ -209,6 +209,7 @@ public class Subnet {
     // add address to the observable list
     private void addAddress(Client client) {
         Platform.runLater(() -> {
+            System.out.println("Adding...");
             mUserList.put(client.getHostString(), client);
             logger.log(Level.INFO, "New user {0}:{1}",
                     new Object[]{client.getHostString(), client.getPort()});

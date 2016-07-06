@@ -179,7 +179,9 @@ public final class Server extends ServerRoute {
 
         try ( // get all input streams from socket
                 InputStream in = socket.getInputStream();
-                ObjectInputStream req = new ObjectInputStream(in)) {
+                ObjectInputStream req = new ObjectInputStream(in);
+                OutputStream out = socket.getOutputStream();
+                ObjectOutputStream res = new ObjectOutputStream(out)) {
 
             // get getResponse type
             Status status = (Status) req.readObject();
@@ -192,13 +194,9 @@ public final class Server extends ServerRoute {
             // get response
             Object result = getResponse(status, socket, data);
             if (result != null) {
-                try ( // get all output streams from socket
-                        OutputStream out = socket.getOutputStream();
-                        ObjectOutputStream res = new ObjectOutputStream(out)) {
-                    // write out result
-                    res.writeObject(result);
-                    res.flush();
-                }
+                // write out result
+                res.writeObject(result);
+                res.flush();
             }
         } catch (IOException ex) {
             logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
