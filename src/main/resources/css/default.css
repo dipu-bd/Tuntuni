@@ -96,7 +96,7 @@
 
 #message-receiver .inner-grid {
     -fx-background-radius: 10;
-    -fx-background-color:  rgba(240,255,240,0.8);     
+    -fx-background-color:  rgba(240,255,240,0.7);     
 }
 
 #message-sender { 
@@ -105,7 +105,7 @@
 
 #message-sender .inner-grid {
     -fx-background-radius: 10;
-    -fx-background-color:  rgba(240,240,255,0.8);       
+    -fx-background-color:  rgba(240,240,255,0.7);       
 }
 
 #message-receiver .button {

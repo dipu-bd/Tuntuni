@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="message-box" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox">
+<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="100.0" styleClass="message-box" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.components.MessageBox">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="100.0" />
    </columnConstraints>
@@ -18,7 +18,7 @@
       <RowConstraints maxHeight="1.7976931348623157E308" minHeight="60.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <GridPane hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="60.0" minWidth="100.0" prefWidth="300.0" styleClass="inner-grid" GridPane.halignment="CENTER" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+      <GridPane hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="60.0" minWidth="100.0" styleClass="inner-grid" GridPane.halignment="CENTER" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
           <rowConstraints>
               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="26.0" vgrow="ALWAYS" />
             <RowConstraints fillHeight="false" />
@@ -38,7 +38,7 @@
               </Button>
               <Label fx:id="messageBody" alignment="TOP_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="This is going to be a loooooooooooooong status!" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
                <font>
-                  <Font size="13.0" />
+                  <Font name="Cambria" size="14.0" />
                </font>
               </Label>
             <Label fx:id="timegapLabel" text="moments ago" textFill="#725c5c" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="BOTTOM">
@@ -51,7 +51,7 @@
             <Insets />
          </GridPane.margin>
          <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            <Insets bottom="6.0" left="8.0" right="8.0" top="6.0" />
          </padding>
       </GridPane>
    </children>
