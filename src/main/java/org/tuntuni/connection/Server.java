@@ -182,7 +182,9 @@ public final class Server extends ServerRoute {
                 ObjectInputStream req = new ObjectInputStream(in);
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream res = new ObjectOutputStream(out)) {
-
+            
+            System.out.println("Reading from " + socket.toString());
+            
             // get getResponse type
             Status status = (Status) req.readObject();
             // get params
@@ -196,10 +198,11 @@ public final class Server extends ServerRoute {
             if (result != null) {
                 // write out result
                 res.writeObject(result);
-                res.flush();
             }
+            res.flush();
+            
         } catch (IOException ex) {
-            logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
+            //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.WARNING, Logs.SOCKET_CLASS_FAILED, ex);
         }

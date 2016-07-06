@@ -180,20 +180,18 @@ public class Subnet {
     private Callable<Integer> checkAddress(String address) {
         return () -> {
             // calculate the remote network address
-            // first check if it is on the list
-            {            
-                Client client = mUserList.get(address);
-                if (client != null) {
-                    client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
-                    if (client.checkServer()) {
-                        return 0;
-                    }
+            // first check if it is on the list 
+            Client client = mUserList.get(address);
+            if (client != null) {
+                client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
+                if (client.checkServer()) {
+                    return 0;
                 }
             }
             // check if the server is up in any port of other server
             for (int i = 0; i < Server.PORTS.length; ++i) {
                 // make new client                
-                Client client = new Client(
+                client = new Client(
                         new InetSocketAddress(address, Server.PORTS[i]));
                 // add it to
                 client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
@@ -209,10 +207,22 @@ public class Subnet {
     // add address to the observable list
     private void addAddress(Client client) {
         Platform.runLater(() -> {
-            System.out.println("Adding...");
             mUserList.put(client.getHostString(), client);
             logger.log(Level.INFO, "New user {0}:{1}",
                     new Object[]{client.getHostString(), client.getPort()});
+        });
+    }
+
+    /**
+     * Adds the address as client if not already exists
+     *
+     * @param address Address to check
+     */
+    public void addAsClient(String address) {
+        Platform.runLater(() -> {
+            if (getClientByAddress(address) == null) {
+                mExecutor.submit(checkAddress(address));
+            }
         });
     }
 
@@ -227,12 +237,4 @@ public class Subnet {
         return mUserList.get(address);
     }
 
-    /**
-     * Adds the address as client if not already exists
-     *
-     * @param address Address to check
-     */
-    public void addAsClient(String address) {
-        mExecutor.submit(checkAddress(address));
-    }
 }
