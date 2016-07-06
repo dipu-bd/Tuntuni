@@ -92,16 +92,14 @@ public class Client extends ClientData {
      * @return {@code true} if available, {@code false} otherwise
      */
     public boolean checkServer() {
-        // check if server is alive
-        Object result = request(Status.EMPTY);
-        if (result instanceof Boolean && (boolean) result) {
-            setConnected(true);
-            if (getUserData() == null) {
-                return getProfile();
-            }
+        if (!isConnected()) {
+            return getProfile();
         }
-        setConnected(false);
-        return false;
+        // check if server is alive
+        Object ob = request(Status.EMPTY);
+        boolean result = (ob instanceof Boolean) && (boolean) ob;
+        setConnected(result);
+        return result;
     }
 
     public boolean getProfile() {
@@ -109,11 +107,14 @@ public class Client extends ClientData {
         try {
             UserData profile = (UserData) request(Status.PROFILE);
             setUserData(profile);
-            return profile != null;
+            if (profile != null) {
+                setConnected(true);
+                return true;
+            }
         } catch (NullPointerException ex) {
             //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
-            return false;
         }
+        return false;
     }
 
     /**

@@ -181,22 +181,21 @@ public class Subnet {
         return () -> {
             // calculate the remote network address
             // first check if it is on the list 
-            Client client = mUserList.get(address);
+            Client client = getClient(address);
             if (client != null) {
-                client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
                 if (client.checkServer()) {
                     return 0;
                 }
             }
             // check if the server is up in any port of other server
-            for (int i = 0; i < Server.PORTS.length; ++i) {
-                // make new client                
-                client = new Client(
-                        new InetSocketAddress(address, Server.PORTS[i]));
-                // add it to
-                client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
-                if (client.checkServer()) {
-                    addAddress(client);
+            for (int i = Server.PORTS.length - 1; i >= 0; --i) {
+                // make new client  
+                client = new Client(new InetSocketAddress(address, Server.PORTS[i]));
+                if (client.checkServer()) {                    
+                    logger.log(Level.INFO, "New user {0}:{1}",
+                            new Object[]{client.getHostString(), client.getPort()});
+                    
+                    addAddress(client);                    
                     return 0;
                 }
             }
@@ -206,11 +205,9 @@ public class Subnet {
 
     // add address to the observable list
     private void addAddress(Client client) {
-        Platform.runLater(() -> {
+        synchronized (mUserList) {
             mUserList.put(client.getHostString(), client);
-            logger.log(Level.INFO, "New user {0}:{1}",
-                    new Object[]{client.getHostString(), client.getPort()});
-        });
+        }
     }
 
     /**
@@ -219,11 +216,9 @@ public class Subnet {
      * @param address Address to check
      */
     public void addAsClient(String address) {
-        Platform.runLater(() -> {
-            if (getClientByAddress(address) == null) {
-                mExecutor.submit(checkAddress(address));
-            }
-        });
+        if (getClient(address) == null) {
+            mExecutor.submit(checkAddress(address));
+        }
     }
 
     /**
@@ -233,8 +228,10 @@ public class Subnet {
      * @param address Address of the user to search for
      * @return null if not found.
      */
-    public Client getClientByAddress(String address) {
-        return mUserList.get(address);
+    public Client getClient(String address) {
+        synchronized (mUserList) {
+            return mUserList.get(address);
+        }
     }
 
 }

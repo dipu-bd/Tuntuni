@@ -28,9 +28,7 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class ClientData {
-
-    private static final Logger logger = Logger.getGlobal();
-
+ 
     // to connect with server    
     private final InetSocketAddress mAddress;
     private int mTimeout;

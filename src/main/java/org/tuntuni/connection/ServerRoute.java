@@ -17,7 +17,6 @@ package org.tuntuni.connection;
 
 import java.net.Socket;
 import java.util.Date;
-import javafx.application.Platform;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
 import org.tuntuni.util.SocketUtils;
@@ -63,7 +62,7 @@ public abstract class ServerRoute {
             // sender's address
             String remote = SocketUtils.getRemoteHost(from);
             // get client
-            Client client = Core.instance().subnet().getClientByAddress(remote);
+            Client client = Core.instance().subnet().getClient(remote);
             // add this message
             client.addMessage(message);
             message.setReceiver(true);
