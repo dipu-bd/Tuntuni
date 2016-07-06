@@ -32,7 +32,6 @@ import org.tuntuni.models.UserData;
  */
 public class ClientData {
 
-    private final StringProperty mState;
     // to connect with server    
     private final InetSocketAddress mAddress;
     private int mTimeout;
@@ -47,8 +46,7 @@ public class ClientData {
         mTimeout = Client.DEFAULT_TIMEOUT;
         // set the socket
         mAddress = socket;
-        // initialize properties
-        mState = new SimpleStringProperty("");
+        // initialize properties 
         mConnected = new SimpleBooleanProperty(false);
         mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
         // load messages
@@ -56,13 +54,9 @@ public class ClientData {
     }
 
     public String getState() {
-        return mState.get();
-    }
-
-    public StringProperty stateProperty() {
-        return mState;
-    }
-
+        return mUser.getState();
+    } 
+    
     /**
      * Gets the socket address associated with this client.
      *

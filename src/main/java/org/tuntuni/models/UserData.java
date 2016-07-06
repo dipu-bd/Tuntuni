@@ -27,17 +27,23 @@ public class UserData implements Serializable {
     private final String mName;
     private final String mStatus;
     private final String mAboutMe;
+    private final String mState;
     private final byte[] mAvatar;
 
     public UserData(UserProfile profile) {
         mName = profile.username();
         mStatus = profile.status();
         mAboutMe = profile.aboutme();
-        mAvatar = Commons.imageToBytes(profile.getAvatarImage(128, 128));
+        mState = profile.getState();
+        mAvatar = Commons.imageToBytes(profile.getAvatarImage(128, 128));        
     }
 
     public String getUserName() {
         return mName;
+    }
+
+    public String getState() {
+        return mState;
     }
 
     public String getStatus() {
