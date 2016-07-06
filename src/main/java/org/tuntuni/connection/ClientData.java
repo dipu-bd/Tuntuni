@@ -16,12 +16,13 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
+import java.util.Observable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
@@ -36,7 +37,7 @@ public class ClientData {
     private final InetSocketAddress mAddress;
     private int mTimeout;
     // local data from server 
-    private UserData mUser;
+    private final ObjectProperty<UserData> mUserData;
     private final BooleanProperty mConnected;
     private final SimpleListProperty<Message> mMessages;
 
@@ -47,16 +48,22 @@ public class ClientData {
         // set the socket
         mAddress = socket;
         // initialize properties 
+        mUserData = new SimpleObjectProperty<>(this, "UserData");
         mConnected = new SimpleBooleanProperty(false);
         mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
         // load messages
         // TODO: save and restore messages
     }
 
+    /**
+     * Gets the state of the user data
+     *
+     * @return
+     */
     public String getState() {
-        return mUser.getState();
-    } 
-    
+        return mUserData.get().getState();
+    }
+
     /**
      * Gets the socket address associated with this client.
      *
@@ -121,7 +128,7 @@ public class ClientData {
      * @return
      */
     public UserData getUserData() {
-        return mUser;
+        return mUserData.get();
     }
 
     /**
@@ -129,7 +136,11 @@ public class ClientData {
      *
      */
     void setUserData(UserData user) {
-        mUser = user;
+        mUserData.set(user);
+    }
+
+    public ObjectProperty<UserData> userdataProperty() {
+        return mUserData;
     }
 
     /**

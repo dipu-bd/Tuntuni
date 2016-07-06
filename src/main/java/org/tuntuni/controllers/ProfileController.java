@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -70,16 +71,18 @@ public class ProfileController implements Initializable {
         aboutMe.textProperty().addListener((a, b, c) -> changeAboutMe());
     }
 
-    public void setClient(Client client) {
-        if (mClient != null) {
-            mClient = client;
-            refresh();
-        }
+    public synchronized void setClient(Client client) {
+        mClient = client;
+        refresh();
     }
 
     public void refresh() {
+        Platform.runLater(() -> loadAll());
+    }
 
-        boolean client = mClient != null && mClient.isConnected();
+    private synchronized void loadAll() {
+        
+        boolean showme = mClient == null || !mClient.isConnected();
 
         double width = avatarImage.getFitWidth();
         double height = avatarImage.getFitHeight();
@@ -89,7 +92,7 @@ public class ProfileController implements Initializable {
         String about = Core.instance().user().aboutme();
         Image image = Core.instance().user().getAvatarImage(width, height);
 
-        if (client) {
+        if (!showme) {
             name = mClient.getUserData().getUserName() + " ";
             status = mClient.getUserData().getStatus() + " ";
             about = mClient.getUserData().getAboutMe() + " ";
@@ -101,13 +104,13 @@ public class ProfileController implements Initializable {
         aboutMe.setText(about);
         avatarImage.setImage(image);
 
-        aboutMe.setEditable(!client);
-        userName.setEditable(!client);
-        statusText.setEditable(!client);
-        messageButton.setVisible(client);
-        videoCallButton.setVisible(client);
+        aboutMe.setEditable(showme);
+        userName.setEditable(showme);
+        statusText.setEditable(showme);
+        messageButton.setVisible(!showme);
+        videoCallButton.setVisible(!showme);
 
-        if (!client) {
+        if (showme) {
             userName.setCursor(Cursor.TEXT);
             statusText.setCursor(Cursor.TEXT);
             avatarButton.setCursor(Cursor.HAND);
@@ -150,7 +153,8 @@ public class ProfileController implements Initializable {
                 Database.instance().set("Initial Directory",
                         choosen.getParentFile().toString());
             }
-        } 
+        }
+        refresh();
     }
 
     private void changeName() {

@@ -47,7 +47,7 @@ public class Client extends ClientData {
 
     @Override
     public String toString() {
-        return getAddress().toString();
+        return String.format("%s@%s:%s", getHostName(), getHostString(), getPort());
     }
 
     /**

@@ -17,6 +17,7 @@ package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -30,6 +31,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.components.UserItem;
+import org.tuntuni.connection.Client;
 
 /**
  * The controller for the main scene of this application.
@@ -55,17 +57,16 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // set main controller to core
         Core.instance().main(this);
 
         // build user list later
         Platform.runLater(() -> {
-
             // run build immediately
             buildUserList();
-
             // listen to user list change
-            Core.instance().subnet().stateProperty()
-                    .addListener((ov, o, n) -> buildUserList());
+            Core.instance().subnet().stateProperty().addListener((ov, o, n)
+                    -> Platform.runLater(() -> buildUserList()));
 
             // bind profile button text
             profileButton.setText(Core.instance().user().username());
@@ -77,52 +78,35 @@ public class MainController implements Initializable {
                     -> ((ImageView) profileButton.getGraphic())
                     .setImage(Core.instance().user().getAvatarImage(32, 32));
             updateAvatar.changed(null, null, null);
-            Core.instance().user().avatarProperty().addListener(updateAvatar);            
+            Core.instance().user().avatarProperty().addListener(updateAvatar);
         });
-    }
-
-    public void selectProfile() {        
-        tabPane.getSelectionModel().select(0);
-    }
-
-    public void selectMessaging() {
-        tabPane.getSelectionModel().select(1);
-    }
-
-    public void selectVideoCall() {
-        tabPane.getSelectionModel().select(2);
     }
 
     @FXML
     private void handleProfileAction(ActionEvent event) {
         selectProfile();
         Core.instance().profile().setClient(null);
-        userList.getSelectionModel().clearSelection();        
+        userList.getSelectionModel().clearSelection();
     }
 
-    private void buildUserList() {
+    private synchronized void buildUserList() {
+        // defaine client consumer
+        Consumer<Client> consumer = (client) -> {
+            // check if client is connected
+            if (client.isConnected()) {
+                // show client
+                UserItem item = UserItem.createInstance(client);
+                userList.getItems().add(item);
+                item.setOnMouseClicked((evt) -> showUser(item));
+                item.setOnKeyReleased((evt) -> showUser(item));
+            }
+        };
         // add all items
         userList.getItems().clear();
-        Core.instance().subnet().userListProperty().values().stream().forEach(
-                (client) -> {
-                    // check if client is connected
-                    if (!client.isConnected()) {
-                        return;
-                    }
-                    // show client
-                    UserItem item = UserItem.createInstance(client);
-                    userList.getItems().add(item);
-                    item.setOnMouseClicked((evt) -> showUser(item));
-                    item.setOnKeyReleased((evt) -> showUser(item));
-                });
-
+        Core.instance().subnet().userListProperty()
+                .values().stream().forEach(consumer);
         // hide user list if no items
-        if (userList.getItems().size() > 0) {
-            userList.setPrefWidth(250);
-        } else {
-            userList.setPrefWidth(0);
-        }
-        
+        userList.setPrefWidth(userList.getItems().size() == 0 ? 0.0 : 250.0);
         // refresh last user
         Core.instance().profile().refresh();
     }
@@ -134,4 +118,17 @@ public class MainController implements Initializable {
             Core.instance().videocall().setClient(item.getClient());
         }
     }
+
+    public void selectProfile() {
+        tabPane.getSelectionModel().select(0);
+    }
+
+    public void selectMessaging() {
+        tabPane.getSelectionModel().select(1);
+    }
+
+    public void selectVideoCall() {
+        tabPane.getSelectionModel().select(2);
+    }
+
 }

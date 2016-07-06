@@ -30,10 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -48,12 +45,12 @@ public class Subnet {
 
     // logger
     private static final Logger logger = Logger.getGlobal();
-    
+
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
     public static final int SCAN_INTERVAL_MILLIS = 15_000;
     public static final int REACHABLE_THREAD_COUNT = 20;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
-    
+
     private final StringProperty mState;
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;
@@ -95,17 +92,6 @@ public class Subnet {
     }
 
     /**
-     * Adds the address as client if not already exists
-     *
-     * @param address Address to check
-     */
-    public void addAsClient(String address) {
-        if (getClient(address) == null) {
-            mExecutor.submit(checkAddress(address));
-        }
-    }
-
-    /**
      * Search for the user client on the user list and returns the client if
      * found, otherwise a null value is returned
      *
@@ -116,6 +102,15 @@ public class Subnet {
         synchronized (mUserList) {
             return mUserList.get(address);
         }
+    }
+
+    /**
+     * Adds the address as client if not already exists
+     *
+     * @param address Address to check
+     */
+    public void addAsClient(String address) {
+        mExecutor.submit(checkAddress(address));
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -188,7 +183,7 @@ public class Subnet {
                         || !(address instanceof Inet4Address)) {
                     return;
                 }
-                
+
                 logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
 
                 // get network's first and last hosts
@@ -213,59 +208,55 @@ public class Subnet {
                 }
             });
 
-            // wait until all tasks are done
+            // wait until all tasks are done    
             mExecutor.invokeAll(taskList);
-            
+            changeState();
+
         } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
         } catch (InterruptedException iex) {
+            //logger.log(Level.SEVERE, null, ex);
         }
     }
 
-    // check if the given address is active. 
-    // if it is active add it to user list. 
-    // otherwise remove it from user list, if already in it.
+    // check if the given address is active.    
     private Callable<Integer> checkAddress(String address) {
+        // returns 1 only when something changes
         return () -> {
-            // calculate the remote network address
-            // first check if it is on the list 
+            // the address might be on the list. check it first
             Client real = getClient(address);
             if (real != null && real.checkServer()) {
-                // has connection
-                return 1;
+                return 0;     // retains connection
             }
-            // check if the server is up in any port of other server
-            for (int i = Server.PORTS.length - 1; i >= 0; --i) {
+            // try new connection with the server 
+            int i = Server.PORTS.length - 1;
+            for (; i >= 0; --i) {
                 Client sub = new Client(
                         new InetSocketAddress(address, Server.PORTS[i]));
                 if (sub.checkServer()) {
-                    // new connection
-                    addUser(sub);
-                    // change state
-                    changeState();
-                    return 2;
+                    addUser(sub);   // new connection
+                    break;
                 }
             }
-            if (real != null) {
-                // lost connection                
-                changeState();
-                return 0;
-            }
-            // not alive
-            return -1;
+            if (real == null || i < 0) {
+                return 0;  // no change
+            }            
+            // has change
+            changeState();
+            return 1; 
         };
     }
-    
-    private void addUser(Client client) {
-        synchronized (mUserList) {
+
+    private synchronized void addUser(Client client) {
+        Platform.runLater(() -> {
             mUserList.put(client.getHostString(), client);
-        }
+        });
     }
-    
-    private void changeState() {
-        synchronized (mState) {
+
+    private synchronized void changeState() {
+        Platform.runLater(() -> {
             mState.set(UUID.randomUUID().toString());
-        }
+        });
     }
-    
+
 }

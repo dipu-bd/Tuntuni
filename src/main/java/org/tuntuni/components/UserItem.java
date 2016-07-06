@@ -16,6 +16,9 @@
 package org.tuntuni.components;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -29,53 +32,52 @@ import org.tuntuni.util.Commons;
  * @author Sudipto Chandra
  */
 public class UserItem extends BorderPane {
-
+    
+    private static Logger logger = Logger.getGlobal();
+    
     public static UserItem createInstance(Client client) {
         try {
             // build the component
             UserItem uitem = (UserItem) Commons.loadPaneFromFXML("/fxml/UserItem.fxml");
             // set client
             uitem.setClient(client);
-            //post load work      
-            uitem.initialize();
             // return main object
             return uitem;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, null, ex);
         }
         return null;
     }
-
+    
     @FXML
     private ImageView imageView;
     @FXML
     private Label fullName;
     @FXML
     private Label statusLabel;
-
+    
     private Client mClient;
-
-    private void initialize() {
-        assert mClient != null;
+    
+    private void refresh() {
+        if (mClient == null || mClient.getUserData() == null) {
+            return;
+        }
         fullName.setText(mClient.getUserData().getUserName());
-        imageView.setImage(mClient.getUserData().getAvatar());
-
+        imageView.setImage(mClient.getUserData().getAvatar(
+                imageView.getFitWidth(), imageView.getFitHeight()));
         String status = mClient.getUserData().getStatus();
-        statusLabel.setText(status.isEmpty() ? toString() : status);
+        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
     }
-
+    
     private void setClient(Client client) {
         mClient = client;
+        mClient.userdataProperty().addListener((ov, n, o)
+                -> Platform.runLater(() -> refresh()));
+        refresh();
     }
-
+    
     public Client getClient() {
         return mClient;
     }
-
-    @Override
-    public String toString() {
-        return mClient.getHostString()
-                + "@" + mClient.getHostString()
-                + ":" + mClient.getPort();
-    }
+    
 }
