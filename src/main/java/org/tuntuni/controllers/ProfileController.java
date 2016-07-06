@@ -79,7 +79,7 @@ public class ProfileController implements Initializable {
 
     public void refresh() {
 
-        boolean showme = mClient == null || !mClient.isConnected();
+        boolean client = mClient != null && mClient.isConnected();
 
         double width = avatarImage.getFitWidth();
         double height = avatarImage.getFitHeight();
@@ -89,7 +89,7 @@ public class ProfileController implements Initializable {
         String about = Core.instance().user().aboutme();
         Image image = Core.instance().user().getAvatarImage(width, height);
 
-        if (!showme) {
+        if (client) {
             name = mClient.getUserData().getUserName() + " ";
             status = mClient.getUserData().getStatus() + " ";
             about = mClient.getUserData().getAboutMe() + " ";
@@ -101,13 +101,13 @@ public class ProfileController implements Initializable {
         aboutMe.setText(about);
         avatarImage.setImage(image);
 
-        aboutMe.setEditable(showme);
-        userName.setEditable(showme);
-        statusText.setEditable(showme);
-        messageButton.setVisible(showme);
-        videoCallButton.setVisible(showme);
+        aboutMe.setEditable(!client);
+        userName.setEditable(!client);
+        statusText.setEditable(!client);
+        messageButton.setVisible(client);
+        videoCallButton.setVisible(client);
 
-        if (showme) {
+        if (!client) {
             userName.setCursor(Cursor.TEXT);
             statusText.setCursor(Cursor.TEXT);
             avatarButton.setCursor(Cursor.HAND);
