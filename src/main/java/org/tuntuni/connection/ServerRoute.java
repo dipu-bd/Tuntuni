@@ -20,13 +20,14 @@ import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
+import org.tuntuni.util.SocketUtils;
 
 /**
  * Extended by Server. It provides functions to deal with a request arrived in
  * Server from a client socket.
  */
 public abstract class ServerRoute {
-    
+
     /**
      * A function to which the server requests to get response.
      *
@@ -36,19 +37,21 @@ public abstract class ServerRoute {
      * @return The getResponse object. Can be {@code null}.
      */
     public Object getResponse(Status status, Socket from, Object[] data) {
-        switch (status) {  
+        switch (status) {
             case PROFILE: // send user data
-                return profile();
+                return profile(from);
             case MESSAGE: // a message arrived
                 return message(from, data);
-        } 
+        }
         return null;
     }
- 
+
     // what to do when Status.PROFILE getResponse arrived
-    public Object profile() {
-        return Core.instance().user().getData();        
-    } 
+    public Object profile(Socket from) {
+        Core.instance().subnet().addAsClient(
+                SocketUtils.getRemoteHost(from));
+        return Core.instance().user().getData();
+    }
 
     // display the message 
     public Object message(Socket from, Object[] data) {
@@ -56,7 +59,7 @@ public abstract class ServerRoute {
             // get message
             Message message = (Message) data[0];
             // sender's address
-            String remote = ((InetSocketAddress) from.getRemoteSocketAddress()).getHostString();
+            String remote = SocketUtils.getRemoteHost(from);
             // get client
             Client client = Core.instance().subnet().getClientByAddress(remote);
             // add this message

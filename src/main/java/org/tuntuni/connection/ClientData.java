@@ -31,9 +31,9 @@ public class ClientData {
 
     private static final Logger logger = Logger.getGlobal();
 
-    // to connect with server
-    private int mTimeout;
+    // to connect with server    
     private final InetSocketAddress mAddress;
+    private int mTimeout;
     // local data from server 
     private UserData mUser;
     private boolean mConnected;
@@ -88,7 +88,7 @@ public class ClientData {
     public int getPort() {
         return mAddress.getPort();
     }
-
+     
     /**
      * Gets the timeout for a connection
      *

@@ -44,23 +44,7 @@ public class Client extends ClientData {
     public Client(InetSocketAddress socket) {
         super(socket);
     }
-
-    //
-    // Some functions that has been overridden for equality tests in Subnet.
-    // 
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof Client) {
-            return getAddress().equals(((Client) other).getAddress());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return getAddress().hashCode();
-    }
-
+ 
     @Override
     public String toString() {
         return getAddress().toString();

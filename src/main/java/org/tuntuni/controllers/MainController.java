@@ -41,7 +41,7 @@ import org.tuntuni.components.UserItem;
  *
  */
 public class MainController implements Initializable {
-    
+
     @FXML
     private ListView userList;
     @FXML
@@ -52,7 +52,7 @@ public class MainController implements Initializable {
     private TabPane tabPane;
     @FXML
     private Button profileButton;
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().main(this);
@@ -80,40 +80,49 @@ public class MainController implements Initializable {
             Core.instance().user().avatarProperty().addListener(updateAvatar);
         });
     }
-    
+
     public void selectProfile() {
         tabPane.getSelectionModel().select(0);
     }
-    
+
     public void selectMessaging() {
         tabPane.getSelectionModel().select(1);
     }
-    
+
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
     }
-    
+
     @FXML
     private void handleProfileAction(ActionEvent event) {
         selectProfile();
         userList.getSelectionModel().clearSelection();
     }
-    
+
     private void buildUserList() {
+        // add all items
         userList.getItems().clear();
-        Core.instance().subnet().userListProperty().stream().forEach((client) -> {
-            UserItem item = UserItem.createInstance(client);
-            userList.getItems().add(item);
-            item.setOnMouseClicked((evt) -> showUser(item));
-            item.setOnKeyReleased((evt) -> showUser(item)); 
-        });
+        Core.instance().subnet().userListProperty().values().stream().forEach(
+                (client) -> {
+                    // check if client is connected
+                    if (!client.isConnected()) {
+                        return;
+                    }
+                    // show client
+                    UserItem item = UserItem.createInstance(client);
+                    userList.getItems().add(item);
+                    item.setOnMouseClicked((evt) -> showUser(item));
+                    item.setOnKeyReleased((evt) -> showUser(item));
+                });
+
+        // hide user list if no items
         if (userList.getItems().size() > 0) {
             userList.setPrefWidth(250);
         } else {
             userList.setPrefWidth(0);
         }
     }
-    
+
     private void showUser(UserItem item) {
         if (item != null) {
             Core.instance().profile().setClient(item.getClient());

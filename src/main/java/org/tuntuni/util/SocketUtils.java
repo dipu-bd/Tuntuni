@@ -16,6 +16,8 @@
 package org.tuntuni.util;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 /**
@@ -151,4 +153,14 @@ public abstract class SocketUtils {
         return getFirstHost(address, prefix);
     }
 
+    /**
+     * Gets the remote host address of the given socket
+     *
+     * @param socket To get the remote host address of
+     * @return
+     */
+    public static String getRemoteHost(Socket socket) {
+        InetSocketAddress isa = (InetSocketAddress) socket.getRemoteSocketAddress();
+        return isa.getHostString();
+    }
 }

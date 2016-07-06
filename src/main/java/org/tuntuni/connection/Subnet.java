@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.SocketUtils;
@@ -50,13 +50,13 @@ public class Subnet {
 
     private final ExecutorService mExecutor;
     private final ScheduledExecutorService mSchedular;
-    private final SimpleSetProperty<Client> mUserList;
+    private final SimpleMapProperty<String, Client> mUserList;
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
-        mUserList = new SimpleSetProperty<>(FXCollections.observableSet());
+        mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
         mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mSchedular = Executors.newSingleThreadScheduledExecutor();
     }
@@ -69,7 +69,7 @@ public class Subnet {
      *
      * @return
      */
-    public SimpleSetProperty<Client> userListProperty() {
+    public SimpleMapProperty<String, Client> userListProperty() {
         return mUserList;
     }
 
@@ -155,12 +155,13 @@ public class Subnet {
                  System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
                  */
                 // find all active hosts in the same local network
-                for (int i = first; i <= last; ++i) {
+                for (int ip = first; ip <= last; ++ip) {
                     // skip current address
-                    if (i == current) {
+                    if (ip == current) {
                         continue;
                     }
-                    taskList.add(checkAddress(i));
+                    String host = SocketUtils.addressAsString(ip);
+                    taskList.add(checkAddress(host));
                 }
             });
 
@@ -176,49 +177,41 @@ public class Subnet {
     // check if the given address is active. 
     // if it is active add it to user list. 
     // otherwise remove it from user list, if already in it.
-    private Callable<Integer> checkAddress(int host) {
-        // run reachable check isn another thread
+    private Callable<Integer> checkAddress(String address) {
         return () -> {
             // calculate the remote network address
-            String address = SocketUtils.addressAsString(host);
-            //System.out.println("Checking " + address);  
+            // first check if it is on the list
+            {
+                Client client = mUserList.get(address);
+                if (client != null) {
+                    client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
+                    if (client.checkServer()) {
+                        return 0;
+                    }
+                }
+            }
             // check if the server is up in any port of other server
             for (int i = 0; i < Server.PORTS.length; ++i) {
-                InetSocketAddress remote
-                        = new InetSocketAddress(address, Server.PORTS[i]);
-
-                // blocking call to check if reachable
-                Client client = new Client(remote);
+                // make new client                
+                Client client = new Client(
+                        new InetSocketAddress(address, Server.PORTS[i]));
+                // add it to
                 client.setTimeout(REACHABLE_TIMEOUT_MILLIS);
                 if (client.checkServer()) {
                     addAddress(client);
-                    break;  // found at least one port reachable
-                } else {
-                    removeAddress(client);
+                    return 0;
                 }
-                //System.out.println("Tested " + client.getHostString() + ":" + client.getPort());
             }
-            return 0;
+            return 1;
         };
     }
 
     // add address to the observable list
     private void addAddress(Client client) {
         Platform.runLater(() -> {
-            if (mUserList.add(client)) {
-                logger.log(Level.INFO, "Added user {0}:{1}",
-                        new Object[]{client.getHostString(), client.getPort()});
-            }
-        });
-    }
-
-    // remove object from observable list
-    private void removeAddress(Client client) {
-        Platform.runLater(() -> {
-            if (mUserList.remove(client)) {
-                logger.log(Level.INFO, "Removed user {0}:{1}",
-                        new Object[]{client.getHostString(), client.getPort()});
-            }
+            mUserList.put(client.getHostString(), client);
+            logger.log(Level.INFO, "New user {0}:{1}",
+                    new Object[]{client.getHostString(), client.getPort()});
         });
     }
 
@@ -230,13 +223,15 @@ public class Subnet {
      * @return null if not found.
      */
     public Client getClientByAddress(String address) {
-        synchronized (mUserList) {
-            for (Client client : mUserList) {
-                if (client.getHostString().equals(address)) {
-                    return client;
-                }
-            }
-        }
-        return null;
+        return mUserList.get(address);
+    }
+
+    /**
+     * Adds the address as client if not already exists
+     *
+     * @param address Address to check
+     */
+    public void addAsClient(String address) {
+        mExecutor.submit(checkAddress(address));
     }
 }
