@@ -48,7 +48,7 @@ public class Subnet {
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
     public static final int SCAN_INTERVAL_MILLIS = 30_000;
-    public static final int REACHABLE_THREAD_COUNT = 100;
+    public static final int REACHABLE_THREAD_COUNT = 254;
     public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
     private final StringProperty mState;
