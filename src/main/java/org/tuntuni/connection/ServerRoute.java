@@ -50,8 +50,8 @@ public abstract class ServerRoute {
 
     // what to do when Status.PROFILE getResponse arrived
     public Object profile(Socket from) {
-            Core.instance().subnet().addAsClient(
-                    SocketUtils.getRemoteHost(from)); 
+        Core.instance().subnet().addAsClient(
+                SocketUtils.getRemoteHost(from));
         return Core.instance().user().getData();
     }
 

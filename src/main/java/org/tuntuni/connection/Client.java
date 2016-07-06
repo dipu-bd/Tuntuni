@@ -95,8 +95,8 @@ public class Client extends ClientData {
         // check if server is alive
         Object result = request(Status.EMPTY);
         if (result instanceof Boolean && (boolean) result) {
+            setConnected(true);
             if (getUserData() == null) {
-                setConnected(true);
                 return getProfile();
             }
         }
