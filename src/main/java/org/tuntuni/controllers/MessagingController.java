@@ -42,32 +42,32 @@ import org.tuntuni.models.Message;
  * send text button. Above is the conversation history. </p>
  */
 public class MessagingController implements Initializable {
-    
+
     private Client mClient;
-    
+
     @FXML
     private TextArea messageText;
     @FXML
     private ListView messageList;
     @FXML
     private Label errorLabel;
-    
+
     private final double MINIMUM_HEIGHT = 70D;
     private final double MAXIMUM_HEIGHT = 150D;
-    
+
     public MessagingController() {
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().messaging(this);
     }
-    
+
     public void setClient(Client client) {
         mClient = client;
         loadAll();
     }
-    
+
     private void loadAll() {
         errorLabel.setText("");
         messageText.clear();
@@ -83,7 +83,7 @@ public class MessagingController implements Initializable {
                     });
         }
     }
-    
+
     private void showHistory() {
         int elems = messageList.getItems().size();
         for (int i = elems; i < mClient.messageProperty().getSize(); ++i) {
@@ -94,52 +94,50 @@ public class MessagingController implements Initializable {
             messageList.scrollTo(messageList.getItems().size() - 1);
         }
     }
-    
+
     @FXML
-    private void handleMessageTyped(KeyEvent evt) {
-        if (evt.getCharacter().length() > 0) {
-            setTextAreaHeight();
-            if (evt.getCharacter().charAt(0) == 13) {
-                if (evt.isShiftDown()) {                    
-                    messageText.appendText("\n");
-                } else {
-                    handleSendMessage(null);        
-                    evt.consume();
-                }
+    private void messageKeyPressed(KeyEvent evt) {
+        setTextAreaHeight();
+        if (evt.getCode() == KeyCode.ENTER) {
+            evt.consume();
+            if (evt.isShiftDown()) {
+                messageText.appendText("\n");
+            } else {
+                handleSendMessage(null);
             }
         }
     }
-    
+
     @FXML
     private void handleSendMessage(ActionEvent event) {
         errorLabel.setText("");
         String text = messageText.getText().trim();
-        
+
         if (text.isEmpty()) {
             errorLabel.setText("Message is too short");
             return;
         }
         sendMessage(text);
     }
-    
+
     private void sendMessage(String text) {
         if (mClient == null) {
             errorLabel.setText("The receiver is unknown");
             return;
         }
-        
+
         Message message = new Message();
         message.setText(text);
         if (!mClient.sendMessage(message)) {
             errorLabel.setText("Could not send message.");
             return;
         }
-        
+
         mClient.addMessage(message);
         message.setClient(mClient);
         messageText.clear();
     }
-    
+
     private void setTextAreaHeight() {
         // elements
         Region content = (Region) messageText.lookup(".content");

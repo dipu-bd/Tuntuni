@@ -41,7 +41,7 @@ import org.tuntuni.components.UserItem;
  *
  */
 public class MainController implements Initializable {
-
+    
     @FXML
     private ListView userList;
     @FXML
@@ -52,7 +52,7 @@ public class MainController implements Initializable {
     private TabPane tabPane;
     @FXML
     private Button profileButton;
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().main(this);
@@ -67,10 +67,6 @@ public class MainController implements Initializable {
             Core.instance().subnet().userListProperty()
                     .addListener((ov, o, n) -> buildUserList());
 
-            // listen to selected item change
-            userList.getSelectionModel().selectedItemProperty()
-                    .addListener((ov, o, n) -> showUser());
-
             // bind profile button text
             profileButton.setText(Core.instance().user().username());
             Core.instance().user().usernameProperty().addListener(
@@ -84,29 +80,32 @@ public class MainController implements Initializable {
             Core.instance().user().avatarProperty().addListener(updateAvatar);
         });
     }
-
+    
     public void selectProfile() {
         tabPane.getSelectionModel().select(0);
     }
-
+    
     public void selectMessaging() {
         tabPane.getSelectionModel().select(1);
     }
-
+    
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
     }
-
+    
     @FXML
     private void handleProfileAction(ActionEvent event) {
         selectProfile();
         userList.getSelectionModel().clearSelection();
     }
-
+    
     private void buildUserList() {
         userList.getItems().clear();
         Core.instance().subnet().userListProperty().stream().forEach((client) -> {
-            userList.getItems().add(UserItem.createInstance(client));
+            UserItem item = UserItem.createInstance(client);
+            userList.getItems().add(item);
+            item.setOnMouseClicked((evt) -> showUser(item));
+            item.setOnKeyReleased((evt) -> showUser(item)); 
         });
         if (userList.getItems().size() > 0) {
             userList.setPrefWidth(250);
@@ -114,18 +113,12 @@ public class MainController implements Initializable {
             userList.setPrefWidth(0);
         }
     }
-
-    private void showUser() {
-        Object sel = userList.getSelectionModel().getSelectedItem();
-        if (sel != null && sel instanceof UserItem) {
-            UserItem item = (UserItem) sel;
+    
+    private void showUser(UserItem item) {
+        if (item != null) {
             Core.instance().profile().setClient(item.getClient());
             Core.instance().messaging().setClient(item.getClient());
             Core.instance().videocall().setClient(item.getClient());
-        } else {
-            Core.instance().profile().setClient(null);
-            Core.instance().messaging().setClient(null);
-            Core.instance().videocall().setClient(null);
         }
     }
 }

@@ -15,7 +15,7 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
       </ListView>
-      <TextArea fx:id="messageText" onKeyTyped="#handleMessageTyped" prefHeight="40.0" promptText="Send a message..." style="-fx-background-color: rgba(0,0,50,0.3); -fx-text-fill: #fff;" wrapText="true">
+      <TextArea fx:id="messageText" onKeyPressed="#messageKeyPressed" prefHeight="40.0" promptText="Send a message..." style="-fx-background-color: rgba(0,0,50,0.3); -fx-text-fill: #fff;" wrapText="true">
          <font>
             <Font size="14.0" />
          </font>
