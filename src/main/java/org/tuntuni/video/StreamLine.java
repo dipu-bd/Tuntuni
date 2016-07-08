@@ -22,12 +22,12 @@ import java.util.LinkedList;
  *
  * @param <T> Type of object to pass in this line
  */
-public class DataLine<T extends DataFrame> {
+public class StreamLine<T extends DataFrame> {
 
     private long mStart;
     private final LinkedList<T> mData;
 
-    public DataLine() {
+    public StreamLine() {
         mStart = 0;
         mData = new LinkedList<>();
     }
@@ -42,6 +42,15 @@ public class DataLine<T extends DataFrame> {
     }
 
     /**
+     * Sets the start time of first push to this data line.
+     *
+     * @return
+     */
+    public void setStart(long time) {
+        mStart = time;
+    }
+
+    /**
      * Gets the data list.
      *
      * @return
@@ -53,22 +62,16 @@ public class DataLine<T extends DataFrame> {
     /**
      * Block until at least one input has received.
      *
-     * @param time Time after which the data should be available
      * @return
      */
-    public T pop(long time) {
+    public T pop() {
         // block until one data is present
         int test = 0;
-        while (getData().isEmpty() // data must exists
-                // data must be newer than the given time
-                || getData().peekFirst().getTime() < time) {
+        while (getData().isEmpty()) { // data must exists
             // remove the expired data
-            if (!getData().isEmpty()) {
-                getData().removeFirst();
-            }
             test++;
         }
-        System.out.println("POP_TEST = " + test);        
+        System.out.println("++POP_TEST = " + test);
         // send the data
         return mData.removeFirst();
     }
@@ -77,11 +80,9 @@ public class DataLine<T extends DataFrame> {
      * Add a data to the list
      *
      * @param data
+     * @param time
      */
-    public void push(T data, long time) {
-        if (mStart == 0) {
-            mStart = System.nanoTime();
-        }
+    public void push(long time, T data) {
         data.setTime(data.getTime() - mStart);
         getData().addLast(data);
     }

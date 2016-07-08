@@ -25,18 +25,18 @@ import java.io.OutputStream;
 import java.net.Socket;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
+import org.tuntuni.video.AudioFrame;
 import org.tuntuni.video.DataFrame;
-import org.tuntuni.video.DataLine;
+import org.tuntuni.video.ImageFrame;
+import org.tuntuni.video.StreamLine;
 
 /**
  * To listen and respond to clients sockets.
- *
- * @param <T> DataFrame type this server is responsible for
  */
 public class StreamServer<T extends DataFrame> extends AbstractServer {
 
-    private final DataLine<T> mLine;
     private final ConnectFor mServerFor;
+    private final StreamLine<T> mLine;
 
     /**
      * Creates a new stream Server.
@@ -47,9 +47,8 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
      * to run server.</p>
      *
      * @param line Line to use to write data from
-     * @param serverFor For which type of data this server process
      */
-    public StreamServer(DataLine<T> line, ConnectFor serverFor) {
+    public StreamServer(StreamLine<T> line, ConnectFor serverFor) {
         super("Stream Server", null);
         mLine = line;
         mServerFor = serverFor;
@@ -90,10 +89,14 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
 
     // read and write single data
     boolean readAndWrite(ObjectInput oi, ObjectOutput oo) throws IOException {
-        // read first
+        // read current time
         long time = oi.readLong();
-        // write after
-        oo.writeObject(mLine.pop(time));
+        // write data frame
+        DataFrame data = mLine.pop();
+        while (data.getTime() < time) {
+            data = mLine.pop();
+        }
+        oo.writeObject(data);
         // don't forget to flush
         oo.flush();
         return true;

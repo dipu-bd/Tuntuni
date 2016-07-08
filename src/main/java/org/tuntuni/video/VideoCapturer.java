@@ -17,6 +17,7 @@ package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamException;
+import com.github.sarxos.webcam.WebcamStreamer;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +25,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
+import org.tuntuni.connection.StreamServer;
+import org.tuntuni.models.ConnectFor;
 
 /**
  *
@@ -33,8 +36,10 @@ public final class VideoCapturer {
     private static final Logger logger = Logger.getGlobal();
 
     private VideoFormat mFormat;
-    private LinkedList<ImageFrame> mFrames;
-    private LinkedList<AudioFrame> mAudios;
+    private StreamLine<ImageFrame> mImageLine;
+    private StreamLine<AudioFrame> mAudioLine;
+    private StreamServer<ImageFrame> mImageServer;
+    private StreamServer<AudioFrame> mAudioServer;
 
     private long mStartTime;
     private Webcam mWebcam;
@@ -53,8 +58,10 @@ public final class VideoCapturer {
     }
 
     public void initialize() {
-        mFrames = new LinkedList<>();
-        mAudios = new LinkedList<>();
+        mImageLine = new StreamLine<>();
+        mAudioLine = new StreamLine<>();
+        mImageServer = new StreamServer(mImageLine, ConnectFor.IMAGE);
+        mAudioServer = new StreamServer(mAudioLine, ConnectFor.AUDIO);
 
         // setup audio
         try {
@@ -68,25 +75,33 @@ public final class VideoCapturer {
         // setup video
         try {
             mWebcam = Webcam.getDefault();
-            mWebcam.setViewSize(mFormat.getViewSize()); 
+            mWebcam.setViewSize(mFormat.getViewSize());
         } catch (WebcamException ex) {
             logger.log(Level.SEVERE, "Failed to initialize webcam", ex);
         }
     }
 
     public void start() {
-        mStartTime = System.nanoTime();
-        
-        mAudioThread = new Thread(()->videoRunner(), "videoRunner");
+        // setup and start audio thread
+        mAudioThread = new Thread(() -> videoRunner(), "videoRunner");
         mAudioThread.setPriority(7);
         mAudioThread.setDaemon(true);
-        
-        mVideoThread = new Thread(()->audioRunner(), "audioRunner");
+        mAudioThread.start();
+
+        // setup and start video thread
+        mVideoThread = new Thread(() -> audioRunner(), "audioRunner");
         mVideoThread.setPriority(6);
         mVideoThread.setDaemon(true);
-        
-        mAudioThread.start();
         mVideoThread.start();
+
+        // set start time of capturing
+        mStartTime = System.nanoTime();
+        // start stream server
+        mImageServer.start();
+        mAudioServer.start();
+        // start stream line
+        mImageLine.setStart(mStartTime);
+        mAudioLine.setStart(mStartTime);
     }
 
     public void stop() {
@@ -95,20 +110,19 @@ public final class VideoCapturer {
         mAudioThread.interrupt();
         mVideoThread.interrupt();
     }
- 
+
     public void videoRunner() {
-        mWebcam.open();
-        while(mWebcam.open()) { 
-            byte[] data = mWebcam.getImageBytes().duplicate().array();
-            ImageFrame frame = new ImageFrame(System.nanoTime() - mStartTime, data);
-            mFrames.addLast(frame);
+        mWebcam.open(); 
+        while (mWebcam.open()) {
+            mImageLine.push(mStartTime,
+                    new ImageFrame(mWebcam.getImageBytes()));
         }
     }
 
     public void audioRunner() {
         mTargetLine.start();
-        while(mTargetLine.isOpen()) {
-            
+        while (mTargetLine.isOpen()) {
+
         }
     }
 
