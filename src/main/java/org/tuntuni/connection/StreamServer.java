@@ -24,14 +24,16 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import org.tuntuni.models.Status;
-import org.tuntuni.video.InputLine;
+import org.tuntuni.video.DataFrame;
+import org.tuntuni.video.DataLine;
 
 /**
  * To listen and respond to clients sockets.
+ * @param <T>
  */
-public class StreamServer extends AbstractServer {
+public class StreamServer<T extends DataFrame> extends AbstractServer {
 
-    private final InputLine mInputLine;
+    private final DataLine<T> mLine;
 
     /**
      * Creates a new stream Server.
@@ -40,10 +42,12 @@ public class StreamServer extends AbstractServer {
      * {@linkplain start()} to start the server. Or you can initialize the
      * server by {@linkplain initialize()} first, then call {@linkplain start()}
      * to run server.</p>
+     *
+     * @param line Line to use to write data from
      */
-    public StreamServer(InputLine line) {
+    public StreamServer(DataLine<T> line) {
         super("Stream Server", null);
-        mInputLine = line;
+        mLine = line;
     }
 
     // process the selected socket
@@ -68,7 +72,7 @@ public class StreamServer extends AbstractServer {
     // read and write single data
     boolean readAndWrite(ObjectInput oi, ObjectOutput oo) throws IOException {
         // read first
-        oi,
+
         // write after
         // don't forget to flush
         oo.flush();
