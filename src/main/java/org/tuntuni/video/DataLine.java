@@ -15,9 +15,30 @@
  */
 package org.tuntuni.video;
 
+import java.util.LinkedList;
+
 /**
- * 
+ *
+ * @param <T> Type of object to pass in this line
  */
-public class OutputPipeLine {
-    
+public class DataLine<T extends DataFrame> {
+
+    private long mStart;
+    private final LinkedList<T> mData;
+
+    public DataLine() {
+        mStart = 0;
+        mData = new LinkedList<>();
+    }
+
+    public T pop() {
+        return mData.pollFirst();
+    }
+
+    public void push(T data) {
+        if (mStart == 0) {
+            mStart = System.nanoTime();
+        }
+        mData.addLast(data);
+    }    
 }

@@ -34,7 +34,7 @@ public class SubnetTest {
         System.out.println("testSubnet()");
         Subnet subnet = new Subnet();
         subnet.start();
-        Thread.sleep(3_000);  // wait a moment
+        Thread.sleep(5_000);  // wait a moment
         System.out.println("++Users:" + subnet.userListProperty().getSize());
         subnet.stop();
         System.out.println();

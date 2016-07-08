@@ -15,31 +15,18 @@
  */
 package org.tuntuni.video;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.nio.ByteBuffer;
-import javafx.scene.image.Image;
-import org.tuntuni.util.Commons;
+import java.util.LinkedList;
 
 /**
- *
+ * 
+ * @param <T> Type of object to pass in this line
  */
-public class ImageFrame extends DataFrame {
-
-    public ImageFrame() {
-    }
-
-    public ImageFrame(long time, ByteBuffer buffer) {
-        super(time, buffer.duplicate().array());
-    }
-
-    public Image getImage() {
-        return Commons.bytesToImage(getBuffer());
-    }
-
-    public ByteBuffer getByteBuffer() {
-        return ByteBuffer.wrap(getBuffer());
+public class InputLine<T> {
+    
+    private long mStart;
+    private LinkedList<T> mData;
+    
+    public InputLine() {
+        
     }
 }

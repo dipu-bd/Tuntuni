@@ -28,7 +28,7 @@ import javax.sound.sampled.TargetDataLine;
 /**
  *
  */
-public final class VideoCapture {
+public final class VideoCapturer {
 
     private static final Logger logger = Logger.getGlobal();
 
@@ -43,11 +43,11 @@ public final class VideoCapture {
     private Thread mAudioThread;
     private Thread mVideoThread;
 
-    public VideoCapture() {
+    public VideoCapturer() {
         this(new VideoFormat());
     }
 
-    public VideoCapture(VideoFormat format) {
+    public VideoCapturer(VideoFormat format) {
         mFormat = format;
         initialize();
     }

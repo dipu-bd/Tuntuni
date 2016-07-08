@@ -15,33 +15,12 @@
  */
 package org.tuntuni.video;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
- *
- * @author Sudipto Chandra
+ * 
  */
-public class AudioFrame implements Externalizable, Comparable<AudioFrame> {
+public class AudioFrame extends DataFrame {
 
     public AudioFrame() {
-
-    }
-
-    @Override
-    public int compareTo(AudioFrame t) {
-        return 0;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput oo) throws IOException {
-
-    }
-
-    @Override
-    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
 
     }
 
