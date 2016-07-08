@@ -32,9 +32,9 @@ public class Server extends AbstractServer {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
-    
+
     public Server() {
-        super(PORTS);
+        super("Main Server", PORTS);
     }
 
     /**
@@ -45,7 +45,8 @@ public class Server extends AbstractServer {
      * @param data parameters sent by client
      * @return The getResponse object. Can be {@code null}.
      */
-    public Object getResponse(Status status, Socket from, Object[] data) {
+    @Override
+    Object getResponse(Status status, Socket from, Object[] data) {
         switch (status) {
             case STATE:
                 return state();

@@ -30,19 +30,17 @@ import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 
 /**
- * To listen and respond to clients sockets. 
+ * To listen and respond to clients sockets.
  */
 public abstract class AbstractServer {
 
-    // logger
-    private static final Logger logger = Logger.getGlobal();
-
     public static final int MAX_EXECUTOR_THREAD = 10;
 
+    private final String mName;
     private Exception mError;
     private ServerSocket mSSocket;
     private final ExecutorService mExecutor;
-    private final int[] mPorts;
+    private int[] mPorts;
 
     /**
      * Creates a new Server.
@@ -51,12 +49,26 @@ public abstract class AbstractServer {
      * {@linkplain start()} to start the server. Or you can initialize the
      * server by {@linkplain initialize()} first, then call {@linkplain start()}
      * to run server.</p>
+     *
      * @param name Name of this server.
      * @param ports Valid ports to use. Null or empty to use default.
      */
     public AbstractServer(String name, int[] ports) {
+        mName = name;
         mPorts = ports;
+        if (mPorts == null || mPorts.length == 0) {
+            mPorts = new int[]{0};
+        }
         mExecutor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREAD);
+    }
+
+    /**
+     * Gets the name of the server
+     *
+     * @return
+     */
+    public String name() {
+        return mName;
     }
 
     /**
@@ -101,13 +113,13 @@ public abstract class AbstractServer {
      */
     public void initialize() throws IOException {
         // try create server channel for each of the given ports
-        for (int i = 0; i < Server.PORTS.length; ++i) {
+        for (int port : mPorts) {
             try {
                 // Create the server socket channel
-                mSSocket = new ServerSocket(Server.PORTS[i]);
+                mSSocket = new ServerSocket(port);
                 break;
             } catch (IOException ex) {
-                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, Server.PORTS[i]);
+                Logs.warning(this, Logs.SERVER_BIND_FAILS, port);
             }
         }
     }
@@ -182,12 +194,12 @@ public abstract class AbstractServer {
                 ObjectInputStream ois = new ObjectInputStream(in);
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(out);) {
-            
+
             // response type
-            Status status = Status.from(ois.readByte()); 
+            Status status = Status.from(ois.readByte());
             // param length
             int length = ois.readInt();
-            
+
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{status, length, socket});
@@ -217,7 +229,7 @@ public abstract class AbstractServer {
             logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
-    
-    abstract void getResponse() 
+
+    abstract Object getResponse(Status status, Socket socket, Object[] data);
 
 }

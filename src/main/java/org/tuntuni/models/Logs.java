@@ -15,10 +15,17 @@
  */
 package org.tuntuni.models;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.tuntuni.connection.AbstractServer;
+import org.tuntuni.connection.Server;
+
 /**
  * Lists some log messages used through-out the application.
  */
 public abstract class Logs {
+
+    private static final Logger logger = Logger.getGlobal();
 
     public static final String //--- begin : log message list ---
             // Program
@@ -45,5 +52,41 @@ public abstract class Logs {
             SUBNET_CHECK_ERROR = "Failed to check the subnet: {0}",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
+
+    public static void log(Level level, String message, Object... data) {
+        logger.log(level, message, data);
+    }
+
+    public static void info(String message, Object... data) {
+        log(Level.INFO, message, data);
+    }
+
+    public static void info(AbstractServer from, String message, Object... data) {
+        info("[" + from.name() + "]" + message, data);
+    }
+
+    public static void severe(String message, Object... data) {
+        log(Level.SEVERE, message, data);
+    }
+
+    public static void warning(String message, Object... data) {
+        log(Level.WARNING, message, data);
+    }
+    
+    public static void warning(AbstractServer from, String message, Object... data) {
+        warning("[" + from.name() + "]" + message, data);
+    }
+
+    public static void error(String message, Exception ex, Object... data) {
+        severe(message, ex, data);
+    }
+
+    public static void error(AbstractServer from, String message, Exception ex, Object... data) {
+        error("[" + from.name() + "]" + message, ex, data);
+    }
+
+    public static void config(String message, Object... data) {
+        log(Level.CONFIG, message, data);
+    }
 
 }
