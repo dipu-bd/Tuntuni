@@ -46,12 +46,7 @@ public class StreamClient {
     public StreamClient(InetSocketAddress socket) {
         super(socket);
     }
-
-    @Override
-    public String toString() {
-        return String.format("%s@%s:%s", getHostName(), getHostString(), getPort());
-    }
-
+ 
     /**
      * Sends a request to the server.
      *

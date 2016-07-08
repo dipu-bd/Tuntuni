@@ -26,7 +26,6 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 
 /**
@@ -158,7 +157,7 @@ public abstract class AbstractServer {
                 mSSocket.close();
             }
         } catch (Exception ex) {
-            logger.log(Level.WARNING, Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.warning(this, Logs.SERVER_CLOSING_ERROR, ex);
         }
         // shutdown executors
         mExecutor.shutdownNow();
@@ -168,22 +167,22 @@ public abstract class AbstractServer {
     // it is started via an executor service.
     private void runServer() {
         // Infinite server loop
-        logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
+        Logs.info(this, Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
             try {
                 Socket socket = mSSocket.accept();
                 // process the getResponse in a separate thread
                 mExecutor.submit(() -> {
                     processSocket(socket);
+                    closeSocket(socket);
                 });
-
             } catch (IOException ex) {
                 if (isOpen()) {
-                    logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex);
+                    Logs.error(this, Logs.SERVER_ACCEPT_FAILED, ex);
                 }
             }
         }
-        logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
+        Logs.info(this, Logs.SERVER_LISTENING_STOPPED);
     }
 
     // process a selection key
@@ -201,7 +200,7 @@ public abstract class AbstractServer {
             int length = ois.readInt();
 
             // log this connection
-            logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
+            Logs.info(this, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{status, length, socket});
 
             // read all params
@@ -219,17 +218,27 @@ public abstract class AbstractServer {
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.WARNING, Logs.SOCKET_CLASS_FAILED, ex);
-        }
-
-        // close the socket
-        try {
-            socket.close();
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.warning(this, Logs.SOCKET_CLASS_FAILED, ex);
         }
     }
 
+    // close the socket
+    void closeSocket(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            Logs.error(this, Logs.SERVER_CLOSING_ERROR, ex);
+        }
+    }
+
+    /**
+     * Implement this and return the processed response to the server.
+     *
+     * @param status
+     * @param socket
+     * @param data
+     * @return
+     */
     abstract Object getResponse(Status status, Socket socket, Object[] data);
 
 }

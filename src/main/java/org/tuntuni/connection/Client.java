@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sudipto Chandra.
+ * Copyright 2016 Tuntuni.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,86 +15,42 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.tuntuni.models.Logs;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
+import org.tuntuni.models.Status;
 import org.tuntuni.models.UserData;
 
 /**
- * To manage connection with server sockets.
- * <p>
- * You can not create new client directly. To create a client use
- * {@linkplain Client.open()} method.</p>
+ * Extended by client. It separates data part of client from its connection
+ * part.
  */
-public class Client extends ClientData {
+public class Client extends AbstractClient {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
-    private static final Logger logger = Logger.getGlobal();
+    // local data from server 
+    private final ObjectProperty<UserData> mUserData;
+    private final SimpleListProperty<Message> mMessages;
 
-    // hidesthe constructor and handle it with static open() method
+    // hides the constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
-        super(socket);
+        super(socket, Client.DEFAULT_TIMEOUT);
+        // initialize properties 
+        mUserData = new SimpleObjectProperty<>(this, "UserData");
+        mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
+        // load messages
+        // TODO: save and restore messages
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s@%s:%s", getHostName(), getHostString(), getPort());
-    }
-
-    /**
-     * Sends a request to the server.
-     *
-     * @param status Status of the request
-     * @param data Any data to pass along the request
-     * @return
-     */
-    public Object request(Status status, Serializable... data) {
-        // create a socket
-        try (Socket socket = new Socket()) {
-            // connect the socket with given address
-            socket.connect(getAddress(), getTimeout());
-
-            try ( // get all input streams from socket
-                    OutputStream out = socket.getOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(out);
-                    InputStream in = socket.getInputStream();
-                    ObjectInputStream ois = new ObjectInputStream(in);) {
-
-                // write status
-                oos.writeByte(status.data());
-                oos.flush();
-                // write data length
-                oos.writeInt(data.length);
-                oos.flush();
-                // send all data
-                for (Object o : data) {
-                    oos.writeObject(o);
-                    oos.flush();
-                }
-
-                // return result
-                return ois.readObject();
-
-            } catch (IOException | ClassNotFoundException ex) {
-                logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);
-            }
-        } catch (IOException ex) {
-            //logger.log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
     /**
      * Test the server is available at the address.
      *
@@ -118,6 +74,11 @@ public class Client extends ClientData {
         return true;
     }
 
+    /**
+     * Gets the user profile from the server
+     *
+     * @return
+     */
     public boolean getProfile() {
         // get getProfile data
         try {
@@ -143,4 +104,58 @@ public class Client extends ClientData {
         Object result = request(Status.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
     }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Gets the state of the user data
+     *
+     * @return
+     */
+    public String getState() {
+        return mUserData.get().getState();
+    }
+
+    /**
+     * Gets the user data associated with it.
+     *
+     * @return
+     */
+    public UserData getUserData() {
+        return mUserData.get();
+    }
+
+    /**
+     * Sets the user data
+     *
+     */
+    void setUserData(UserData user) {
+        mUserData.set(user);
+    }
+
+    public ObjectProperty<UserData> userdataProperty() {
+        return mUserData;
+    }
+
+    /**
+     * Gets the message list property of this client
+     *
+     * @return
+     */
+    public SimpleListProperty<Message> messageProperty() {
+        return mMessages;
+    }
+
+    /**
+     * Add a new message to this client
+     *
+     * @param message
+     */
+    public void addMessage(Message message) {
+        // to be thread safe
+        Platform.runLater(() -> {
+            mMessages.add(message);
+        });
+    }
+
 }
