@@ -72,10 +72,6 @@ public class Server extends AbstractServer {
     // display the message 
     public Object message(Socket from, Object[] data) {
         try {
-            System.out.println(data[0].getClass().getName());
-            System.out.println(data[0].getClass().getTypeName());
-            System.out.println(data[0].getClass().getSimpleName());
-            System.out.println(data[0].getClass().asSubclass(Message.class).getSimpleName());
             // get message
             Message message = Message.class.cast(data[0]);
             // sender's address

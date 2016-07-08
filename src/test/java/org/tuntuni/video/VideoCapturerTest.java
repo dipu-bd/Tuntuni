@@ -15,28 +15,48 @@
  */
 package org.tuntuni.video;
 
+import java.io.File;
+import org.apache.commons.io.FileSystemUtils;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Sudipto Chandra
  */
 public class VideoCapturerTest {
-    
+
+    static final File savePath = FileUtils.getFile(System.getProperty("user.home"), "/Desktop/video-test");
+
+    VideoCapturer instance;
+
     public VideoCapturerTest() {
     }
-    
-    VideoCapturer instance = new VideoCapturer();        
 
-    @Test
-    public void testCapture() throws InterruptedException {
+    @Before
+    public void setupServer() throws InterruptedException {
         System.out.println("initialize");
+        instance = new VideoCapturer();
         instance.initialize();
         instance.start();
-        Thread.sleep(10_000);
+    }
+
+    @After
+    public void tearUp() {
         instance.stop();
     }
- 
-    
+
+    @Test
+    public void testAudio() {
+
+    }
+
+    @Test
+    public void testVideo() {
+        savePath.mkdirs();
+        
+    }
+
 }
