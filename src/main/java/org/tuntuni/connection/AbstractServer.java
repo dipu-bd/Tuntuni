@@ -117,7 +117,7 @@ public abstract class AbstractServer {
                 mSSocket = new ServerSocket(port);
                 break;
             } catch (IOException ex) {
-                Logs.warning(this, Logs.SERVER_BIND_FAILS, port);
+                Logs.warning(this.name(), Logs.SERVER_BIND_FAILS, port);
             }
         }
     }
@@ -156,7 +156,7 @@ public abstract class AbstractServer {
                 mSSocket.close();
             }
         } catch (Exception ex) {
-            Logs.warning(this, Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.warning(this.name(), Logs.SERVER_CLOSING_ERROR, ex);
         }
         // shutdown executors
         mExecutor.shutdownNow();
@@ -166,7 +166,7 @@ public abstract class AbstractServer {
     // it is started via an executor service.
     private void runServer() {
         // Infinite server loop
-        Logs.info(this, Logs.SERVER_LISTENING, getPort());
+        Logs.info(this.name(), Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
             try {
                 Socket socket = mSSocket.accept();
@@ -177,11 +177,11 @@ public abstract class AbstractServer {
                 });
             } catch (IOException ex) {
                 if (isOpen()) {
-                    Logs.error(this, Logs.SERVER_ACCEPT_FAILED, ex);
+                    Logs.error(this.name(), Logs.SERVER_ACCEPT_FAILED, ex);
                 }
             }
         }
-        Logs.info(this, Logs.SERVER_LISTENING_STOPPED);
+        Logs.info(this.name(), Logs.SERVER_LISTENING_STOPPED);
     }
 
     // process a selection key
@@ -199,7 +199,7 @@ public abstract class AbstractServer {
             int length = ois.readInt();
 
             // log this connection
-            Logs.info(this, Logs.SERVER_RECEIVED_CLIENT,
+            Logs.info(this.name(), Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{status, length, socket});
 
             // read all params
@@ -217,7 +217,7 @@ public abstract class AbstractServer {
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
-            Logs.warning(this, Logs.SOCKET_CLASS_FAILED, ex);
+            Logs.warning(this.name(), Logs.SOCKET_CLASS_FAILED, ex);
         }
     }
 
@@ -226,7 +226,7 @@ public abstract class AbstractServer {
         try {
             socket.close();
         } catch (IOException ex) {
-            Logs.error(this, Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.error(this.name(), Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
 
