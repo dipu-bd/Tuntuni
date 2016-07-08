@@ -29,35 +29,33 @@ import org.tuntuni.util.Commons;
 public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
 
     private long mTime;
-    private ByteBuffer mBuffer;
+    private byte[] mBuffer;
 
     public ImageFrame() {
 
     }
 
-    public ImageFrame(long time, ByteBuffer buffer) {
+    public ImageFrame(long time, byte[] buffer) {
         mTime = time;
         mBuffer = buffer;
     }
 
     public Image getImage() {
-        return Commons.bytesToImage(mBuffer.array());
+        return Commons.bytesToImage(mBuffer);
     }
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
         oo.writeLong(mTime);
-        byte[] data = mBuffer.array();
-        oo.writeInt(data.length);
-        oo.write(data);
+        oo.writeInt(mBuffer.length);
+        oo.write(mBuffer);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
         mTime = oi.readLong();
-        byte[] data = new byte[oi.readInt()];
-        oi.readFully(data);
-        mBuffer = ByteBuffer.wrap(data);
+        mBuffer = new byte[oi.readInt()];
+        oi.readFully(mBuffer);
     }
 
     @Override
@@ -83,8 +81,12 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
     public long getTime() {
         return mTime;
     }
- 
-    public ByteBuffer getBuffer() {
+
+    public byte[] getBuffer() {
         return mBuffer;
+    }
+
+    public ByteBuffer getByteBuffer() {
+        return ByteBuffer.wrap(mBuffer);
     }
 }

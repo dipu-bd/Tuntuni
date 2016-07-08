@@ -18,13 +18,10 @@ package org.tuntuni.video;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
@@ -36,8 +33,8 @@ public final class VideoCapture {
     private static final Logger logger = Logger.getGlobal();
 
     private VideoFormat mFormat;
-    private List<ImageFrame> mFrames;
-    private List<AudioFrame> mAudios;
+    private LinkedList<ImageFrame> mFrames;
+    private LinkedList<AudioFrame> mAudios;
 
     private long mStartTime;
     private Webcam mWebcam;
@@ -98,13 +95,13 @@ public final class VideoCapture {
         mAudioThread.interrupt();
         mVideoThread.interrupt();
     }
-
-    @SuppressWarnings("empty-statement")
+ 
     public void videoRunner() {
         mWebcam.open();
-        while(mWebcam.open()) {
-            while(!mWebcam.isImageNew()); 
-            mWebcam.getImageBytes()
+        while(mWebcam.open()) { 
+            byte[] data = mWebcam.getImageBytes().duplicate().array();
+            ImageFrame frame = new ImageFrame(System.nanoTime() - mStartTime, data);
+            mFrames.addLast(frame);
         }
     }
 
