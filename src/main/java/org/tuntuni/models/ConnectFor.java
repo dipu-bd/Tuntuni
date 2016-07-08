@@ -18,7 +18,7 @@ package org.tuntuni.models;
 /**
  * Defined a few types of connection status client and server.
  */
-public enum Status {
+public enum ConnectFor {
 
     INVALID(0),
     // to pass state information
@@ -26,11 +26,15 @@ public enum Status {
     // to pass user profile information
     PROFILE(2),
     // to pass a single message
-    MESSAGE(3);
+    MESSAGE(3),
+    // to pass audio 
+    AUDIO(4),
+    // to pass video 
+    IMAGE(5);
 
     private final int mData;
 
-    Status(int data) {
+    ConnectFor(int data) {
         mData = data;
     }
 
@@ -38,12 +42,12 @@ public enum Status {
         return (byte) mData;
     }
 
-    public static Status from(byte data) {
-        for (Status status : Status.values()) {
+    public static ConnectFor from(byte data) {
+        for (ConnectFor status : ConnectFor.values()) {
             if (status.data() == data) {
                 return status;
             }
         }
-        return Status.INVALID;
+        return ConnectFor.INVALID;
     }
 }

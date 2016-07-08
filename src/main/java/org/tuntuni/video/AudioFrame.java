@@ -15,6 +15,8 @@
  */
 package org.tuntuni.video;
 
+import org.tuntuni.models.ConnectFor;
+
 /**
  * Audio data frame. Holds audio information.
  */
@@ -22,9 +24,10 @@ public class AudioFrame extends DataFrame {
 
     public AudioFrame() {
     }
-    
+
     public AudioFrame(byte[] data) {
-        super(data);
+        super(ConnectFor.AUDIO);
+        setBuffer(data);
     }
 
 }

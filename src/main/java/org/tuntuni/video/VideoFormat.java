@@ -47,6 +47,11 @@ public class VideoFormat implements Externalizable {
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
     private boolean mBigEndian = true;
 
+    // imagePort - port where image server is running
+    private int mImagePort;
+    // audioPort - where audio server is running
+    private int mAudioPort;
+
     public VideoFormat() {
 
     }
@@ -87,6 +92,9 @@ public class VideoFormat implements Externalizable {
         oo.writeByte((byte) mChannel);
         oo.writeBoolean(mSigned);
         oo.writeBoolean(mBigEndian);
+
+        oo.writeShort((short) mImagePort);
+        oo.writeShort((short) mAudioPort);
     }
 
     @Override
@@ -100,6 +108,9 @@ public class VideoFormat implements Externalizable {
         mChannel = oi.readByte();
         mSigned = oi.readBoolean();
         mBigEndian = oi.readBoolean();
+
+        mImagePort = oi.readShort();
+        mAudioPort = oi.readShort();
     }
 
     /**
@@ -228,4 +239,19 @@ public class VideoFormat implements Externalizable {
         this.mBigEndian = BigEndian;
     }
 
+    public void setAudioPort(int audioPort) {
+        mAudioPort = audioPort;
+    }
+
+    public int getAudioPort() {
+        return mAudioPort;
+    }
+
+    public void setImagePort(int imagePort) {
+        mImagePort = imagePort;
+    }
+
+    public int getImagePort() {
+        return mImagePort;
+    }
 }

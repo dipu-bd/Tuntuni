@@ -53,16 +53,24 @@ public class DataLine<T extends DataFrame> {
     /**
      * Block until at least one input has received.
      *
+     * @param time Time after which the data should be available
      * @return
      */
-    public T pop() {
+    public T pop(long time) {
+        // block until one data is present
         int test = 0;
-        while (getData().isEmpty()) {
-            // block until mData is free
+        while (getData().isEmpty() // data must exists
+                // data must be newer than the given time
+                || getData().peekFirst().getTime() < time) {
+            // remove the expired data
+            if (!getData().isEmpty()) {
+                getData().removeFirst();
+            }
             test++;
         }
-        System.out.println("POP_TEST = " + test);
-        return mData.pollFirst();
+        System.out.println("POP_TEST = " + test);        
+        // send the data
+        return mData.removeFirst();
     }
 
     /**

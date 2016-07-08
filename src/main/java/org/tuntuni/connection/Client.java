@@ -24,7 +24,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
-import org.tuntuni.models.Status;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.UserData;
 
 /**
@@ -61,7 +61,7 @@ public class Client extends AbstractClient {
             return getProfile();
         }
         // check if server is alive
-        Object ob = request(Status.STATE);
+        Object ob = request(ConnectFor.STATE);
         if (ob == null || !(ob instanceof String)) {
             setConnected(false);
             return false;
@@ -82,7 +82,7 @@ public class Client extends AbstractClient {
     public boolean getProfile() {
         // get getProfile data
         try {
-            UserData profile = (UserData) request(Status.PROFILE);
+            UserData profile = (UserData) request(ConnectFor.PROFILE);
             setUserData(profile);
             if (profile != null) {
                 setConnected(true);
@@ -101,7 +101,7 @@ public class Client extends AbstractClient {
      * @return True if success, false otherwise.
      */
     public boolean sendMessage(Message toSent) {
-        Object result = request(Status.MESSAGE, toSent);
+        Object result = request(ConnectFor.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
     }
 

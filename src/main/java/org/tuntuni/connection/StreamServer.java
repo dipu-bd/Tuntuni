@@ -23,17 +23,20 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import org.tuntuni.models.Status;
+import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.Logs;
 import org.tuntuni.video.DataFrame;
 import org.tuntuni.video.DataLine;
 
 /**
  * To listen and respond to clients sockets.
- * @param <T>
+ *
+ * @param <T> DataFrame type this server is responsible for
  */
 public class StreamServer<T extends DataFrame> extends AbstractServer {
 
     private final DataLine<T> mLine;
+    private final ConnectFor mServerFor;
 
     /**
      * Creates a new stream Server.
@@ -44,10 +47,12 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
      * to run server.</p>
      *
      * @param line Line to use to write data from
+     * @param serverFor For which type of data this server process
      */
-    public StreamServer(DataLine<T> line) {
+    public StreamServer(DataLine<T> line, ConnectFor serverFor) {
         super("Stream Server", null);
         mLine = line;
+        mServerFor = serverFor;
     }
 
     // process the selected socket
@@ -60,20 +65,35 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
-            while (readAndWrite(ois, oos)) {
-                // continue until all read write is done
+            // check if connection type is valid
+            ConnectFor status = ConnectFor.from(ois.readByte());
+            if (status != mServerFor) {
+                oos.writeBoolean(false);
+                oos.flush();
+                throw new IllegalAccessError(status.name());
+            } else {
+                oos.writeBoolean(true);
+                oos.flush();
+            }
+
+            // continue data passing 
+            while (true) {
+                readAndWrite(ois, oos);
             }
 
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
+        } catch (IllegalAccessError iex) {
+            Logs.warning(this.name(), Logs.STREAM_ILLEGAL_ACCESS, mServerFor, iex.getMessage());
         }
     }
 
     // read and write single data
     boolean readAndWrite(ObjectInput oi, ObjectOutput oo) throws IOException {
         // read first
-
+        long time = oi.readLong();
         // write after
+        oo.writeObject(mLine.pop(time));
         // don't forget to flush
         oo.flush();
         return true;
@@ -81,7 +101,7 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
 
     // not required now
     @Override
-    Object getResponse(Status status, Socket socket, Object[] data) {
+    Object getResponse(ConnectFor status, Socket socket, Object[] data) {
         return null;
     }
 }

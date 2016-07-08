@@ -15,7 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
+import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -194,7 +194,7 @@ public abstract class AbstractServer {
                 ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
             // response type
-            Status status = Status.from(ois.readByte());
+            ConnectFor status = ConnectFor.from(ois.readByte());
             // param length
             int length = ois.readInt();
 
@@ -238,6 +238,6 @@ public abstract class AbstractServer {
      * @param data
      * @return
      */
-    abstract Object getResponse(Status status, Socket socket, Object[] data);
+    abstract Object getResponse(ConnectFor status, Socket socket, Object[] data);
 
 }

@@ -15,7 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
+import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
@@ -46,7 +46,7 @@ public class Server extends AbstractServer {
      * @return The getResponse object. Can be {@code null}.
      */
     @Override
-    Object getResponse(Status status, Socket from, Object[] data) {
+    Object getResponse(ConnectFor status, Socket from, Object[] data) {
         switch (status) {
             case STATE:
                 return state();
@@ -62,7 +62,7 @@ public class Server extends AbstractServer {
         return Core.instance().user().getState();
     }
 
-    // what to do when Status.PROFILE getResponse arrived
+    // what to do when ConnectFor.PROFILE getResponse arrived
     public Object profile(Socket from) {
         Core.instance().subnet().addAsClient(
                 SocketUtils.getRemoteHost(from));

@@ -37,12 +37,12 @@ public class StatusTest {
 
     @Test
     public void testStatus() throws IOException, ClassNotFoundException {
-        testStatus(Status.MESSAGE);
-        testStatus(Status.PROFILE);
-        testStatus(Status.STATE);
+        testStatus(ConnectFor.MESSAGE);
+        testStatus(ConnectFor.PROFILE);
+        testStatus(ConnectFor.STATE);
     }
 
-    public void testStatus(Status write) throws IOException, ClassNotFoundException {
+    public void testStatus(ConnectFor write) throws IOException, ClassNotFoundException {
 
         System.out.println("writeStatus_" + write);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -62,7 +62,7 @@ public class StatusTest {
         ByteArrayInputStream bais = new ByteArrayInputStream(array);
         ObjectInputStream ois = new ObjectInputStream(bais);
         ago = System.nanoTime();
-        Status read = (Status) (ois.readObject());
+        ConnectFor read = (ConnectFor) (ois.readObject());
         after = System.nanoTime();
         ois.close();
         bais.close();

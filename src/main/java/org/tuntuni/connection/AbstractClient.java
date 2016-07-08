@@ -15,7 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
+import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
@@ -142,11 +142,11 @@ public abstract class AbstractClient {
     /**
      * Sends a request to the server.
      *
-     * @param status Status of the request
+     * @param status ConnectFor of the request
      * @param data Any data to pass along the request
      * @return
      */
-    Object request(Status status, Serializable... data) {
+    Object request(ConnectFor status, Serializable... data) {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
@@ -188,7 +188,7 @@ public abstract class AbstractClient {
      *
      * @param status
      */
-    void connect(Status status) {
+    void connect(ConnectFor status) {
         try (Socket socket = new Socket()) {
             // connect the socket with given address
             socket.connect(getAddress(), getTimeout());

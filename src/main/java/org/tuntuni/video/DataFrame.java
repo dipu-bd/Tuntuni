@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
+import org.tuntuni.models.ConnectFor;
 
 /**
  * Single data frame
@@ -28,12 +29,18 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
 
     private long mTime;
     private byte[] mBuffer;
+    private ConnectFor mType;
 
     public DataFrame() {
+        this(ConnectFor.INVALID);
     }
 
-    public DataFrame(byte[] buffer) {
-        mBuffer = buffer;
+    public ConnectFor connectedFor() {
+        return mType;
+    }
+
+    public DataFrame(ConnectFor frameType) {
+        mType = frameType;
     }
 
     public void setTime(long time) {

@@ -48,6 +48,8 @@ public abstract class Logs {
             SUBNET_CHECKING_SUBNETS = "Checking up all subnets of {0}",
             SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from {0}",
             SUBNET_CHECK_ERROR = "Failed to check the subnet: {0}",
+            // StreamServer.java
+            STREAM_ILLEGAL_ACCESS = "This is {0} server. Can not accept {1} requests.",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
 
