@@ -49,22 +49,22 @@ public class UserData implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-        oo.writeUTF(mState);
+        oo.writeUTF(mState);        
         oo.writeUTF(mName);
         oo.writeUTF(mStatus);
         oo.writeUTF(mAboutMe);
         oo.writeInt(mAvatar.length);
-        oo.write(mAvatar);
+        oo.write(mAvatar, 0, mAvatar.length);
     }
 
     @Override
-    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {                
         mState = (String) oi.readUTF();
         mName = (String) oi.readUTF();
         mStatus = (String) oi.readUTF();
         mAboutMe = (String) oi.readUTF();
         mAvatar = new byte[oi.readInt()];
-        oi.read(mAvatar);
+        oi.readFully(mAvatar);        
     }
 
     public String getUserName() {
@@ -89,6 +89,10 @@ public class UserData implements Externalizable {
 
     public Image getAvatar(double width, double height) {
         return Commons.resizeImage(getAvatar(), width, height);
+    }
+
+    public byte[] getAvatarData() {
+        return mAvatar;
     }
 
 }

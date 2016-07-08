@@ -17,12 +17,9 @@ package org.tuntuni.models;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.image.Image;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -76,6 +73,7 @@ public class UserDataTest {
         assertEquals(read.getState(), write.getState());
         assertEquals(read.getStatus(), write.getStatus());
         assertEquals(read.getUserName(), write.getUserName());
+        assertArrayEquals(read.getAvatarData(), write.getAvatarData());        
         System.out.println("++time=" + (after - ago) / 1e6 + " ms");
 
         System.out.println();
