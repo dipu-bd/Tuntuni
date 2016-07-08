@@ -16,7 +16,6 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
-import java.util.Observable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;

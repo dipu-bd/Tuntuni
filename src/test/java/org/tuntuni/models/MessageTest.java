@@ -19,35 +19,24 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import javafx.embed.swing.JFXPanel;
-import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.tuntuni.Core;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class UserDataTest {
-
-    public UserDataTest() {
+public class MessageTest {
+    
+    public MessageTest() {
     }
+ 
+    public void testMessage(String message) throws Exception {
 
-    @Before
-    public void initToolkit() {
-        SwingUtilities.invokeLater(() -> {
-            JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
-        });
-    }
-
-    @Test
-    public void testUserDataObjectStream() throws Exception {
-
-        System.out.println("writeUserData");
+        System.out.println("writeMessage");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        UserData write = Core.instance().user().getData();
+        Message write = new Message();
+        write.setText(message);
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         long ago = System.nanoTime();
         oos.writeObject(write);
@@ -58,25 +47,31 @@ public class UserDataTest {
         byte[] array = baos.toByteArray();
         System.out.println("++size=" + array.length);
         System.out.println("++time=" + (after - ago) / 1e6 + " ms");
-        System.out.println();
+        //System.out.println();
 
-        System.out.println("readUserData");
+        System.out.println("readMessage");
         ByteArrayInputStream bais = new ByteArrayInputStream(array);
         ObjectInputStream ois = new ObjectInputStream(bais);
         ago = System.nanoTime();
-        UserData read = (UserData) (ois.readObject());
+        Message read = (Message) (ois.readObject());
         after = System.nanoTime();
         ois.close();
         bais.close();
 
-        assertEquals(read.getAboutMe(), write.getAboutMe());
-        assertEquals(read.getState(), write.getState());
-        assertEquals(read.getStatus(), write.getStatus());
-        assertEquals(read.getUserName(), write.getUserName());
-        assertArrayEquals(read.getAvatarData(), write.getAvatarData());        
+        assertEquals(read.getText(), write.getText());  
         System.out.println("++time=" + (after - ago) / 1e6 + " ms");
 
         System.out.println();
     }
+    
+ 
+    @Test
+    public void testMessage() throws Exception {
+        testMessage("");
+        testMessage("Hello How are you?");
+        testMessage("This is good test. Goooood test");
+        testMessage("A very loooooooooooooooooooooooooooooooooooooooooong message");
+    }
 
+    
 }

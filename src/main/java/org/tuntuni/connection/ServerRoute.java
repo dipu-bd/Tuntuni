@@ -48,7 +48,7 @@ public abstract class ServerRoute {
         return null;
     }
     
-    public Object state() {
+    public Object state() {        
         return Core.instance().user().getState();
     }
 

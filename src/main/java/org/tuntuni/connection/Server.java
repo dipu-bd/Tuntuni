@@ -178,7 +178,7 @@ public final class Server extends ServerRoute {
     // process a selection key
     private void processSocket(Socket socket) {
 
-        try ( // get all input streams from socket
+        try ( // DON'T CHANGE THE ORDER
                 InputStream in = socket.getInputStream();
                 ObjectInputStream ois = new ObjectInputStream(in);
                 OutputStream out = socket.getOutputStream();

@@ -15,7 +15,10 @@
  */
 package org.tuntuni.models;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -23,24 +26,40 @@ import org.tuntuni.connection.Client;
 /**
  * To pass message between two users
  */
-public class Message implements Serializable {
+public class Message implements Externalizable {
 
-    // to be serialized
     private Date mTime;
     private String mText;
-    private Serializable mContent;
-
-    // not to be serialized
-    private transient Client mClient;
-    private transient boolean mReceiver;
+    private boolean mReceiver;
+    private Client mClient;
 
     /**
-     * Creates an instance of this class
+     * Creates an instance with empty message body
      */
     public Message() {
+        this("");
+    }
+
+    /**
+     * Creates an instance of message
+     *
+     * @param message Message body
+     */
+    public Message(String message) {
+        mText = message;
         mClient = null;
         mReceiver = false;
         mTime = new Date();
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput oo) throws IOException {
+        oo.writeUTF(mText);
+    }
+
+    @Override
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+        mText = oi.readUTF();
     }
 
     /**
@@ -69,20 +88,6 @@ public class Message implements Serializable {
      */
     public void setText(String text) {
         this.mText = text;
-    }
-
-    /**
-     * @return the content
-     */
-    public Serializable getContent() {
-        return mContent;
-    }
-
-    /**
-     * @param content the content to set
-     */
-    public void setContent(Serializable content) {
-        this.mContent = content;
     }
 
     /**
