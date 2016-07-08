@@ -33,7 +33,7 @@ import org.tuntuni.models.Logs;
  * <p>
  * The server and subnet objects are created with constructor. But they are not
  * yet started. Don't forget to call the {@code start()} of Server and Subnet
- * instances, after the initialization phase is done.</p>
+ instances, after the initialization phase is done.</p>
  * <p>
  * Note that, the controllers must be set after they are initialized. e.g: To
  * set MainController call {@code Core.instance().main(this)} in the

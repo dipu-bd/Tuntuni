@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sudipto Chandra.
+ * Copyright 2016 Tuntuni.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,206 +16,82 @@
 package org.tuntuni.connection;
 
 import org.tuntuni.models.Status;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.tuntuni.models.Logs;
+import java.util.Date;
+import org.tuntuni.Core;
+import org.tuntuni.models.Message;
+import org.tuntuni.util.SocketUtils;
 
 /**
- * To listen and respond to clients sockets.
+ * Extended by Server. It provides functions to deal with a request arrived in
+ * Server from a client socket.
  */
-public final class Server extends ServerRoute {
-
-    // logger
-    private static final Logger logger = Logger.getGlobal();
+public class Server extends AbstractServer {
 
     public static final int PORTS[] = {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
-
-    public static final int MAX_EXECUTOR_THREAD = 10;
-
-    private ServerSocket mSSocket;
-    private final ExecutorService mExecutor;
-    private Exception mError;
-
-    /**
-     * Creates a new Server.
-     * <p>
-     * It does not start the server automatically. Please call
-     * {@linkplain start()} to start the server. Or you can initialize the
-     * server by {@linkplain initialize()} first, then call {@linkplain start()}
-     * to run server.</p>
-     */
+    
     public Server() {
-        mExecutor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREAD);
+        super(PORTS);
     }
 
     /**
-     * Returns true if the server channel is open; false otherwise.
+     * A function to which the server requests to get response.
      *
-     * @return True only if server channel and selector is open
+     * @param status the status of the getResponse
+     * @param from The socket involving this request.
+     * @param data parameters sent by client
+     * @return The getResponse object. Can be {@code null}.
      */
-    public boolean isOpen() {
-        return (mSSocket != null && !mSSocket.isClosed() && mSSocket.isBound());
-    }
-
-    /**
-     * Gets any error associated with this server. If none, {@code null} value
-     * is returned.
-     *
-     * @return
-     */
-    public Exception getError() {
-        return mError;
-    }
-
-    /**
-     * Gets the port to which the server is bound to
-     *
-     * @return
-     */
-    public int getPort() {
-        return isOpen() ? mSSocket.getLocalPort() : -1;
-    }
-
-    /**
-     * Initializes the server.
-     * <p>
-     * It creates a server socket and try to bind it to the first available port
-     * in the {@linkplain PORTS} list. If it fails to bind to all of the port
-     * given, an IOException is thrown. </p>
-     * <p>
-     * Please call {@linkplain start()} to start the server after initializing
-     * it.</p>
-     *
-     * @throws java.io.IOException Failed to open a server-socket
-     */
-    public void initialize() throws IOException {
-        // try create server channel for each of the given ports
-        for (int i = 0; i < Server.PORTS.length; ++i) {
-            try {
-                // Create the server socket channel
-                mSSocket = new ServerSocket(Server.PORTS[i]);
-                break;
-            } catch (IOException ex) {
-                logger.log(Level.WARNING, Logs.SERVER_BIND_FAILS, Server.PORTS[i]);
-            }
+    public Object getResponse(Status status, Socket from, Object[] data) {
+        switch (status) {
+            case STATE:
+                return state();
+            case PROFILE: // send user data
+                return profile(from);
+            case MESSAGE: // a message arrived
+                return message(from, data);
         }
+        return null;
     }
 
-    /**
-     * Execute an infinite loop in a separate thread and wait for clients to
-     * connect.
-     * <p>
-     * This method calls {@linkplain initialize()} if a server socket is not
-     * open.</p>
-     */
-    public void start() {
-        try {
-            // initialize the server if not already
-            if (!isOpen()) {
-                initialize();
-            }
-            // execute server in separate thread
-            mExecutor.submit(() -> {
-                runServer();
-            });
-        } catch (IOException ex) {
-            mError = ex;
-        }
+    public Object state() {
+        return Core.instance().user().getState();
     }
 
-    /**
-     * Sends the getResponse to stop the server.
-     * <p>
-     * It may take a while to stop the server completely.</p>
-     */
-    public void stop() {
-        // close server socket
+    // what to do when Status.PROFILE getResponse arrived
+    public Object profile(Socket from) {
+        Core.instance().subnet().addAsClient(
+                SocketUtils.getRemoteHost(from));
+        return Core.instance().user().getData();
+    }
+
+    // display the message 
+    public Object message(Socket from, Object[] data) {
         try {
-            if (isOpen()) {
-                mSSocket.close();
-            }
+            System.out.println(data[0].getClass().getName());
+            System.out.println(data[0].getClass().getTypeName());
+            System.out.println(data[0].getClass().getSimpleName());
+            System.out.println(data[0].getClass().asSubclass(Message.class).getSimpleName());
+            // get message
+            Message message = Message.class.cast(data[0]);
+            // sender's address
+            String remote = SocketUtils.getRemoteHost(from);
+            // get client
+            Client client = Core.instance().subnet().getClient(remote);
+            // add this message
+            client.addMessage(message);
+            message.setReceiver(true);
+            message.setClient(client);
+            message.setTime(new Date());
+            return true;
+
         } catch (Exception ex) {
-            logger.log(Level.WARNING, Logs.SERVER_CLOSING_ERROR, ex);
-        }
-        // shutdown executors
-        mExecutor.shutdownNow();
-    }
-
-    // runnable containing the infinite server loop.
-    // it is started via an executor service.
-    private void runServer() {
-        // Infinite server loop
-        logger.log(Level.INFO, Logs.SERVER_LISTENING, getPort());
-        while (isOpen()) {
-            try {
-                Socket socket = mSSocket.accept();
-                // process the getResponse in a separate thread
-                mExecutor.submit(() -> {
-                    processSocket(socket);
-                });
-
-            } catch (IOException ex) {
-                if (isOpen()) {
-                    logger.log(Level.SEVERE, Logs.SERVER_ACCEPT_FAILED, ex);
-                }
-            }
-        }
-        logger.log(Level.INFO, Logs.SERVER_LISTENING_STOPPED);
-    }
-
-    // process a selection key
-    private void processSocket(Socket socket) {
-
-        try ( // DON'T CHANGE THE ORDER
-                InputStream in = socket.getInputStream();
-                ObjectInputStream ois = new ObjectInputStream(in);
-                OutputStream out = socket.getOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(out);) {
-            
-            // response type
-            Status status = Status.from(ois.readByte()); 
-            // param length
-            int length = ois.readInt();
-            
-            // log this connection
-            logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
-                    new Object[]{status, length, socket});
-
-            // read all params
-            Object[] data = new Object[length];
-            for (int i = 0; i < length; ++i) {
-                data[i] = ois.readObject();
-            }
-
-            // send response
-            Object result = getResponse(status, socket, data);
-            if (result != null) {
-                oos.writeObject(result);
-            }
-
-        } catch (IOException ex) {
-            //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
-        } catch (ClassNotFoundException ex) {
-            logger.log(Level.WARNING, Logs.SOCKET_CLASS_FAILED, ex);
-        }
-
-        // close the socket
-        try {
-            socket.close();
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, Logs.SERVER_CLOSING_ERROR, ex);
+            ex.printStackTrace();
+            // response failure
+            return false;
         }
     }
 
