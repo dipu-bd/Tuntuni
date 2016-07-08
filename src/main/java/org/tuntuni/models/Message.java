@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
+import java.util.Objects;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 
@@ -60,6 +61,22 @@ public class Message implements Externalizable {
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
         mText = oi.readUTF();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Objects.hashCode(this.mText);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final Message other = (Message) obj;
+        return this.mText.equals(other.mText);
     }
 
     /**

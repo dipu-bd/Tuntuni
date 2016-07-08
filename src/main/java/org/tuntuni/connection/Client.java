@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -58,7 +59,7 @@ public class Client extends ClientData {
      * @param data Any data to pass along the request
      * @return
      */
-    public Object request(Status status, Object... data) {
+    public Object request(Status status, Serializable... data) {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
@@ -78,7 +79,7 @@ public class Client extends ClientData {
                 oos.flush();
                 // send all data
                 for (Object o : data) {
-                    oos.writeObject(data);
+                    oos.writeObject(o);
                     oos.flush();
                 }
 
