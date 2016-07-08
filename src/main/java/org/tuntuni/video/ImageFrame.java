@@ -27,11 +27,11 @@ import java.io.ObjectOutput;
  */
 public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
 
-    private long mTime;
     private int mType;
     private int mWidth;
     private int mHeight;
     private int[] mBuffer;
+    private long mTime;
 
     public ImageFrame() {
 
@@ -41,7 +41,7 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
         mTime = time;
         mType = img.getType();
         mWidth = img.getWidth();
-        mHeight = img.getHeight();
+        mHeight = img.getHeight(); 
         mBuffer = img.getRGB(0, 0, mWidth, mHeight, null, 0, mWidth);
         //mBuffer = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
     }

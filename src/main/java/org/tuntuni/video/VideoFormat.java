@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video;
 
+import java.awt.image.BufferedImage;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -26,18 +27,164 @@ import java.io.ObjectOutput;
  */
 public class VideoFormat implements Externalizable {
 
+    // image type
+    private int mType = BufferedImage.TYPE_INT_ARGB;
+    // frame width
+    private int mWidth = 640;
+    // frame height
+    private int mHeight = 480;
+
+    //sampleRate - the number of samples per second
+    private float mSampleRate = 44100;
+    //sampleSizeInBits - the number of bits in each sample
+    private int mSampleSize = 16;
+    //channels - the number of channels (1 for mono, 2 for stereo, and so on)
+    private int mChannel = 2;
+    //signed - indicates whether the data is signed or unsigned
+    private boolean mSigned = true;
+    //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
+    private boolean mBigEndian = true;
+
     public VideoFormat() {
 
     }
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-        
+        oo.writeShort((short) mWidth);
+        oo.writeShort((short) mHeight);
+        oo.writeByte((byte) mType);
+
+        oo.writeFloat(mSampleRate);
+        oo.writeByte((byte) mSampleSize);
+        oo.writeByte((byte) mChannel);
+        oo.writeBoolean(mSigned);
+        oo.writeBoolean(mBigEndian);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-        
+        mWidth = oi.readShort();
+        mHeight = oi.readShort();
+        mType = oi.readByte();
+
+        mSampleRate = oi.readFloat();
+        mSampleSize = oi.readByte();
+        mChannel = oi.readByte();
+        mSigned = oi.readBoolean();
+        mBigEndian = oi.readBoolean();
+    }
+
+    /**
+     * @return the mType
+     */
+    public int getType() {
+        return mType;
+    }
+
+    /**
+     * @param Type the mType to set
+     */
+    public void setType(int Type) {
+        this.mType = Type;
+    }
+
+    /**
+     * @return the mWidth
+     */
+    public int getWidth() {
+        return mWidth;
+    }
+
+    /**
+     * @param Width the mWidth to set
+     */
+    public void setWidth(int Width) {
+        this.mWidth = Width;
+    }
+
+    /**
+     * @return the mHeight
+     */
+    public int getHeight() {
+        return mHeight;
+    }
+
+    /**
+     * @param Height the mHeight to set
+     */
+    public void setHeight(int Height) {
+        this.mHeight = Height;
+    }
+
+    /**
+     * @return the mSampleRate
+     */
+    public float getSampleRate() {
+        return mSampleRate;
+    }
+
+    /**
+     * @param SampleRate the mSampleRate to set
+     */
+    public void setSampleRate(float SampleRate) {
+        this.mSampleRate = SampleRate;
+    }
+
+    /**
+     * @return the mSampleSize
+     */
+    public int getSampleSize() {
+        return mSampleSize;
+    }
+
+    /**
+     * @param SampleSize the mSampleSize to set
+     */
+    public void setSampleSize(int SampleSize) {
+        this.mSampleSize = SampleSize;
+    }
+
+    /**
+     * @return the mChannel
+     */
+    public int getChannel() {
+        return mChannel;
+    }
+
+    /**
+     * @param Channel the mChannel to set
+     */
+    public void setChannel(int Channel) {
+        this.mChannel = Channel;
+    }
+
+    /**
+     * @return the mSigned
+     */
+    public boolean isSigned() {
+        return mSigned;
+    }
+
+    /**
+     * @param Signed the mSigned to set
+     */
+    public void setSigned(boolean Signed) {
+        this.mSigned = Signed;
+    }
+
+    /**
+     * @return the mBigEndian
+     */
+    public boolean isBigEndian() {
+        return mBigEndian;
+    }
+
+    /**
+     * @param BigEndian the mBigEndian to set
+     */
+    public void setBigEndian(boolean BigEndian) {
+        this.mBigEndian = BigEndian;
     }
 
 }
