@@ -15,12 +15,11 @@
  */
 package org.tuntuni.connection;
 
-import de.ruedigermoeller.serialization.FSTConfiguration;
-import de.ruedigermoeller.serialization.FSTObjectInput;
-import de.ruedigermoeller.serialization.FSTObjectOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.nustaq.serialization.FSTConfiguration;
+import org.tuntuni.util.Commons;
 
 /**
  *
@@ -29,22 +28,26 @@ public class IOHandler {
 
     static FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
+    private static int readInt(InputStream stream) throws IOException {
+        byte[] data = new byte[4];
+        stream.read(data, 0, 4);
+        return Commons.bytesToInt(data);
+    }
+
     /**
      * Reads an object from the input
      *
      * @param stream
      * @return
      * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws java.lang.ClassNotFoundException
      */
     public static Object readObject(InputStream stream)
             throws IOException, ClassNotFoundException {
-
-        FSTObjectInput in = conf.getObjectInput(stream);
-        Object result = in.readObject();
-    // DON'T: in.close(); here prevents reuse and will result in an exception      
-        //stream.close();
-        return result;
+        int length = readInt(stream);
+        byte[] data = new byte[length];
+        stream.read(data, 0, length);
+        return conf.asObject(data);
     }
 
     /**
@@ -57,10 +60,8 @@ public class IOHandler {
      * @throws java.io.IOException
      * @throws java.lang.ClassNotFoundException
      */
-    public static <T extends Object>
-            T readObject(InputStream stream, Class<T> type)
+    public static <T> T readObject(InputStream stream, Class<T> type)
             throws IOException, ClassNotFoundException {
-
         return type.cast(readObject(stream));
     }
 
@@ -71,18 +72,13 @@ public class IOHandler {
      * @param toWrite
      * @throws IOException
      */
-    public static
-            void writeObject(OutputStream stream, Object toWrite)
-            throws IOException {
-
+    public static void writeObject(OutputStream stream, Object toWrite) throws IOException {
         if (toWrite == null) {
             return;
         }
-        FSTObjectOutput out = conf.getObjectOutput(stream);
-        out.writeObject(toWrite);
-        // DON'T out.close() when using factory method;
-        out.flush();
-        //stream.close();
-
+        byte[] data = conf.asByteArray(toWrite);
+        stream.write(Commons.intToBytes(data.length));
+        stream.write(data);
+        stream.flush();
     }
 }

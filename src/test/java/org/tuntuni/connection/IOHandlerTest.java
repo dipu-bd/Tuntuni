@@ -17,12 +17,13 @@ package org.tuntuni.connection;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import javafx.embed.swing.JFXPanel;
+import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.tuntuni.Core;
 import org.tuntuni.models.UserData;
 
@@ -33,6 +34,13 @@ import org.tuntuni.models.UserData;
 public class IOHandlerTest {
 
     public IOHandlerTest() {
+    }
+
+    @Before
+    public void initToolkit() {
+        SwingUtilities.invokeLater(() -> {
+            JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
+        });
     }
 
     @Test

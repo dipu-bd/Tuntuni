@@ -31,24 +31,6 @@ public class SocketUtilsTest {
     }
  
     @Test
-    public void testBytesToInt() {
-        System.out.println("bytesToInt");
-        byte[] bytes = {0, 0, 15, 3};
-        int expResult = 0x0F03;
-        int result = SocketUtils.bytesToInt(bytes);
-        assertEquals(expResult, result);
-    }
- 
-    @Test
-    public void testIntToBytes() {
-        System.out.println("intToBytes");
-        int number = 0x0F03;
-        byte[] expResult = {0, 0, 15, 3};
-        byte[] result = SocketUtils.intToBytes(number);
-        assertArrayEquals(expResult, result);
-    }
- 
-    @Test
     public void testGetBroadcastMask() {
         System.out.println("getSubnetMask");
         int prefix = 24;

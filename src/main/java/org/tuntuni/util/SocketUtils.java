@@ -17,36 +17,12 @@ package org.tuntuni.util;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.nio.ByteBuffer;
+import java.net.Socket; 
 
 /**
  * Utility functions used in socket connection.
  */
 public abstract class SocketUtils {
-
-    /**
-     * Calculate the integer number from an array of bytes.
-     * <p>
-     * IPv4 address byte array must be 4 bytes long</p>
-     *
-     * @param bytes Array of bytes to convert.
-     */
-    public static int bytesToInt(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).getInt();
-    }
-
-    /**
-     * Converts an integer to byte array.
-     * <p>
-     * IPv4 address byte array must be 4 bytes long</p>
-     *
-     * @param number Integer number to convert.
-     * @return
-     */
-    public static byte[] intToBytes(int number) {
-        return ByteBuffer.allocate(4).putInt(number).array();
-    }
 
     /**
      * Gets the broadcast address mask.
@@ -89,7 +65,7 @@ public abstract class SocketUtils {
      * @return
      */
     public static int addressAsInteger(InetAddress address) {
-        return bytesToInt(address.getAddress());
+        return Commons.bytesToInt(address.getAddress());
     }
 
     /**
@@ -100,7 +76,7 @@ public abstract class SocketUtils {
      */
     public static String addressAsString(int host) {
         String[] str = new String[4];
-        byte[] bytes = intToBytes(host);
+        byte[] bytes = Commons.intToBytes(host);
         for (int i = 0; i < 4; ++i) {
             str[i] = String.valueOf(Byte.toUnsignedInt(bytes[i]));
         }
@@ -118,7 +94,7 @@ public abstract class SocketUtils {
      * @return
      */
     public static int getFirstHost(InetAddress address, int prefix) {
-        int ip = bytesToInt(address.getAddress());
+        int ip = Commons.bytesToInt(address.getAddress());
         int mask = getSubnetMask(prefix);
         return (ip & mask) + 1;
     }
@@ -134,7 +110,7 @@ public abstract class SocketUtils {
      * @return
      */
     public static int getLastHost(InetAddress address, int prefix) {
-        int ip = bytesToInt(address.getAddress());
+        int ip = Commons.bytesToInt(address.getAddress());
         int mask = getBroadcastMask(prefix);
         return (ip | mask) - 1;
     }

@@ -18,6 +18,7 @@ package org.tuntuni.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -56,9 +57,28 @@ public class Commons {
 
         return control;
     }
+     /**
+     * Calculate the integer number from an array of bytes.
+     * <p>
+     * IPv4 address byte array must be 4 bytes long</p>
+     *
+     * @param bytes Array of bytes to convert.
+     * @return 
+     */
+    public static int bytesToInt(byte[] bytes) {
+        return ByteBuffer.wrap(bytes).getInt();
+    }
 
-    public static String getResource(String fileName) {
-        return Commons.class.getResource("/img/" + fileName).toString();
+    /**
+     * Converts an integer to byte array.
+     * <p>
+     * IPv4 address byte array must be 4 bytes long</p>
+     *
+     * @param number Integer number to convert.
+     * @return
+     */
+    public static byte[] intToBytes(int number) {
+        return ByteBuffer.allocate(4).putInt(number).array();
     }
 
     public static byte[] imageToBytes(Image img) {

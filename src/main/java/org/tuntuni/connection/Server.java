@@ -17,8 +17,6 @@ package org.tuntuni.connection;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -181,10 +179,10 @@ public final class Server extends ServerRoute {
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream();) {
 
-            // get getResponse type
+            // get getResponse type & params
             Status status = IOHandler.readObject(in, Status.class);
-            // get params
             Object[] data = IOHandler.readObject(in, Object[].class);
+
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
                     new Object[]{status, data.length, socket});
@@ -192,7 +190,7 @@ public final class Server extends ServerRoute {
             // send response
             Object result = getResponse(status, socket, data);
             IOHandler.writeObject(out, result);
-            
+
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {

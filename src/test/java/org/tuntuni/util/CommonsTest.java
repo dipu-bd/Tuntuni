@@ -46,18 +46,25 @@ public class CommonsTest {
             JFXPanel jfxPanel = new JFXPanel(); // this will prepare JavaFX toolkit and environment           
         });
     }
-
+ 
     @Test
-    public void testResource() {
-        System.out.println("getResource()");
-        String fileName = "avatar.png";
-        String expResult = "/img/avatar.png";
-        String result = Commons.getResource(fileName);
-        System.out.println("++avatar=" + result);
-        assertTrue(result.endsWith(expResult));
-        System.out.println();
+    public void testBytesToInt() {
+        System.out.println("bytesToInt");
+        byte[] bytes = {0, 0, 15, 3};
+        int expResult = 0x0F03;
+        int result = Commons.bytesToInt(bytes);
+        assertEquals(expResult, result);
     }
-
+ 
+    @Test
+    public void testIntToBytes() {
+        System.out.println("intToBytes");
+        int number = 0x0F03;
+        byte[] expResult = {0, 0, 15, 3};
+        byte[] result = Commons.intToBytes(number);
+        assertArrayEquals(expResult, result);
+    }
+ 
     @Test
     public void testImageToBytes() throws URISyntaxException, FileNotFoundException, IOException {
         System.out.println("imageToBytes");
