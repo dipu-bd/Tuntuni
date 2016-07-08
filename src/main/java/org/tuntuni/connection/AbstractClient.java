@@ -182,12 +182,18 @@ public abstract class AbstractClient {
         return null;
     }
 
-    void openConnection(Status status) {
+    /**
+     * Just connect with the server with the status. This connection is
+     * keep-alive
+     *
+     * @param status
+     */
+    void connect(Status status) {
         try (Socket socket = new Socket()) {
             // connect the socket with given address
             socket.connect(getAddress(), getTimeout());
             socket.setKeepAlive(true);
-            
+
             try ( // get all input streams from socket
                     OutputStream out = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -199,8 +205,8 @@ public abstract class AbstractClient {
 
                 socketReceived(ois, oos);
             }
-        } catch (IOException ex) {
-            //Logs.severe(null, ex);
+        } catch (Exception ex) {
+            Logs.severe("Could not keep the {0} connection open.", status, ex);
         }
     }
 

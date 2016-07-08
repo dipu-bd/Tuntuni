@@ -61,8 +61,8 @@ public abstract class Logs {
         log(Level.INFO, message, data);
     }
 
-    public static void info(AbstractServer from, String message, Object... data) {
-        info("[" + from.name() + "]" + message, data);
+    public static void info(String type, String message, Object... data) {
+        info("[" + type + "]" + message, data);
     }
 
     public static void severe(String message, Object... data) {
@@ -73,16 +73,16 @@ public abstract class Logs {
         log(Level.WARNING, message, data);
     }
     
-    public static void warning(AbstractServer from, String message, Object... data) {
-        warning("[" + from.name() + "]" + message, data);
+    public static void warning(String type, String message, Object... data) {
+        warning("[" + type + "]" + message, data);
     }
 
-    public static void error(String message, Exception ex, Object... data) {
-        severe(message, ex, data);
+    public static void error(String message, Object... data) {
+        severe(message, data);
     }
 
-    public static void error(AbstractServer from, String message, Exception ex, Object... data) {
-        error("[" + from.name() + "]" + message, ex, data);
+    public static void error(String type, String message, Object... data) {
+        error("[" + type + "]" + message, data);
     }
 
     public static void config(String message, Object... data) {

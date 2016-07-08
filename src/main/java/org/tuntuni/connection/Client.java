@@ -15,11 +15,11 @@
  */
 package org.tuntuni.connection;
 
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -103,6 +103,11 @@ public class Client extends AbstractClient {
     public boolean sendMessage(Message toSent) {
         Object result = request(Status.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
+    }
+
+    // not required
+    @Override
+    void socketReceived(ObjectInput oi, ObjectOutput oo) {
     }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,17 +15,9 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.Status;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.logging.Level;
-import org.tuntuni.models.Logs;
 
 /**
  * To manage connection with server sockets.
@@ -40,34 +32,10 @@ public class StreamClient extends AbstractClient {
         super(socket, 0);
     }
 
-    /**
-     * Sends a request to the server.
-     *
-     * @return
-     */
-    public Object getFrame(long time) {
-        // create a socket
-        try (Socket socket = new Socket()) {
-            // connect the socket with given address
-            socket.connect(getAddress(), getTimeout());            
-            processSocket(socket);
-            
-        } catch (IOException ex) {
-            //Logs.severe(null, ex);
-        }
-        return null;
+    @Override
+    void socketReceived(ObjectInput oi, ObjectOutput oo) {
+        
     }
-
-    void processSocket(Socket socket) {
-        try ( // get all input streams from socket
-                OutputStream out = socket.getOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(out);
-                InputStream in = socket.getInputStream();
-                ObjectInputStream ois = new ObjectInputStream(in);) {
-
-        } catch (ClassNotFoundException ex) {
-            Logs.severe(Logs.SOCKET_CLASS_FAILED, ex);
-        }
-    }
+ 
 
 }
