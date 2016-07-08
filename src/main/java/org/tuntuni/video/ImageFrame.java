@@ -31,7 +31,9 @@ public class ImageFrame extends DataFrame {
 
     public ImageFrame(ByteBuffer buffer) {
         super(ConnectFor.IMAGE);
-        setBuffer(buffer.duplicate().array());
+        byte[] data = new byte[buffer.limit()];
+        buffer.get(data);
+        setBuffer(data);
     }
 
     public Image getImage() {

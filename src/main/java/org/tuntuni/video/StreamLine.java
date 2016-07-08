@@ -83,7 +83,9 @@ public class StreamLine<T extends DataFrame> {
      * @param time nano-time of when data arrived
      */
     public void push(long time, T data) {
-        data.setTime(data.getTime() - mStart);
+        data.setTime(time - mStart);
         getData().addLast(data);
+        System.out.println("Data arrived at : "
+                + (time - mStart) / 1e6 + " : " + data.connectedFor());
     }
 }

@@ -49,8 +49,8 @@ public class VideoCapturerTest {
     }
 
     @Test
-    public void testAudio() {
-
+    public void testAudio() throws InterruptedException {
+        Thread.sleep(5_000);
     }
 
     @Test
