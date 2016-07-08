@@ -76,112 +76,112 @@ public class VideoFormat implements Externalizable {
     }
 
     /**
-     * @return the mType
+     * @return the Type
      */
     public int getType() {
         return mType;
     }
 
     /**
-     * @param Type the mType to set
+     * @param Type the Type to set
      */
     public void setType(int Type) {
         this.mType = Type;
     }
 
     /**
-     * @return the mWidth
+     * @return the Width
      */
     public int getWidth() {
         return mWidth;
     }
 
     /**
-     * @param Width the mWidth to set
+     * @param Width the Width to set
      */
     public void setWidth(int Width) {
         this.mWidth = Width;
     }
 
     /**
-     * @return the mHeight
+     * @return the Height
      */
     public int getHeight() {
         return mHeight;
     }
 
     /**
-     * @param Height the mHeight to set
+     * @param Height the Height to set
      */
     public void setHeight(int Height) {
         this.mHeight = Height;
     }
 
     /**
-     * @return the mSampleRate
+     * @return the SampleRate
      */
     public float getSampleRate() {
         return mSampleRate;
     }
 
     /**
-     * @param SampleRate the mSampleRate to set
+     * @param SampleRate the SampleRate to set
      */
     public void setSampleRate(float SampleRate) {
         this.mSampleRate = SampleRate;
     }
 
     /**
-     * @return the mSampleSize
+     * @return the SampleSize
      */
     public int getSampleSize() {
         return mSampleSize;
     }
 
     /**
-     * @param SampleSize the mSampleSize to set
+     * @param SampleSize the SampleSize to set
      */
     public void setSampleSize(int SampleSize) {
         this.mSampleSize = SampleSize;
     }
 
     /**
-     * @return the mChannel
+     * @return the Channel
      */
     public int getChannel() {
         return mChannel;
     }
 
     /**
-     * @param Channel the mChannel to set
+     * @param Channel the Channel to set
      */
     public void setChannel(int Channel) {
         this.mChannel = Channel;
     }
 
     /**
-     * @return the mSigned
+     * @return the Signed
      */
     public boolean isSigned() {
         return mSigned;
     }
 
     /**
-     * @param Signed the mSigned to set
+     * @param Signed the Signed to set
      */
     public void setSigned(boolean Signed) {
         this.mSigned = Signed;
     }
 
     /**
-     * @return the mBigEndian
+     * @return the BigEndian
      */
     public boolean isBigEndian() {
         return mBigEndian;
     }
 
     /**
-     * @param BigEndian the mBigEndian to set
+     * @param BigEndian the BigEndian to set
      */
     public void setBigEndian(boolean BigEndian) {
         this.mBigEndian = BigEndian;

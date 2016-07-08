@@ -26,7 +26,6 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author Sudipto Chandra
  */
 public class ImageFrameTest {
 
