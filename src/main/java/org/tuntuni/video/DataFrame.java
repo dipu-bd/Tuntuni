@@ -32,9 +32,12 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
     public DataFrame() {
     }
 
-    public DataFrame(long time, byte[] buffer) {
-        mTime = time;
+    public DataFrame(byte[] buffer) {
         mBuffer = buffer;
+    }
+
+    public void setTime(long time) {
+        mTime = time;
     }
 
     public long getTime() {
@@ -43,6 +46,10 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
 
     public byte[] getBuffer() {
         return mBuffer;
+    }
+
+    public void setBuffer(byte[] data) {
+        mBuffer = data;
     }
 
     @Override

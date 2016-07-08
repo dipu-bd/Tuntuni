@@ -22,6 +22,9 @@ public class AudioFrame extends DataFrame {
 
     public AudioFrame() {
     }
-        
+    
+    public AudioFrame(byte[] data) {
+        super(data);
+    }
 
 }

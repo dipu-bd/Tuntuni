@@ -15,10 +15,6 @@
  */
 package org.tuntuni.video;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.nio.ByteBuffer;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
@@ -31,8 +27,8 @@ public class ImageFrame extends DataFrame {
     public ImageFrame() {
     }
 
-    public ImageFrame(long time, ByteBuffer buffer) {
-        super(time, buffer.duplicate().array());
+    public ImageFrame(ByteBuffer buffer) {
+        super(buffer.duplicate().array());
     }
 
     public Image getImage() {

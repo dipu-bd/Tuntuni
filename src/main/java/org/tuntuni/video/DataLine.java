@@ -70,10 +70,11 @@ public class DataLine<T extends DataFrame> {
      *
      * @param data
      */
-    public void push(T data) {
+    public void push(T data, long time) {
         if (mStart == 0) {
             mStart = System.nanoTime();
         }
+        data.setTime(data.getTime() - mStart);
         getData().addLast(data);
     }
 }
