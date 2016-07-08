@@ -65,15 +65,21 @@ public class Client extends ClientData {
             socket.connect(getAddress(), getTimeout());
 
             try ( // get all input streams from socket
-                    InputStream in = socket.getInputStream();
-                    ObjectInputStream ois = new ObjectInputStream(in);
                     OutputStream out = socket.getOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(out);) {
+                    ObjectOutputStream oos = new ObjectOutputStream(out);
+                    InputStream in = socket.getInputStream();
+                    ObjectInputStream ois = new ObjectInputStream(in);) {
 
-                // send params
-                oos.writeObject(status);
-                if (data.length > 0) {
+                // write status
+                oos.writeByte(status.data());
+                oos.flush();
+                // write data length
+                oos.writeInt(data.length);
+                oos.flush();
+                // send all data
+                for (Object o : data) {
                     oos.writeObject(data);
+                    oos.flush();
                 }
 
                 // return result

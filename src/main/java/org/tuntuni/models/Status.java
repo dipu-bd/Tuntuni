@@ -15,31 +15,35 @@
  */
 package org.tuntuni.models;
 
-import com.sun.org.apache.xalan.internal.xsltc.trax.SAX2StAXBaseWriter;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-
 /**
  * Defined a few types of connection status client and server.
  */
-public enum Status implements Externalizable {
+public enum Status {
 
-    STATE,
+    INVALID(0),
+    // to pass state information
+    STATE(1),
     // to pass user profile information
-    PROFILE,
+    PROFILE(2),
     // to pass a single message
-    MESSAGE;
+    MESSAGE(3);
 
-    @Override
-    public void writeExternal(ObjectOutput oo) throws IOException {
+    private final int mData;
 
+    Status(int data) {
+        mData = data;
     }
 
-    @Override
-    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+    public byte data() {
+        return (byte) mData;
+    }
 
+    public static Status from(byte data) {
+        for (Status status : Status.values()) {
+            if (status.data() == data) {
+                return status;
+            }
+        }
+        return Status.INVALID;
     }
 }

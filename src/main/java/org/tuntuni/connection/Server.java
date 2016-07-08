@@ -183,14 +183,21 @@ public final class Server extends ServerRoute {
                 ObjectInputStream ois = new ObjectInputStream(in);
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(out);) {
-
-            // get getResponse type & params
-            Status status = (Status) ois.readObject();
-            Object[] data = (Object[]) ois.readObject();
-
+            
+            // response type
+            Status status = Status.from(ois.readByte()); 
+            // param length
+            int length = ois.readInt();
+            
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
-                    new Object[]{status, data.length, socket});
+                    new Object[]{status, length, socket});
+
+            // read all params
+            Object[] data = new Object[length];
+            for (int i = 0; i < length; ++i) {
+                data[i] = ois.readObject();
+            }
 
             // send response
             Object result = getResponse(status, socket, data);
