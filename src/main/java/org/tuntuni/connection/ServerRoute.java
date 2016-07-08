@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.Status;
 import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;

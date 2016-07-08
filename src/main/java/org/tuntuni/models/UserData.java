@@ -15,22 +15,28 @@
  */
 package org.tuntuni.models;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
 
 /**
  * Data that is passed between server and client as User Profile
  */
-public class UserData implements Serializable {
+public class UserData implements Externalizable {
 
     private static final int AVATAR_MAX_SIZE = 128;
 
-    private final String mName;
-    private final String mStatus;
-    private final String mAboutMe;
-    private final String mState;
-    private final byte[] mAvatar;
+    private String mName;
+    private String mStatus;
+    private String mAboutMe;
+    private String mState;
+    private byte[] mAvatar;
+
+    public UserData() {
+    }
 
     public UserData(UserProfile profile) {
         mName = profile.username();
@@ -39,6 +45,26 @@ public class UserData implements Serializable {
         mState = profile.getState();
         mAvatar = Commons.imageToBytes(
                 profile.getAvatarImage(AVATAR_MAX_SIZE, AVATAR_MAX_SIZE));
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput oo) throws IOException {
+        oo.writeUTF(mState);
+        oo.writeUTF(mName);
+        oo.writeUTF(mStatus);
+        oo.writeUTF(mAboutMe);
+        oo.writeInt(mAvatar.length);
+        oo.write(mAvatar);
+    }
+
+    @Override
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+        mState = (String) oi.readUTF();
+        mName = (String) oi.readUTF();
+        mStatus = (String) oi.readUTF();
+        mAboutMe = (String) oi.readUTF();
+        mAvatar = new byte[oi.readInt()];
+        oi.read(mAvatar);
     }
 
     public String getUserName() {
@@ -64,4 +90,5 @@ public class UserData implements Serializable {
     public Image getAvatar(double width, double height) {
         return Commons.resizeImage(getAvatar(), width, height);
     }
+
 }

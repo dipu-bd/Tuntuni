@@ -15,8 +15,11 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.Status;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -61,16 +64,20 @@ public class Client extends ClientData {
             // connect the socket with given address
             socket.connect(getAddress(), getTimeout());
 
-            try ( // get input-output 
-                    OutputStream out = socket.getOutputStream(); 
-                    InputStream in = socket.getInputStream(); ) {
+            try ( // get all input streams from socket
+                    InputStream in = socket.getInputStream();
+                    ObjectInputStream ois = new ObjectInputStream(in);
+                    OutputStream out = socket.getOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
                 // send params
-                IOHandler.writeObject(out, status);
-                IOHandler.writeObject(out, data); 
+                oos.writeObject(status);
+                if (data.length > 0) {
+                    oos.writeObject(data);
+                }
 
                 // return result
-                return IOHandler.readObject(in);
+                return ois.readObject();
 
             } catch (IOException | ClassNotFoundException ex) {
                 logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);

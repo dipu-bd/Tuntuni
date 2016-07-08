@@ -13,18 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.connection;
+package org.tuntuni.models;
 
-import java.io.Serializable;
+import com.sun.org.apache.xalan.internal.xsltc.trax.SAX2StAXBaseWriter;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.HashMap;
 
 /**
  * Defined a few types of connection status client and server.
  */
-public enum Status implements Serializable {
-      
+public enum Status implements Externalizable {
+
     STATE,
     // to pass user profile information
-    PROFILE, 
+    PROFILE,
     // to pass a single message
-    MESSAGE,
+    MESSAGE;
+
+    @Override
+    public void writeExternal(ObjectOutput oo) throws IOException {
+
+    }
+
+    @Override
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+
+    }
 }

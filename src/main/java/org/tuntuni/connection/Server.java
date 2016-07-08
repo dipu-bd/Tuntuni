@@ -15,8 +15,11 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.Status;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -177,11 +180,13 @@ public final class Server extends ServerRoute {
 
         try ( // get all input streams from socket
                 InputStream in = socket.getInputStream();
-                OutputStream out = socket.getOutputStream();) {
+                ObjectInputStream ois = new ObjectInputStream(in);
+                OutputStream out = socket.getOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
             // get getResponse type & params
-            Status status = IOHandler.readObject(in, Status.class);
-            Object[] data = IOHandler.readObject(in, Object[].class);
+            Status status = (Status) ois.readObject();
+            Object[] data = (Object[]) ois.readObject();
 
             // log this connection
             logger.log(Level.INFO, Logs.SERVER_RECEIVED_CLIENT,
@@ -189,7 +194,9 @@ public final class Server extends ServerRoute {
 
             // send response
             Object result = getResponse(status, socket, data);
-            IOHandler.writeObject(out, result);
+            if (result != null) {
+                oos.writeObject(result);
+            }
 
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
