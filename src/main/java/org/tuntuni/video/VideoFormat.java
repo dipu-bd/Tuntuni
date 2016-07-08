@@ -20,6 +20,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import javax.sound.sampled.AudioFormat;
 
 /**
  *
@@ -47,6 +48,31 @@ public class VideoFormat implements Externalizable {
 
     public VideoFormat() {
 
+    }
+
+    public VideoFormat(int width, int height, AudioFormat audio) {
+        this(
+                width,
+                height,
+                BufferedImage.TYPE_INT_ARGB,
+                audio.getFrameRate(),
+                audio.getSampleSizeInBits(),
+                audio.getChannels(),
+                true,
+                audio.isBigEndian()
+        );
+    }
+
+    public VideoFormat(int width, int height, int type, float sampleRate,
+            int sampleSizeInBits, int channels, boolean signed, boolean bigEndian) {
+        mType = type;
+        mWidth = width;
+        mHeight = height;
+        mSampleRate = sampleRate;
+        mSampleSize = sampleSizeInBits;
+        mChannel = channels;
+        mSigned = signed;
+        mBigEndian = bigEndian;
     }
 
     @Override

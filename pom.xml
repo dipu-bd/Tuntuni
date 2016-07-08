@@ -55,6 +55,11 @@
             <artifactId>prettytime</artifactId>
             <version>4.0.1.Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.sarxos</groupId>
+            <artifactId>webcam-capture</artifactId>
+            <version>0.3.11</version>
+        </dependency> 
     </dependencies>
 
     <build>

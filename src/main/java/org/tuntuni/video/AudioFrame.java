@@ -26,19 +26,23 @@ import java.io.ObjectOutput;
  */
 public class AudioFrame implements Externalizable, Comparable<AudioFrame> {
 
+    public AudioFrame() {
+
+    }
+
     @Override
     public int compareTo(AudioFrame t) {
-        return 0;        
+        return 0;
     }
-        
+
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-        
+
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-        
+
     }
 
 }
