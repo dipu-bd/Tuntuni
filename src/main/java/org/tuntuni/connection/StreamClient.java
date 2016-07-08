@@ -30,8 +30,9 @@ public class StreamClient extends AbstractClient {
     // hidesthe constructor and handle it with static open() method
     public StreamClient(InetSocketAddress socket) {
         super(socket, 0);
-    }
+    }        
 
+    // do something with the opened socket
     @Override
     void socketReceived(ObjectInput oi, ObjectOutput oo) {
         

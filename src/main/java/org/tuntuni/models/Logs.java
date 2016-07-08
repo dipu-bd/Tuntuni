@@ -17,8 +17,6 @@ package org.tuntuni.models;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tuntuni.connection.AbstractServer;
-import org.tuntuni.connection.Server;
 
 /**
  * Lists some log messages used through-out the application.
