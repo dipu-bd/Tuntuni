@@ -16,8 +16,7 @@
 package org.tuntuni.video;
 
 /**
- *
- * @author Sudipto Chandra
+ * 
  */
 public class VideoRenderer {
     

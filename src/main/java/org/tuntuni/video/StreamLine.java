@@ -79,8 +79,8 @@ public class StreamLine<T extends DataFrame> {
     /**
      * Add a data to the list
      *
-     * @param data
-     * @param time
+     * @param data Data to push
+     * @param time nano-time of when data arrived
      */
     public void push(long time, T data) {
         data.setTime(data.getTime() - mStart);

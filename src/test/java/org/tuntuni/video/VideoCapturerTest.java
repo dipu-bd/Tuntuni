@@ -15,20 +15,28 @@
  */
 package org.tuntuni.video;
 
-import java.util.Arrays;
-import org.tuntuni.models.ConnectFor;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * Audio data frame. Holds audio information.
+ *
+ * @author Sudipto Chandra
  */
-public class AudioFrame extends DataFrame {
-
-    public AudioFrame() {
+public class VideoCapturerTest {
+    
+    public VideoCapturerTest() {
     }
+    
+    VideoCapturer instance = new VideoCapturer();        
 
-    public AudioFrame(byte[] data, int length) {
-        super(ConnectFor.AUDIO);
-        setBuffer(Arrays.copyOf(data, length));
+    @Test
+    public void testCapture() throws InterruptedException {
+        System.out.println("initialize");
+        instance.initialize();
+        instance.start();
+        Thread.sleep(10_000);
+        instance.stop();
     }
-
+ 
+    
 }

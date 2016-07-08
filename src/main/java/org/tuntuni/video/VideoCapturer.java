@@ -17,8 +17,7 @@ package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamException;
-import com.github.sarxos.webcam.WebcamStreamer;
-import java.util.LinkedList;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
@@ -76,7 +75,7 @@ public final class VideoCapturer {
         try {
             mWebcam = Webcam.getDefault();
             mWebcam.setViewSize(mFormat.getViewSize());
-        } catch (WebcamException ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Failed to initialize webcam", ex);
         }
     }
@@ -111,18 +110,31 @@ public final class VideoCapturer {
         mVideoThread.interrupt();
     }
 
-    public void videoRunner() {
-        mWebcam.open(); 
-        while (mWebcam.open()) {
-            mImageLine.push(mStartTime,
-                    new ImageFrame(mWebcam.getImageBytes()));
+    private void videoRunner() {
+        if (mWebcam == null) {
+            return;
+        }
+        mWebcam.open();
+        while (mWebcam.isOpen()) {
+            long time = System.nanoTime();
+            ByteBuffer bb = mWebcam.getImageBytes();
+            if (bb != null) { // Ms. BB must not be null!!
+                mImageLine.push(time, new ImageFrame(bb));
+            }
         }
     }
 
-    public void audioRunner() {
+    private void audioRunner() {
         mTargetLine.start();
+        int buffer = mTargetLine.getBufferSize() / 8;
+        byte[] data = new byte[buffer];
         while (mTargetLine.isOpen()) {
-
+            long time = System.nanoTime();
+            int len = mTargetLine.read(data, 0, buffer);
+            if (len == -1) {
+                break;
+            }
+            mAudioLine.push(time, new AudioFrame(data, len));
         }
     }
 
