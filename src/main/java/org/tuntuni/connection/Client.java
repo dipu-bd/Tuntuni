@@ -64,18 +64,15 @@ public class Client extends ClientData {
             socket.connect(getAddress(), getTimeout());
 
             try ( // get input-output 
-                    OutputStream out = socket.getOutputStream();
-                    ObjectOutputStream req = new ObjectOutputStream(out);
-                    InputStream in = socket.getInputStream();
-                    ObjectInputStream res = new ObjectInputStream(in);) {
+                    OutputStream out = socket.getOutputStream(); 
+                    InputStream in = socket.getInputStream(); ) {
 
                 // send params
-                req.writeObject(status);
-                req.writeObject(data);
-                req.flush();
+                IOHandler.writeObject(out, status);
+                IOHandler.writeObject(out, data); 
 
                 // return result
-                return res.readObject();
+                return IOHandler.readObject(in);
 
             } catch (IOException | ClassNotFoundException ex) {
                 logger.log(Level.SEVERE, Logs.SOCKET_CLASS_FAILED, ex);
