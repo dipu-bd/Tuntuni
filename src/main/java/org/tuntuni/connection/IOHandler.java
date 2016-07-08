@@ -15,17 +15,19 @@
  */
 package org.tuntuni.connection;
 
+import de.ruedigermoeller.serialization.FSTConfiguration;
 import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 
 /**
  *
  */
 public class IOHandler {
+
+    static FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
     /**
      * Reads an object from the input
@@ -37,10 +39,12 @@ public class IOHandler {
      */
     public static Object readObject(InputStream stream)
             throws IOException, ClassNotFoundException {
-        
-        try (FSTObjectInput in = new FSTObjectInput(stream)) {
-            return in.readObject();
-        }
+
+        FSTObjectInput in = conf.getObjectInput(stream);
+        Object result = in.readObject();
+    // DON'T: in.close(); here prevents reuse and will result in an exception      
+        //stream.close();
+        return result;
     }
 
     /**
@@ -74,9 +78,11 @@ public class IOHandler {
         if (toWrite == null) {
             return;
         }
-        try (FSTObjectOutput out = new FSTObjectOutput(stream)) {
-            out.writeObject(toWrite);
-        }
+        FSTObjectOutput out = conf.getObjectOutput(stream);
+        out.writeObject(toWrite);
+        // DON'T out.close() when using factory method;
+        out.flush();
+        //stream.close();
 
     }
 }
