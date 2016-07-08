@@ -25,7 +25,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import org.tuntuni.models.Logs;
 
 /**
@@ -102,8 +101,8 @@ public abstract class AbstractServer {
      * Initializes the server.
      * <p>
      * It creates a server socket and try to bind it to the first available port
-     * in the {@linkplain PORTS} list. If it fails to bind to all of the port
-     * given, an IOException is thrown. </p>
+     * from the given list. If no port list is null or empty, it chooses any
+     * random port. </p>
      * <p>
      * Please call {@linkplain start()} to start the server after initializing
      * it.</p>

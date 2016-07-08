@@ -18,7 +18,9 @@ package org.tuntuni.connection;
 import org.tuntuni.models.Status;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -34,7 +36,7 @@ import org.tuntuni.models.Logs;
  * You can not create new client directly. To create a client use
  * {@linkplain Client.open()} method.</p>
  */
-public class AbstractClient {
+public abstract class AbstractClient {
 
     // to connect with server    
     private int mTimeout;
@@ -170,14 +172,46 @@ public class AbstractClient {
 
                 // return result
                 return ois.readObject();
-
-            } catch (IOException | ClassNotFoundException ex) {
-                Logs.severe(Logs.SOCKET_CLASS_FAILED, ex);
             }
+        } catch (ClassNotFoundException ex) {
+            Logs.severe(Logs.SOCKET_CLASS_FAILED, ex);
+
         } catch (IOException ex) {
-            //logger.log(Level.SEVERE, null, ex);
+            //Logs.severe(null, ex);
         }
         return null;
     }
+
+    void openConnection(Status status) {
+        try (Socket socket = new Socket()) {
+            // connect the socket with given address
+            socket.connect(getAddress(), getTimeout());
+            socket.setKeepAlive(true);
+            
+            try ( // get all input streams from socket
+                    OutputStream out = socket.getOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(out);
+                    InputStream in = socket.getInputStream();
+                    ObjectInputStream ois = new ObjectInputStream(in);) {
+
+                oos.write(status.data());
+                oos.flush();
+
+                socketReceived(ois, oos);
+            }
+        } catch (IOException ex) {
+            //Logs.severe(null, ex);
+        }
+    }
+
+    /**
+     * To communicate between server and client. It is being called from inside
+     * of {@linkplain openConnection()} method.
+     *
+     * @param oi Input stream
+     * @param oo Output stream
+     * @throws ClassNotFoundException
+     */
+    abstract void socketReceived(ObjectInput oi, ObjectOutput oo);
 
 }
