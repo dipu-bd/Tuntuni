@@ -18,6 +18,7 @@ package org.tuntuni.video;
 import java.util.LinkedList;
 
 /**
+ * A push and pop based data line for audio or image frame.
  *
  * @param <T> Type of object to pass in this line
  */
@@ -31,14 +32,48 @@ public class DataLine<T extends DataFrame> {
         mData = new LinkedList<>();
     }
 
+    /**
+     * Gets the start time of first push to this data line.
+     *
+     * @return
+     */
+    public long getStart() {
+        return mStart;
+    }
+
+    /**
+     * Gets the data list.
+     *
+     * @return
+     */
+    public LinkedList<T> getData() {
+        return mData;
+    }
+
+    /**
+     * Block until at least one input has received.
+     *
+     * @return
+     */
     public T pop() {
+        int test = 0;
+        while (getData().isEmpty()) {
+            // block until mData is free
+            test++;
+        }
+        System.out.println("POP_TEST = " + test);
         return mData.pollFirst();
     }
 
+    /**
+     * Add a data to the list
+     *
+     * @param data
+     */
     public void push(T data) {
         if (mStart == 0) {
             mStart = System.nanoTime();
         }
-        mData.addLast(data);
-    }    
+        getData().addLast(data);
+    }
 }

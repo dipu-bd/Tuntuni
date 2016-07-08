@@ -16,12 +16,12 @@
 package org.tuntuni.video;
 
 /**
- * 
+ * Audio data frame. Holds audio information.
  */
 public class AudioFrame extends DataFrame {
 
     public AudioFrame() {
-
     }
+        
 
 }

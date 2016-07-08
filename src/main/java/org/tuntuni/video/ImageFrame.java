@@ -24,7 +24,7 @@ import javafx.scene.image.Image;
 import org.tuntuni.util.Commons;
 
 /**
- *
+ * Image data frame. Holds image information.
  */
 public class ImageFrame extends DataFrame {
 

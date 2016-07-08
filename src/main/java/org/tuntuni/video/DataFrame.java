@@ -19,9 +19,10 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 /**
- *
+ * Single data frame
  */
 public class DataFrame implements Externalizable, Comparable<ImageFrame> {
 
@@ -75,6 +76,7 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
     public int hashCode() {
         int hash = 7;
         hash = 29 * hash + (int) (this.mTime ^ (this.mTime >>> 32));
+        hash = 29 * hash + Arrays.hashCode(this.mBuffer);
         return hash;
     }
 
