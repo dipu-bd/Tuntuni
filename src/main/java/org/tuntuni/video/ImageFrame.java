@@ -41,7 +41,7 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
         mTime = time;
         mType = img.getType();
         mWidth = img.getWidth();
-        mHeight = img.getHeight(); 
+        mHeight = img.getHeight();
         mBuffer = img.getRGB(0, 0, mWidth, mHeight, null, 0, mWidth);
         //mBuffer = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
     }
@@ -57,12 +57,14 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-
+        oo.writeLong(mTime);
+        oo.writeObject(mBuffer);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-
+        mTime = oi.readLong();
+        mBuffer = (int[]) oi.readObject();
     }
 
     @Override
@@ -88,16 +90,20 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
     public long getTime() {
         return mTime;
     }
-    
+
     public int getWidth() {
         return mWidth;
     }
-    
+
     public int getHeight() {
         return mHeight;
     }
-    
+
     public int getType() {
         return mType;
+    }
+
+    public int[] getBuffer() {
+        return mBuffer;
     }
 }
