@@ -15,56 +15,49 @@
  */
 package org.tuntuni.video;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.nio.ByteBuffer;
+import javafx.scene.image.Image;
+import org.tuntuni.util.Commons;
 
 /**
  *
  */
 public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
 
-    private int mType;
-    private int mWidth;
-    private int mHeight;
-    private int[] mBuffer;
     private long mTime;
+    private ByteBuffer mBuffer;
 
     public ImageFrame() {
 
     }
 
-    public ImageFrame(long time, BufferedImage img) {
+    public ImageFrame(long time, ByteBuffer buffer) {
         mTime = time;
-        mType = img.getType();
-        mWidth = img.getWidth();
-        mHeight = img.getHeight();
-        mBuffer = img.getRGB(0, 0, mWidth, mHeight, null, 0, mWidth);
-        //mBuffer = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+        mBuffer = buffer;
     }
 
-    public BufferedImage getImage() {
-        BufferedImage bi = new BufferedImage(mWidth, mHeight, mType);
-        bi.setRGB(0, 0, mWidth, mHeight, mBuffer, 0, mWidth);
-        WritableRaster newRaster = bi.getRaster();
-        newRaster.setDataElements(0, 0, mWidth, mHeight, mBuffer);
-        bi.setData(newRaster);
-        return bi;
+    public Image getImage() {
+        return Commons.bytesToImage(mBuffer.array());
     }
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
         oo.writeLong(mTime);
-        oo.writeObject(mBuffer);
+        byte[] data = mBuffer.array();
+        oo.writeInt(data.length);
+        oo.write(data);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
         mTime = oi.readLong();
-        mBuffer = (int[]) oi.readObject();
+        byte[] data = new byte[oi.readInt()];
+        oi.readFully(data);
+        mBuffer = ByteBuffer.wrap(data);
     }
 
     @Override
@@ -90,20 +83,8 @@ public class ImageFrame implements Externalizable, Comparable<ImageFrame> {
     public long getTime() {
         return mTime;
     }
-
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
-    }
-
-    public int getType() {
-        return mType;
-    }
-
-    public int[] getBuffer() {
+ 
+    public ByteBuffer getBuffer() {
         return mBuffer;
     }
 }

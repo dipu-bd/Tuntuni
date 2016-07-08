@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -99,6 +100,20 @@ public class VideoFormat implements Externalizable {
         mChannel = oi.readByte();
         mSigned = oi.readBoolean();
         mBigEndian = oi.readBoolean();
+    }
+
+    /**
+     * @return the dimension of the video frame
+     */
+    public Dimension getViewSize() {
+        return new Dimension(mWidth, mHeight);
+    }
+
+    /**
+     * @return the audio format of this video
+     */
+    public AudioFormat getAudioFormat() {
+        return new AudioFormat(mSampleRate, mSampleSize, mChannel, mSigned, mBigEndian);
     }
 
     /**
