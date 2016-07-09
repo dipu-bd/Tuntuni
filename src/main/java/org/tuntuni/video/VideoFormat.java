@@ -21,6 +21,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.net.InetSocketAddress;
 import javax.sound.sampled.AudioFormat;
 
 /**
@@ -51,6 +52,8 @@ public class VideoFormat implements Externalizable {
     private int mImagePort;
     // audioPort - where audio server is running
     private int mAudioPort;
+    // inetAddress - where to fetch for data 
+    private String mInetAddress;
 
     public VideoFormat() {
 
@@ -239,19 +242,35 @@ public class VideoFormat implements Externalizable {
         this.mBigEndian = BigEndian;
     }
 
-    public void setAudioPort(int audioPort) {
-        mAudioPort = audioPort;
-    }
-
-    public int getAudioPort() {
-        return mAudioPort;
+    public int getImagePort() {
+        return mImagePort;
     }
 
     public void setImagePort(int imagePort) {
         mImagePort = imagePort;
     }
 
-    public int getImagePort() {
-        return mImagePort;
+    public int getAudioPort() {
+        return mAudioPort;
+    }
+
+    public void setAudioPort(int audioPort) {
+        mAudioPort = audioPort;
+    }
+
+    public String getIneteAddress() {
+        return mInetAddress;
+    }
+
+    public void setInetAddress(String ip) {
+        mInetAddress = ip;
+    }
+
+    public InetSocketAddress getImageAddress() {
+        return new InetSocketAddress(mInetAddress, mImagePort);
+    }
+
+    public InetSocketAddress getAudioAddress() {
+        return new InetSocketAddress(mInetAddress, mAudioPort);
     }
 }

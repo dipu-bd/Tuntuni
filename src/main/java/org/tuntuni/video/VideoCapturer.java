@@ -16,7 +16,6 @@
 package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,7 +66,7 @@ public final class VideoCapturer {
             mTargetInfo = new DataLine.Info(TargetDataLine.class, mFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
             mTargetLine.open(mFormat.getAudioFormat());
-        } catch (LineUnavailableException ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Failed to initialize microphone", ex);
         }
 
@@ -106,14 +105,19 @@ public final class VideoCapturer {
     }
 
     public void stop() {
+        // stop audio
         if (mTargetLine != null) {
             mTargetLine.close();
             mAudioThread.interrupt();
         }
+        // stop video
         if (mWebcam != null) {
             mWebcam.close();
             mVideoThread.interrupt();
         }
+        // close server
+        mImageServer.stop();
+        mAudioServer.stop();
     }
 
     private void videoRunner() {

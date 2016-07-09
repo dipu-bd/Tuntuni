@@ -42,9 +42,8 @@ public class StreamLine<T extends DataFrame> {
     }
 
     /**
-     * Sets the start time of first push to this data line.
-     *
-     * @return
+     * Sets the start time of first push to this data line. 
+     * @param time
      */
     public void setStart(long time) {
         mStart = time;
@@ -80,7 +79,7 @@ public class StreamLine<T extends DataFrame> {
      * Add a data to the list
      *
      * @param data Data to push
-     * @param time nano-time of when data arrived
+     * @param time Data arrival time in nanoseconds
      */
     public void push(long time, T data) {
         data.setTime(time - mStart);

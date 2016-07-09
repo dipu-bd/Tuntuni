@@ -25,13 +25,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.AudioFrame;
 import org.tuntuni.video.DataFrame;
-import org.tuntuni.video.ImageFrame;
 import org.tuntuni.video.StreamLine;
 
 /**
  * To listen and respond to clients sockets.
+ * @param <T>
  */
 public class StreamServer<T extends DataFrame> extends AbstractServer {
 

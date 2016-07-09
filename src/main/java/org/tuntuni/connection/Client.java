@@ -15,9 +15,11 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -105,9 +107,10 @@ public class Client extends AbstractClient {
         return (result instanceof Boolean) ? (boolean) result : false;
     }
 
-    // not required
+    // not required 
     @Override
-    void socketReceived(ObjectInput oi, ObjectOutput oo) {
+    void socketReceived(ObjectInput oi, ObjectOutput oo, Socket socket) throws IOException {
+
     }
 
 ////////////////////////////////////////////////////////////////////////////////

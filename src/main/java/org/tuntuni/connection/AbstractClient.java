@@ -203,7 +203,7 @@ public abstract class AbstractClient {
                 oos.write(status.data());
                 oos.flush();
 
-                socketReceived(ois, oos);
+                socketReceived(ois, oos, socket);
             }
         } catch (Exception ex) {
             Logs.severe("Could not keep the {0} connection open.", status, ex);
@@ -218,6 +218,6 @@ public abstract class AbstractClient {
      * @param oo Output stream
      * @throws ClassNotFoundException
      */
-    abstract void socketReceived(ObjectInput oi, ObjectOutput oo);
+    abstract void socketReceived(ObjectInput oi, ObjectOutput oo, Socket socket) throws IOException;
 
 }

@@ -15,28 +15,86 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.Logs;
+import org.tuntuni.video.DataFrame;
+import org.tuntuni.video.StreamLine;
 
 /**
- * To manage connection with server sockets.
+ * To manage connection with stream server sockets.
  * <p>
- * You can not create new client directly. To create a client use
- * {@linkplain Client.open()} method.</p>
+ * To connect with the server you have to call {@linkplain connect()}. </p>
+ *
+ * @param <T>
  */
-public class StreamClient extends AbstractClient {
+public class StreamClient<T extends DataFrame> extends AbstractClient {
 
-    // hidesthe constructor and handle it with static open() method
-    public StreamClient(InetSocketAddress socket) {
+    private final ConnectFor mClientFor;
+    private final StreamLine<T> mLine;
+    private Socket mSocket;
+
+    /**
+     * Creates a new Stream client.
+     *
+     * @param socket Socket address of this client.
+     * @param line Line to add incoming data
+     * @param clientFor Type of data frame it receives
+     */
+    public StreamClient(InetSocketAddress socket, StreamLine<T> line, ConnectFor clientFor) {
         super(socket, 0);
-    }        
-
-    // do something with the opened socket
-    @Override
-    void socketReceived(ObjectInput oi, ObjectOutput oo) {
-        
+        mClientFor = clientFor;
+        mLine = line;
     }
- 
+
+    /**
+     * To connect with the server with the ConnectFor parameter this was created
+     * for.
+     */
+    public void connect() {
+        super.connect(mClientFor);
+    }
+
+    /**
+     * To close the socket that is in connection, if any.
+     */
+    public void close() {
+        try {
+            if (!mSocket.isClosed()) {
+                mSocket.close();
+            }
+        } catch (IOException ex) {
+            Logs.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // do something with the opened socket 
+    @Override
+    void socketReceived(ObjectInput oi, ObjectOutput oo, Socket socket) throws IOException {
+        boolean isok = oi.readBoolean();
+        if (!isok) {
+            return;
+        }
+        mSocket = socket;
+
+        while (!socket.isClosed()) {
+            try {
+                oo.writeLong(System.currentTimeMillis() - mLine.getStart());
+                oo.flush();
+
+                DataFrame frame = (DataFrame) oi.readObject();
+                mLine.push(frame.getTime(), (T) frame);
+
+            } catch (ClassNotFoundException ex) {
+                Logs.log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 
 }
