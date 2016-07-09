@@ -15,26 +15,40 @@
  */
 package org.tuntuni.video;
 
-import java.io.File;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.image.Image;
 import javax.swing.SwingUtilities;
-import org.apache.commons.io.FileSystemUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.Before;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class VideoCapturerTest {
+public class VideoRendererTest {
 
-    static final File savePath = FileUtils.getFile(System.getProperty("user.home"), "/Desktop/video-test");
+    public VideoRendererTest() {
+    }
 
-    VideoCapturer instance;
+    VideoRenderer instance;
 
-    public VideoCapturerTest() {
+    @Before
+    public void testInitialize() {
+        System.out.println("initialize");
+        
+        VideoFormat format = new VideoFormat();
+        format.setInetAddress("localhost");
+        
+        format.setImagePort(56833);
+        format.setAudioPort(56834);
+        
+        instance = new VideoRenderer(format, (Image t) -> {
+            System.out.println("Image received: " + t.getWidth() + " " + t.getHeight());
+        });
+        instance.initialize();
+        instance.start();
     }
 
     @Before
@@ -44,24 +58,16 @@ public class VideoCapturerTest {
         });
     }
 
-    @Before
-    public void setupServer() throws InterruptedException {
-        System.out.println("initialize");
-        instance = new VideoCapturer();
-        instance.initialize();
-        instance.start();
-    }
-
     @After
-    public void tearUp() {
+    public void testStart() {
         System.out.println("stop");
         instance.stop();
     }
 
     @Test
-    public void testListen() throws InterruptedException {
-        System.out.println("listening");
-        Thread.sleep(100_000);
+    public void testStop() throws InterruptedException {
+        System.out.println("connecting"); 
+        Thread.sleep(5_000);
     }
 
 }

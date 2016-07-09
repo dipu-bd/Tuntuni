@@ -84,7 +84,7 @@ public class StreamLine<T extends DataFrame> {
     public void push(long time, T data) {
         data.setTime(time - mStart);
         getData().addLast(data);
-        System.out.println("Data arrived at : "
-                + (time - mStart) / 1e6 + " : " + data.connectedFor());
+        //System.out.println("Data arrived at : "
+        //        + (time - mStart) / 1e6 + " : " + data.connectedFor());
     }
 }

@@ -30,7 +30,7 @@ import org.tuntuni.models.Logs;
  */
 public final class VideoRenderer {
 
-    private VideoFormat mFormat;
+    private final VideoFormat mFormat;
     private StreamLine<ImageFrame> mImageLine;
     private StreamLine<AudioFrame> mAudioLine;
     private StreamClient<ImageFrame> mImageClient;
@@ -39,7 +39,7 @@ public final class VideoRenderer {
     private long mStartTime;
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
-    private final Consumer mImageConsumer;
+    private final Consumer<Image> mImageConsumer;
     private Thread mAudioThread;
     private Thread mVideoThread;
 
@@ -49,36 +49,38 @@ public final class VideoRenderer {
      * @param format Format of the audio and video data.
      * @param imageConsumer Where to show image.
      */
-    public VideoRenderer(VideoFormat format, Consumer imageConsumer) {
+    public VideoRenderer(VideoFormat format, Consumer<Image> imageConsumer) {
         mFormat = format;
-        mImageConsumer = imageConsumer;
-        initialize();
+        mImageConsumer = imageConsumer; 
     }
 
     public void initialize() {
+        // initialize receiver lines
         mImageLine = new StreamLine<>();
         mAudioLine = new StreamLine<>();
+        // intialize clients
         mImageClient = new StreamClient(mFormat.getImageAddress(), mImageLine, ConnectFor.IMAGE);
         mAudioClient = new StreamClient(mFormat.getAudioAddress(), mAudioLine, ConnectFor.AUDIO);
-
         // setup audio
         try {
             mSourceInfo = new DataLine.Info(SourceDataLine.class, mFormat.getAudioFormat());
             mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
             mSourceLine.open(mFormat.getAudioFormat());
         } catch (Exception ex) {
-            Logs.error("Failed to initialize speaker", ex);
+            Logs.error("Failed to initialize speaker");
         }
-
         // setup video
         try {
-
+            // nothing to setup yet
         } catch (Exception ex) {
-            Logs.error("Failed to initialize image-view", ex);
+            Logs.error("Failed to initialize image viewer");
         }
     }
 
     public void start() {
+        // start stream server
+        mImageClient.connect();
+        mAudioClient.connect();
         // set start time of capturing
         mStartTime = System.nanoTime();
         // setup and start audio thread
@@ -95,11 +97,8 @@ public final class VideoRenderer {
             mVideoThread.setPriority(7);
             mVideoThread.setDaemon(true);
             mImageLine.setStart(mStartTime);
-            mVideoThread.start();
+            mVideoThread.start();            
         }
-        // start stream server
-        mImageClient.connect();
-        mAudioClient.connect();
     }
 
     public void stop() {
@@ -123,7 +122,7 @@ public final class VideoRenderer {
             ImageFrame imgFrame = mImageLine.pop();
             Image image = imgFrame.getImage();
             Platform.runLater(() -> {
-                mImageConsumer.accept(image);
+                mImageConsumer.accept(image); 
             });
         }
     }

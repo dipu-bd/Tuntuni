@@ -17,21 +17,17 @@ package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.Logs;
 
 /**
  *
  */
 public final class VideoCapturer {
-
-    private static final Logger logger = Logger.getGlobal();
 
     private VideoFormat mFormat;
     private StreamLine<ImageFrame> mImageLine;
@@ -39,35 +35,34 @@ public final class VideoCapturer {
     private StreamServer<ImageFrame> mImageServer;
     private StreamServer<AudioFrame> mAudioServer;
 
-    private long mStartTime;
     private Webcam mWebcam;
-    private DataLine.Info mTargetInfo;
-    private TargetDataLine mTargetLine;
+    private long mStartTime;
     private Thread mAudioThread;
     private Thread mVideoThread;
+    private DataLine.Info mTargetInfo;
+    private TargetDataLine mTargetLine;
 
     public VideoCapturer() {
         this(new VideoFormat());
     }
 
     public VideoCapturer(VideoFormat format) {
-        mFormat = format;
-        initialize();
+        mFormat = format;  
     }
 
     public void initialize() {
+        
+        // initialize stream lines
         mImageLine = new StreamLine<>();
         mAudioLine = new StreamLine<>();
-        mImageServer = new StreamServer(mImageLine, ConnectFor.IMAGE);
-        mAudioServer = new StreamServer(mAudioLine, ConnectFor.AUDIO);
-
+        
         // setup audio
         try {
             mTargetInfo = new DataLine.Info(TargetDataLine.class, mFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
             mTargetLine.open(mFormat.getAudioFormat());
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Failed to initialize microphone", ex);
+            Logs.error("Failed to initialize microphone");
         }
 
         // setup video
@@ -75,8 +70,13 @@ public final class VideoCapturer {
             mWebcam = Webcam.getDefault();
             mWebcam.setViewSize(mFormat.getViewSize());
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Failed to initialize webcam", ex);
+            Logs.error("Failed to initialize webcam");
         }
+        
+        // initialize servers
+        mImageServer = new StreamServer("Image Server", mImageLine, ConnectFor.IMAGE);
+        mAudioServer = new StreamServer("Audio Server", mAudioLine, ConnectFor.AUDIO);
+
     }
 
     public void start() {

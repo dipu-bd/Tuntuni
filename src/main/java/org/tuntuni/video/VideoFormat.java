@@ -48,12 +48,12 @@ public class VideoFormat implements Externalizable {
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
     private boolean mBigEndian = true;
 
+    // inetAddress - where to fetch for data 
+    private String mInetAddress = "localhost";
     // imagePort - port where image server is running
     private int mImagePort;
     // audioPort - where audio server is running
     private int mAudioPort;
-    // inetAddress - where to fetch for data 
-    private String mInetAddress;
 
     public VideoFormat() {
 

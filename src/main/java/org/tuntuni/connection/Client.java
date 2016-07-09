@@ -109,7 +109,7 @@ public class Client extends AbstractClient {
 
     // not required 
     @Override
-    void socketReceived(ObjectInput oi, ObjectOutput oo, Socket socket) throws IOException {
+    void socketReceived(ObjectOutput oo, ObjectInput oi, Socket socket) throws IOException {
 
     }
 

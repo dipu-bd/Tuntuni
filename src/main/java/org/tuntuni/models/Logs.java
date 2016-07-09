@@ -52,8 +52,8 @@ public abstract class Logs {
             STREAM_ILLEGAL_ACCESS = "This is {0} server. Can not accept {1} requests.",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
-
-    public static void log(Level level, String message, Object... data) {
+ 
+    public static void log(Level level, String message, Object... data) { 
         logger.log(level, message, data);
     }
 

@@ -30,6 +30,7 @@ import org.tuntuni.video.StreamLine;
 
 /**
  * To listen and respond to clients sockets.
+ *
  * @param <T>
  */
 public class StreamServer<T extends DataFrame> extends AbstractServer {
@@ -45,10 +46,12 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
      * server by {@linkplain initialize()} first, then call {@linkplain start()}
      * to run server.</p>
      *
+     * @param name Name of the server
      * @param line Line to use to write data from
+     * @param serverFor Type of data this server accepts
      */
-    public StreamServer(StreamLine<T> line, ConnectFor serverFor) {
-        super("Stream Server", null);
+    public StreamServer(String name, StreamLine<T> line, ConnectFor serverFor) {
+        super(name, null);
         mLine = line;
         mServerFor = serverFor;
     }
@@ -74,10 +77,8 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
                 oos.flush();
             }
 
-            // continue data passing 
-            while (true) {
-                readAndWrite(ois, oos);
-            }
+            // continue data passing  
+            readAndWrite(ois, oos);
 
         } catch (IOException ex) {
             //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
@@ -88,16 +89,19 @@ public class StreamServer<T extends DataFrame> extends AbstractServer {
 
     // read and write single data
     boolean readAndWrite(ObjectInput oi, ObjectOutput oo) throws IOException {
-        // read current time
-        long time = oi.readLong();
-        // write data frame
-        DataFrame data = mLine.pop();
-        while (data.getTime() < time) {
-            data = mLine.pop();
+        while (isOpen()) {
+            // read current time
+            long time = oi.readLong();
+            System.out.println("Request received at " + time); 
+            // write data frame
+            DataFrame data = mLine.pop();
+            while (data.getTime() < time) {
+                data = mLine.pop();
+            }
+            oo.writeObject(data);
+            // don't forget to flush
+            oo.flush();
         }
-        oo.writeObject(data);
-        // don't forget to flush
-        oo.flush();
         return true;
     }
 

@@ -21,7 +21,6 @@ import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.DataFrame;
@@ -58,7 +57,8 @@ public class StreamClient<T extends DataFrame> extends AbstractClient {
      * for.
      */
     public void connect() {
-        super.connect(mClientFor);
+        System.out.println("Connecting with server for " + mClientFor);
+        new Thread(() -> super.connect(mClientFor)).start();
     }
 
     /**
@@ -76,16 +76,13 @@ public class StreamClient<T extends DataFrame> extends AbstractClient {
 
     // do something with the opened socket 
     @Override
-    void socketReceived(ObjectInput oi, ObjectOutput oo, Socket socket) throws IOException {
-        boolean isok = oi.readBoolean();
-        if (!isok) {
-            return;
-        }
+    void socketReceived(ObjectOutput oo, ObjectInput oi, Socket socket) throws IOException {
         mSocket = socket;
-
-        while (!socket.isClosed()) {
+        while (!mSocket.isClosed()) {
             try {
-                oo.writeLong(System.currentTimeMillis() - mLine.getStart());
+                long time = System.nanoTime() - mLine.getStart();
+                System.out.println("Requesting for data at " + time);
+                oo.writeLong(time);
                 oo.flush();
 
                 DataFrame frame = (DataFrame) oi.readObject();
