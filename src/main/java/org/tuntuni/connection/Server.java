@@ -54,6 +54,8 @@ public class Server extends AbstractServer {
                 return profile(from);
             case MESSAGE: // a message arrived
                 return message(from, data);
+            case FORMAT:
+                return format(from);
         }
         return null;
     }
@@ -91,5 +93,22 @@ public class Server extends AbstractServer {
             return false;
         }
     }
-
+    
+    public Object format(Socket from) {
+         try {
+            // sender's address
+            String remote = SocketUtils.getRemoteHost(from);
+            // get client
+            Client client = Core.instance().subnet().getClient(remote);
+            if(client == null) return false;            
+            // start call
+            Core.instance().main().selectVideoCall();
+            Core.instance().videocall().setClient(client);
+            return Core.instance().videocall().acceptCall();            
+            
+        } catch (Exception ex) {
+            // response failure
+            return null;
+        }
+    }
 }

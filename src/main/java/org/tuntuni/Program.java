@@ -67,7 +67,7 @@ public class Program extends Application {
         });
         
         // display the stage
-        stage.setMaximized(true);
+        //stage.setMaximized(true);
         stage.show();        
     }
 

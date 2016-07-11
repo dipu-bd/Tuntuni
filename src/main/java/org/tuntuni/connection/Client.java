@@ -28,6 +28,7 @@ import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.UserData;
+import org.tuntuni.video.VideoFormat;
 
 /**
  * Extended by client. It separates data part of client from its connection
@@ -105,6 +106,15 @@ public class Client extends AbstractClient {
     public boolean sendMessage(Message toSent) {
         Object result = request(ConnectFor.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
+    }
+    
+    /**
+     * Starts a video call and gets the video format other user might send
+     * @return 
+     */
+    public VideoFormat getFormat() {
+        Object result = request(ConnectFor.FORMAT);
+        return (VideoFormat) result;
     }
 
     // not required 
