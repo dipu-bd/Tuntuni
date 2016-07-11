@@ -78,6 +78,7 @@ public class Server extends AbstractServer {
             String remote = SocketUtils.getRemoteHost(from);
             // get client
             Client client = Core.instance().subnet().getClient(remote);
+            if(client == null) return false;            
             // add this message
             client.addMessage(message);
             message.setReceiver(true);
@@ -86,7 +87,6 @@ public class Server extends AbstractServer {
             return true;
 
         } catch (Exception ex) {
-            ex.printStackTrace();
             // response failure
             return false;
         }
