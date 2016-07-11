@@ -75,10 +75,14 @@ public class VideoCallController implements Initializable {
                 .getResourceAsStream("/img/calling.gif")));
 
         mImage.addListener((ov, n, o) -> {
-            BackgroundImage bgImg = new BackgroundImage(mImage.getValue(),
-                    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
-            viewPane.setBackground(new Background(bgImg));
+            if (mImage.getValue() == null) {
+                viewPane.setBackground(null);
+            } else {
+                BackgroundImage bgImg = new BackgroundImage(mImage.getValue(),
+                        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
+                viewPane.setBackground(new Background(bgImg));
+            }
         });
     }
 
@@ -139,7 +143,7 @@ public class VideoCallController implements Initializable {
             userFormat.setInetAddress(mClient.getHostString());
             mRenderer = new VideoRenderer(userFormat, (img) -> {
                 mImage.setValue(img);
-            });            
+            });
             mRenderer.initialize();
             mRenderer.start();
 
