@@ -75,7 +75,7 @@ public class Server extends AbstractServer {
             // get message
             Message message = Message.class.cast(data[0]);
             // sender's address
-            String remote = SocketUtils.getRemoteHost(from);
+            String remote = SocketUtils.getRemoteHost(from); 
             // get client
             Client client = Core.instance().subnet().getClient(remote);
             // add this message

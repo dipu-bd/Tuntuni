@@ -24,12 +24,16 @@ import java.util.LinkedList;
  */
 public class StreamLine<T extends DataFrame> {
 
+    public static final int DEFAULT_BUFFER_SIZE = 100;
+
     private long mStart;
     private final LinkedList<T> mData;
+    private int mBufferSize;
 
     public StreamLine() {
         mStart = 0;
         mData = new LinkedList<>();
+        mBufferSize = DEFAULT_BUFFER_SIZE;
     }
 
     /**
@@ -42,7 +46,8 @@ public class StreamLine<T extends DataFrame> {
     }
 
     /**
-     * Sets the start time of first push to this data line. 
+     * Sets the start time of first push to this data line.
+     *
      * @param time
      */
     public void setStart(long time) {
@@ -59,18 +64,35 @@ public class StreamLine<T extends DataFrame> {
     }
 
     /**
+     * Gets the current buffer size. It is the number of maximum data frames
+     * this stream line should hold before deleting the earlier ones.
+     *
+     * @return
+     */
+    public int getBufferSize() {
+        return mBufferSize;
+    }
+
+    /**
+     * Sets the current buffer size. It is the number of maximum data frames
+     * this stream line should hold before deleting the earlier ones.
+     *
+     * @param bufferSize
+     */
+    public void setBufferSize(int bufferSize) {
+        mBufferSize = bufferSize;
+    }
+
+    /**
      * Block until at least one input has received.
      *
      * @return
      */
     public T pop() {
-        // block until one data is present
-        int test = 0;
-        while (getData().isEmpty()) { // data must exists
-            // remove the expired data
-            test++;
+        // data must exists
+        while (getData().isEmpty()) {
+            // block until one data is present 
         }
-        System.out.println("++POP_TEST = " + test);
         // send the data
         return mData.removeFirst();
     }
@@ -84,6 +106,9 @@ public class StreamLine<T extends DataFrame> {
     public void push(long time, T data) {
         data.setTime(time - mStart);
         getData().addLast(data);
+        if (mData.size() > mBufferSize) {
+            mData.removeFirst();
+        }
         //System.out.println("Data arrived at : "
         //        + (time - mStart) / 1e6 + " : " + data.connectedFor());
     }

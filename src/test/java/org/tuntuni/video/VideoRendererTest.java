@@ -41,8 +41,8 @@ public class VideoRendererTest {
         VideoFormat format = new VideoFormat();
         format.setInetAddress("localhost");
         
-        format.setImagePort(56833);
-        format.setAudioPort(56834);
+        format.setImagePort(34218);
+        format.setAudioPort(43853);
         
         instance = new VideoRenderer(format, (Image t) -> {
             System.out.println("Image received: " + t.getWidth() + " " + t.getHeight());
@@ -67,7 +67,7 @@ public class VideoRendererTest {
     @Test
     public void testStop() throws InterruptedException {
         System.out.println("connecting"); 
-        Thread.sleep(5_000);
+        Thread.sleep(15_000);
     }
 
 }

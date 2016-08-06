@@ -80,7 +80,7 @@ public class StreamClient<T extends DataFrame> extends AbstractClient {
         mSocket = socket;
         while (!mSocket.isClosed()) {
             try {
-                long time = System.nanoTime() - mLine.getStart();
+                long time = 0; //System.nanoTime() - mLine.getStart();
                 System.out.println("Requesting for data at " + time);
                 oo.writeLong(time);
                 oo.flush();

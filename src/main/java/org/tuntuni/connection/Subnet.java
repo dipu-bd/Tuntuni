@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -35,6 +36,7 @@ import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.SocketUtils;
 
@@ -42,6 +44,8 @@ import org.tuntuni.util.SocketUtils;
  * Search all subnet masks for active users and update user-list periodically.
  */
 public class Subnet {
+
+    private final boolean TEST_MODE = true;
 
     // logger
     private static final Logger logger = Logger.getGlobal();
@@ -208,6 +212,10 @@ public class Subnet {
                     String host = SocketUtils.addressAsString(ip);
                     taskList.add(checkAddress(host, false));
                 }
+
+                if (TEST_MODE) {
+                    testMode(address.getHostAddress());
+                }
             });
 
             // wait until all tasks are done    
@@ -233,10 +241,11 @@ public class Subnet {
             // try new connection with the server 
             int i = Server.PORTS.length - 1;
             for (; i >= 0; --i) {
+
                 Client sub = new Client(
                         new InetSocketAddress(address, Server.PORTS[i]));
                 if (sub.checkServer()) {
-                    addUser(sub);   // new connection
+                    addUser(sub);   // new connection 
                     break;
                 }
             }
@@ -263,4 +272,19 @@ public class Subnet {
         });
     }
 
+    private void testMode(String ip) {
+        int port = Core.instance().server().getPort();
+        int i = Server.PORTS.length - 1;
+        for (; i >= 0; --i) {
+            if (Server.PORTS[i] == port) {
+                continue;
+            }
+            Client sub = new Client(
+                    new InetSocketAddress(ip, Server.PORTS[i]));
+            if (sub.checkServer()) {
+                addUser(sub);   // new connection 
+                return;
+            }
+        }
+    }
 }

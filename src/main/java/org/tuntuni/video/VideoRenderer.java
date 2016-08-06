@@ -51,7 +51,7 @@ public final class VideoRenderer {
      */
     public VideoRenderer(VideoFormat format, Consumer<Image> imageConsumer) {
         mFormat = format;
-        mImageConsumer = imageConsumer; 
+        mImageConsumer = imageConsumer;
     }
 
     public void initialize() {
@@ -97,7 +97,7 @@ public final class VideoRenderer {
             mVideoThread.setPriority(7);
             mVideoThread.setDaemon(true);
             mImageLine.setStart(mStartTime);
-            mVideoThread.start();            
+            mVideoThread.start();
         }
     }
 
@@ -118,11 +118,14 @@ public final class VideoRenderer {
     }
 
     private void videoRunner() {
+        if (mImageConsumer == null) {
+            return;
+        }
         while (mImageClient.isConnected()) {
             ImageFrame imgFrame = mImageLine.pop();
             Image image = imgFrame.getImage();
             Platform.runLater(() -> {
-                mImageConsumer.accept(image); 
+                mImageConsumer.accept(image);
             });
         }
     }

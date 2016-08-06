@@ -18,7 +18,6 @@ package org.tuntuni.video;
 import java.io.File;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,9 +28,7 @@ import org.junit.Test;
  * @author Sudipto Chandra
  */
 public class VideoCapturerTest {
-
-    static final File savePath = FileUtils.getFile(System.getProperty("user.home"), "/Desktop/video-test");
-
+ 
     VideoCapturer instance;
 
     public VideoCapturerTest() {
