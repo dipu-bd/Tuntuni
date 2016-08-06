@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
@@ -50,6 +51,11 @@ public class MessagingController implements Initializable {
     private ListView messageList;
     @FXML
     private Label errorLabel;
+    @FXML
+    private Label userName;
+    @FXML
+    private ImageView userPhoto;
+
 
     private final double MINIMUM_HEIGHT = 70D;
     private final double MAXIMUM_HEIGHT = 150D;
@@ -70,7 +76,16 @@ public class MessagingController implements Initializable {
     private void loadAll() {
         errorLabel.setText("");
         messageText.clear();
-        messageList.getItems().clear();
+        
+        // load user name and avatar 
+        if(mClient != null && mClient.getUserData() != null) {
+            userName.setVisible(true);
+            userName.setText(mClient.getUserData().getUserName());
+            userPhoto.setImage(mClient.getUserData().getAvatar(
+                    userPhoto.getFitWidth(), userPhoto.getFitHeight()));
+        } else {
+            userName.setVisible(false);
+        }
 
         // load list of past messages
         messageList.getItems().clear();

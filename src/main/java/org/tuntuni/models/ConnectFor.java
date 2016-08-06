@@ -28,9 +28,11 @@ public enum ConnectFor {
     // to pass a single message
     MESSAGE(3),
     // to pass audio 
-    AUDIO(4),
+    AUDIO(4),    
     // to pass video 
-    IMAGE(5);
+    IMAGE(5),
+    // to pass video format
+    FORMAT(6);
 
     private final int mData;
 

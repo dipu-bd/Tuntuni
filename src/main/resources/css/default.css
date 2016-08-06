@@ -115,3 +115,11 @@
 #message-receiver .image-view {
     -fx-fit-width: 0;
 }
+
+.videocall-button{
+    -fx-cursor: hand;
+    -fx-background-color: rgba(90,90,100,0.4);
+}
+.videocall-button:hover {
+    -fx-background-color: rgba(90,90,100,0.8);
+}

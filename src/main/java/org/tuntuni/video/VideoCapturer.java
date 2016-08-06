@@ -47,15 +47,15 @@ public final class VideoCapturer {
     }
 
     public VideoCapturer(VideoFormat format) {
-        mFormat = format;  
+        mFormat = format;
     }
 
     public void initialize() {
-        
+
         // initialize stream lines
         mImageLine = new StreamLine<>();
         mAudioLine = new StreamLine<>();
-        
+
         // setup audio
         try {
             mTargetInfo = new DataLine.Info(TargetDataLine.class, mFormat.getAudioFormat());
@@ -72,7 +72,7 @@ public final class VideoCapturer {
         } catch (Exception ex) {
             Logs.error("Failed to initialize webcam");
         }
-        
+
         // initialize servers
         mImageServer = new StreamServer("Image Server", mImageLine, ConnectFor.IMAGE);
         mAudioServer = new StreamServer("Audio Server", mAudioLine, ConnectFor.AUDIO);
@@ -99,8 +99,12 @@ public final class VideoCapturer {
             mVideoThread.start();
         }
         // start stream server
-        mImageServer.start();
-        mAudioServer.start();
+        if (mImageServer != null) {
+            mImageServer.start();
+        }
+        if (mAudioServer != null) {
+            mAudioServer.start();
+        }
 
     }
 
@@ -116,8 +120,12 @@ public final class VideoCapturer {
             mVideoThread.interrupt();
         }
         // close server
-        mImageServer.stop();
-        mAudioServer.stop();
+        if (mImageServer != null) {
+            mImageServer.stop();
+        }
+        if (mAudioServer != null) {
+            mAudioServer.stop();
+        }
     }
 
     private void videoRunner() {
@@ -152,4 +160,11 @@ public final class VideoCapturer {
         }
     }
 
+    public int getAudioPort() {
+        return mAudioServer.getPort();
+    }
+
+    public int getImagePort() {
+        return mImageServer.getPort();
+    }
 }
