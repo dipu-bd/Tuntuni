@@ -25,6 +25,7 @@ import org.tuntuni.controllers.MainController;
 import org.tuntuni.controllers.MessagingController;
 import org.tuntuni.controllers.ProfileController;
 import org.tuntuni.controllers.VideoCallController;
+import org.tuntuni.video.Dialer;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -63,6 +64,10 @@ public final class Core {
     private final Server mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
+    // multicast server
+    private MulticastServer mSubnetServer;
+    // dialer
+    private Dialer mDialer;
     // data  
     private final UserProfile mUser;
     // controllers
@@ -70,8 +75,6 @@ public final class Core {
     private VideoCallController mVideoCall;
     private MessagingController mMessaging;
     private ProfileController mProfile;
-    // multicast server
-    private MulticastServer mSubnetServer;
 
     // Creates a new context. hidden from public.
     private Core() {
@@ -80,7 +83,7 @@ public final class Core {
         mServer = new Server();
         mSubnet = new Subnet();
         mUser = new UserProfile();
-
+        mDialer = new Dialer();
         // create a listenner server for network discovery
         for (int port : PORTS) {
             try {
@@ -136,10 +139,18 @@ public final class Core {
      *
      * @return
      */
-    public MulticastServer finder() {
+    public MulticastServer scanner() {
         return mSubnetServer;
     }
 
+    /**
+     * Gets the dialer class for video calling
+     * @return 
+     */
+    public Dialer dialer() {
+        return mDialer;
+    }
+    
     /**
      * Sets the primary stage of the application.
      *

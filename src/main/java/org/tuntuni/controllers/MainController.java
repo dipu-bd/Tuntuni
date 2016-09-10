@@ -60,7 +60,7 @@ public class MainController implements Initializable {
         Core.instance().main(this);
 
         // listen to user list change
-        Core.instance().finder().userListProperty().addListener((ov, o, n)
+        Core.instance().scanner().userListProperty().addListener((ov, o, n)
                 -> Platform.runLater(() -> buildUserList()));
 
         Core.instance().user().usernameProperty().addListener(
@@ -89,7 +89,7 @@ public class MainController implements Initializable {
         // clear previous items
         userList.getItems().clear();
         // add all items 
-        for (Client client : Core.instance().finder().userListProperty().values()) {
+        for (Client client : Core.instance().scanner().userListProperty().values()) {
             // show client
             UserItem item = UserItem.createInstance(client);
             userList.getItems().add(item);

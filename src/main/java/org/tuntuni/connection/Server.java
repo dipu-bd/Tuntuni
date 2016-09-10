@@ -27,7 +27,7 @@ import org.tuntuni.util.SocketUtils;
  * Server from a client socket.
  */
 public class Server extends AbstractServer {
- 
+
     public Server() {
         super("Main Server", null);
     }
@@ -51,6 +51,8 @@ public class Server extends AbstractServer {
                 return message(from, data);
             case FORMAT:
                 return format(from);
+            case SLOT:
+                return slot(from);
         }
         return null;
     }
@@ -60,7 +62,7 @@ public class Server extends AbstractServer {
     }
 
     // what to do when ConnectFor.PROFILE getResponse arrived
-    public Object profile(Socket from) { 
+    public Object profile(Socket from) {
         return Core.instance().user().getData();
     }
 
@@ -69,11 +71,11 @@ public class Server extends AbstractServer {
         try {
             // get message
             Message message = Message.class.cast(data[0]);
-            // sender's address
-            String remote = SocketUtils.getRemoteHost(from); 
             // get client
-            Client client = Core.instance().finder().getClient(remote);
-            if(client == null) return false;            
+            Client client = Core.instance().scanner().getClient(from.getInetAddress());
+            if (client == null) {
+                return false;
+            }
             // add this message
             client.addMessage(message);
             message.setReceiver(true);
@@ -86,22 +88,38 @@ public class Server extends AbstractServer {
             return false;
         }
     }
-    
+
     public Object format(Socket from) {
-         try {
-            // sender's address
-            String remote = SocketUtils.getRemoteHost(from);
+        try {
             // get client
-            Client client = Core.instance().finder().getClient(remote);
-            if(client == null) return false;            
+            Client client = Core.instance().scanner().getClient(from.getInetAddress());
+            if (client == null) {
+                return false;
+            }
             // start call
             Core.instance().main().selectVideoCall();
             Core.instance().videocall().setClient(client);
-            return Core.instance().videocall().acceptCall();            
-            
+            return Core.instance().videocall().acceptCall();
+
         } catch (Exception ex) {
             // response failure
             return null;
+        }
+    }
+
+    public boolean slot(Socket from) {
+        try {
+            // get client
+            Client client = Core.instance().scanner().getClient(from.getInetAddress());
+            if (client == null) {
+                return false;
+            }
+            // start call
+            Core.instance().dialer().receiveClient(client);
+            return true;
+        } catch (Exception ex) {
+            // response failure
+            return false;
         }
     }
 }

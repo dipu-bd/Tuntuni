@@ -37,7 +37,7 @@ public class MulticastServer implements Runnable {
     private final int mPort;
     private Thread mServerThread;
     private DatagramSocket mSocket;
-    private final SimpleMapProperty<String, Client> mUserList;
+    private final SimpleMapProperty<Integer, Client> mUserList;
 
     /**
      * Creates a MulticastServer by given port to listen.
@@ -135,7 +135,7 @@ public class MulticastServer implements Runnable {
      *
      * @return
      */
-    public SimpleMapProperty<String, Client> userListProperty() {
+    public SimpleMapProperty<Integer, Client> userListProperty() {
         return mUserList;
     }
 
@@ -146,10 +146,8 @@ public class MulticastServer implements Runnable {
      * @param address Address of the user to search for
      * @return null if not found.
      */
-    public Client getClient(String address) {
-        synchronized (mUserList) {
-            return mUserList.get(address);
-        }
+    public Client getClient(InetAddress address) {
+        return mUserList.get(Commons.bytesToInt(address.getAddress()));
     }
 
     // add new client to the list
@@ -157,7 +155,7 @@ public class MulticastServer implements Runnable {
         new Thread(() -> {
             // check the server for connection status and profile information first
             client.checkServer();
-            mUserList.put(client.getHostString(), client);
+            mUserList.put(client.getIntegerAddress(), client);
         }).start();
     }
 }

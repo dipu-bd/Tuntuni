@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage; 
 import org.tuntuni.util.Commons;
+import static javafx.application.Application.launch;
 
 /**
  * The entry point of the application.

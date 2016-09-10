@@ -28,13 +28,17 @@ public enum ConnectFor {
     // to pass a single message
     MESSAGE(3),
     // to pass audio 
-    AUDIO(4),    
+    AUDIO(4),
     // to pass video 
     IMAGE(5),
     // to pass video format
     FORMAT(6),
     // to pass port number 
-    PORT(7);
+    PORT(7),
+    // to pass RTSP request
+    RTSPAddress(8),
+    // to occupy a call slot in client
+    SLOT(9);
 
     private final int mData;
 

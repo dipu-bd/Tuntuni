@@ -29,6 +29,7 @@ import java.net.Socket;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 
 /**
  * To manage connection with server sockets.
@@ -62,6 +63,15 @@ public abstract class AbstractClient {
      */
     public InetSocketAddress getAddress() {
         return mAddress;
+    }
+
+    /**
+     * Gets the IPV4 socket address associated with this client as integer.
+     *
+     * @return the socket address
+     */
+    public int getIntegerAddress() {
+        return Commons.bytesToInt(mAddress.getAddress().getAddress());
     }
 
     /**

@@ -177,4 +177,24 @@ public class Client extends AbstractClient {
         });
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // methods used in dialer 
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Request for a call slot 
+     * @return 
+     */
+    public boolean requestSlot() {
+        Object result = request(ConnectFor.SLOT);
+        return (result instanceof Boolean) ? (boolean) result : false;
+    }
+
+    /**
+     * Request for stream server Address 
+     * @return 
+     */
+    public String requestRTSPAddress() {
+        Object result = request(ConnectFor.RTSPAddress);
+        return result.toString();
+    }
 }
