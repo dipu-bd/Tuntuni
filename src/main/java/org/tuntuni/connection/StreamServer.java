@@ -49,22 +49,20 @@ public class StreamServer extends TCPServer {
     @Override
     void processSocket(Socket socket) {
 
-        try ( // DON'T CHANGE THE ORDER
-                InputStream in = socket.getInputStream();
+        try (InputStream in = socket.getInputStream();
                 ObjectInputStream ois = new ObjectInputStream(in);) {
-
+            
             while (true) {
-                try {
-                    // read all params
-                    processFrame((DataFrame) ois.readObject());
-                } catch (ClassNotFoundException ex) {
-                    Logs.error(getClass(), "Packet could not be recognized. ERROR: {0}.", ex);
-                    break;
-                }
+                // read all params
+                processFrame((DataFrame) ois.readObject());
             }
+            
+        } catch (ClassNotFoundException ex) {
+            Logs.error(getClass(), "Packet could not be recognized. ERROR: {0}.", ex);
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to process socket. ERROR: {0}", ex);
         }
+
     }
 
     void processFrame(DataFrame frame) {

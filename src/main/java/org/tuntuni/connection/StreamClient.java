@@ -15,11 +15,17 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.LinkedList;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.DataFrame;
 
@@ -33,11 +39,13 @@ public class StreamClient {
     public final int MAX_TOLERANCE = 40;
     public final int MAX_CONCURRENT_CONNECTION = 15;
 
+    private volatile boolean mOpen;
     private final InetSocketAddress mAddress;
     private int mFailCounter;
     private Socket mSocket;
     private OutputStream mOutput;
     private ObjectOutputStream mObjectOutput;
+    private LinkedList<DataFrame> mFrameToSend;
 
     /**
      * Creates a new Stream client.
@@ -47,30 +55,52 @@ public class StreamClient {
      */
     public StreamClient(InetAddress address, int port) {
         mFailCounter = 0;
+        mOpen = false;
+        mFrameToSend = new LinkedList<>();
         mAddress = new InetSocketAddress(address, port);
     }
 
     public void open() throws Exception {
-        try {
-            // create a socket
-            mSocket = new Socket();
-            mSocket.connect(mAddress, 1000);
-
-            mOutput = mSocket.getOutputStream();
-            mObjectOutput = new ObjectOutputStream(mOutput);
-
-        } catch (Exception ex) {
-            close();
-            throw ex;
+        mOpen = true;
+        // create a socket
+        try (Socket socket = new Socket()) {
+            // connect the socket with given address
+            socket.connect(mAddress, 1000);
+            writeLoop(socket);
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to open stream client. ERROR: {0}", ex);
         }
     }
 
     public void close() {
-        try {
-            mObjectOutput.close();
-            mOutput.close();
-            mSocket.close();
-        } catch (Exception ex) {
+        mOpen = false;
+        mFrameToSend.clear();
+    }
+
+    public void writeLoop(Socket socket) throws IOException {
+        
+        try ( // get all input streams from socket
+                OutputStream out = socket.getOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(out);) {
+
+            // write loop
+            while (mOpen) {
+                try {
+                    if (mFrameToSend.isEmpty()) {
+                        Thread.sleep(10);
+                        continue;
+                    }
+                    // send data
+                    oos.writeObject(mFrameToSend.removeFirst());
+                    oos.flush();
+                    out.flush();
+
+                    resetFailCounter();
+                } catch (InterruptedException | IOException ex) {
+                    increaseFailCounter();
+                }
+            }
+            
         }
     }
 
@@ -81,14 +111,7 @@ public class StreamClient {
      */
     public void sendFrame(final DataFrame frame) {
         if (!isOkay()) {
-            return;
-        }
-        try {
-            mObjectOutput.writeObject(frame);
-            resetFailCounter();
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Failed to send packet! {0}", ex);
-            increaseFailCounter();
+            mFrameToSend.addLast(frame);
         }
     }
 
