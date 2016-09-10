@@ -72,7 +72,7 @@ public class Server extends AbstractServer {
             // sender's address
             String remote = SocketUtils.getRemoteHost(from); 
             // get client
-            Client client = Core.instance().subnet().getClient(remote);
+            Client client = Core.instance().finder().getClient(remote);
             if(client == null) return false;            
             // add this message
             client.addMessage(message);
@@ -92,7 +92,7 @@ public class Server extends AbstractServer {
             // sender's address
             String remote = SocketUtils.getRemoteHost(from);
             // get client
-            Client client = Core.instance().subnet().getClient(remote);
+            Client client = Core.instance().finder().getClient(remote);
             if(client == null) return false;            
             // start call
             Core.instance().main().selectVideoCall();

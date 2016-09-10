@@ -18,10 +18,14 @@ package org.tuntuni.connection;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import javafx.beans.property.SimpleMapProperty;
+import javafx.collections.FXCollections;
 import org.tuntuni.Core;
 import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.DiscoveryData;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 
@@ -33,6 +37,7 @@ public class MulticastServer implements Runnable {
     private final int mPort;
     private Thread mServerThread;
     private DatagramSocket mSocket;
+    private final SimpleMapProperty<String, Client> mUserList;
 
     /**
      * Creates a MulticastServer by given port to listen.
@@ -41,7 +46,9 @@ public class MulticastServer implements Runnable {
      * @throws java.net.SocketException
      */
     public MulticastServer(int port) throws SocketException {
+
         mPort = port;
+        mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
         // bind a datagram socket to the given port address
         try {
@@ -52,52 +59,9 @@ public class MulticastServer implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
-        Logs.info(getClass(), "Listening for broadcast packets at {0}", mPort);
-
-        while (true) {
-            try {
-                // receive a packet
-                byte[] data = new byte[1];
-                DatagramPacket packet = new DatagramPacket(data, data.length);
-                mSocket.receive(packet);
-
-                Logs.info(getClass(), "Discovery packet received from: " + packet.getAddress().getHostAddress());
-
-                // convert data & check packet validity
-                ConnectFor state = ConnectFor.from(data[0]);
-                if (state != ConnectFor.PORT) {
-                    continue;
-                }
-
-                // send response packet
-                sendResponsePacket(packet);
-            } catch (Exception ex) {
-                Logs.error(getClass(), null, ex);
-            }
-        }
-    }
-
-    // called from the run() function
-    private void sendResponsePacket(DatagramPacket packet) {
-        try {
-            // send response
-            byte[] sendData = Commons.intToBytes(Core.instance().server().getPort());
-
-            //Send a response
-            DatagramPacket sendPacket = new DatagramPacket(
-                    sendData, sendData.length, packet.getAddress(), packet.getPort());
-            mSocket.send(sendPacket);
-
-            Logs.info(getClass(), "Response sent to {0}", packet.getAddress());
-
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Failed to send reponse", ex);
-        }
-
-    }
-
+    ////////////////////////////////////////////////////////////////////////////
+    // MOST IMPORTANT: Start or stop subnet scans
+    ////////////////////////////////////////////////////////////////////////////  
     /**
      * Starts the server thread.
      */
@@ -122,5 +86,78 @@ public class MulticastServer implements Runnable {
         } catch (Exception ex) {
             Logs.severe("Failed to STOP multicast server.", ex);
         }
+    }
+
+    @Override
+    public void run() {
+        Logs.info(getClass(), "Listening for broadcast packets at {0}", mPort);
+
+        while (true) {
+            try {
+                // receive a packet
+                byte[] data = Commons.toBytes(new DiscoveryData());
+                DatagramPacket packet = new DatagramPacket(data, data.length);
+                mSocket.receive(packet);
+
+                // convert response data
+                DiscoveryData dd = Commons.fromBytes(data, DiscoveryData.class);
+                if (dd == null || dd.getConnectFor() != ConnectFor.PORT) {
+                    continue;
+                }
+
+                // We have a response
+                Logs.info(getClass(), "Broadcast packet from server: {0}. Response = {1}",
+                        packet.getAddress().getHostAddress(), dd.getPort());
+
+                // check validity of the address
+                if (dd.getPort() == Core.instance().server().getPort()
+                        && Core.instance().subnet().isLocalhost(packet.getAddress().getHostAddress())) {
+                    continue;
+                }
+
+                // add new client
+                addUser(new Client(new InetSocketAddress(packet.getAddress(), dd.getPort())));
+
+            } catch (Exception ex) {
+                Logs.error(getClass(), "Error processing multicast socket {0}", ex);
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Properties  and other public methods
+    ////////////////////////////////////////////////////////////////////////////     
+    /**
+     * Gets the read-only user list property.
+     * <p>
+     * You can bind or attach listener to this property, but since it is
+     * readonly, you can not change the values.</p>
+     *
+     * @return
+     */
+    public SimpleMapProperty<String, Client> userListProperty() {
+        return mUserList;
+    }
+
+    /**
+     * Search for the user client on the user list and returns the client if
+     * found, otherwise a null value is returned
+     *
+     * @param address Address of the user to search for
+     * @return null if not found.
+     */
+    public Client getClient(String address) {
+        synchronized (mUserList) {
+            return mUserList.get(address);
+        }
+    }
+
+    // add new client to the list
+    private void addUser(Client client) {
+        new Thread(() -> {
+            // check the server for connection status and profile information first
+            client.checkServer();
+            mUserList.put(client.getHostString(), client);
+        }).start();
     }
 }

@@ -25,7 +25,7 @@
         <repository>
             <id>forplay-legacy</id>
             <url>http://forplay.googlecode.com/svn/mavenrepo</url>
-        </repository>
+        </repository>  
     </repositories>
     
     <dependencies> 
@@ -59,7 +59,7 @@
             <groupId>com.github.sarxos</groupId>
             <artifactId>webcam-capture</artifactId>
             <version>0.3.11</version>
-        </dependency> 
+        </dependency>  
     </dependencies>
 
     <build>

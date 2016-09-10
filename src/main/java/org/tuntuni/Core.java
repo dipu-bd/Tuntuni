@@ -46,7 +46,9 @@ public final class Core {
     };
 
     // instance of context
-    private static final Core mInstance = new Core();
+    private static class CoreHolder {
+        public static final Core INSTANCE = new Core(); 
+    }
 
     /**
      * Gets an instance of this class.
@@ -54,7 +56,7 @@ public final class Core {
      * @return
      */
     public static final Core instance() {
-        return mInstance;
+        return CoreHolder.INSTANCE;
     }
 
     // private variables
@@ -127,6 +129,15 @@ public final class Core {
      */
     public Subnet subnet() {
         return mSubnet;
+    }
+
+    /**
+     * Get instance of the subnet discovery server
+     *
+     * @return
+     */
+    public MulticastServer finder() {
+        return mSubnetServer;
     }
 
     /**

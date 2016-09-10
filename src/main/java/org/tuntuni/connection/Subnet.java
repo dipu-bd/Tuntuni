@@ -19,7 +19,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
@@ -27,10 +26,8 @@ import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javafx.beans.property.SimpleMapProperty;
-import javafx.collections.FXCollections;
 import org.tuntuni.Core;
-import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.DiscoveryData;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 
@@ -45,43 +42,13 @@ public class Subnet {
     private DatagramSocket mSocket;
     private final ScheduledExecutorService mSchedular;
     private final HashSet<String> myAddress;
-    private final SimpleMapProperty<String, Client> mUserList;
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
         myAddress = new HashSet<>();
-        mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
         mSchedular = Executors.newSingleThreadScheduledExecutor();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Properties and public methods
-    ////////////////////////////////////////////////////////////////////////////     
-    /**
-     * Gets the read-only user list property.
-     * <p>
-     * You can bind or attach listener to this property, but since it is
-     * readonly, you can not change the values.</p>
-     *
-     * @return
-     */
-    public SimpleMapProperty<String, Client> userListProperty() {
-        return mUserList;
-    }
-
-    /**
-     * Search for the user client on the user list and returns the client if
-     * found, otherwise a null value is returned
-     *
-     * @param address Address of the user to search for
-     * @return null if not found.
-     */
-    public Client getClient(String address) {
-        synchronized (mUserList) {
-            return mUserList.get(address);
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -125,9 +92,6 @@ public class Subnet {
                 checkNetworkInterface(ne.nextElement());
             }
             Logs.info(getClass(), Logs.SUBNET_SCAN_SUCCESS);
-
-            // Wait for a response
-            recieveBroadcastResponse();
 
             // Close the socket!
             mSocket.close();
@@ -184,7 +148,8 @@ public class Subnet {
             myAddress.add(ia.getAddress().getHostAddress());
 
             // data to send
-            byte[] sendData = {ConnectFor.PORT.data()};
+            DiscoveryData dd = new DiscoveryData(Core.instance().server().getPort());
+            byte[] sendData = Commons.toBytes(dd);
 
             // Send the broadcast package!
             for (int port : Core.PORTS) {
@@ -197,40 +162,23 @@ public class Subnet {
         }
     }
 
-    // recieve broadcast response and process it
-    private void recieveBroadcastResponse() {
-        try {
-            // recieve response
-            byte[] data = new byte[4];
-            DatagramPacket receivePacket = new DatagramPacket(data, data.length);
-            mSocket.receive(receivePacket);
-
-            // convert response data
-            int port = Commons.bytesToInt(data);
-
-            // We have a response
-            Logs.info(getClass(), "Broadcast response from server: {0}. Response = {1}",
-                    receivePacket.getAddress().getHostAddress(), port);
-
-            // check validity of the address
-            if (port == Core.instance().server().getPort()
-                    && myAddress.contains(receivePacket.getAddress().getHostAddress())) {
-                return;
-            }
-
-            // add new client
-            addUser(new Client(new InetSocketAddress(receivePacket.getAddress(), port)));
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Error recieving broadcast response: {0}", ex);
-        }
+    /**
+     * Checks if the given address is one of this PC's address
+     *
+     * @param address Address to check
+     * @return
+     */
+    public boolean isLocalhost(String address) {
+        return myAddress.contains(address);
     }
 
-    // add new client to the list
-    private void addUser(Client client) {
-        new Thread(() -> {
-            // check the server for connection status and profile information first
-            client.checkServer();
-            mUserList.put(client.getHostString(), client);
-        }).start();
+    /**
+     * Gets a list of all different addresses this PC has on different network
+     * interfaces.
+     *
+     * @return
+     */
+    public HashSet<String> getMyAddresses() {
+        return myAddress;
     }
 }

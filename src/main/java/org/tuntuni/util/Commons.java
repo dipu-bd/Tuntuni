@@ -18,7 +18,12 @@ package org.tuntuni.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import static java.lang.System.out;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -57,13 +62,14 @@ public class Commons {
 
         return control;
     }
-     /**
+
+    /**
      * Calculate the integer number from an array of bytes.
      * <p>
      * IPv4 address byte array must be 4 bytes long</p>
      *
      * @param bytes Array of bytes to convert.
-     * @return 
+     * @return
      */
     public static int bytesToInt(byte[] bytes) {
         return ByteBuffer.wrap(bytes).getInt();
@@ -79,6 +85,37 @@ public class Commons {
      */
     public static byte[] intToBytes(int number) {
         return ByteBuffer.allocate(4).putInt(number).array();
+    }
+
+    /**
+     * Convert any object to byte array
+     * @param obj
+     * @return 
+     */
+    public static byte[] toBytes(Object obj) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(obj);
+            return baos.toByteArray();
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the object from byte array
+     * @param <T>
+     * @param data
+     * @param expectedClass
+     * @return 
+     */
+    public static <T> T fromBytes(byte[] data, Class<T> expectedClass) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                ObjectInputStream ois = new ObjectInputStream(bais)) {
+            return expectedClass.cast(ois.readObject());
+        } catch (IOException | ClassNotFoundException ex) { 
+            return null;
+        }
     }
 
     public static byte[] imageToBytes(Image img) {
