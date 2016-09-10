@@ -72,9 +72,7 @@ public final class VideoStreamer {
         }
     }
 
-    public void start() throws Exception {
-        // start client
-        mClient.open();
+    public void start() throws Exception { 
         // setup and start audio thread
         if (mTargetLine != null) {
             mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
@@ -99,9 +97,7 @@ public final class VideoStreamer {
         if (mWebcam != null) {
             mWebcam.close();
             mVideoThread.interrupt();
-        }
-        // close clientt
-        mClient.close();
+        } 
     }
 
     private void imageRunner() {

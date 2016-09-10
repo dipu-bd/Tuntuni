@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.LinkedList;
-import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.DataFrame;
 
@@ -34,19 +33,12 @@ import org.tuntuni.video.DataFrame;
  * <p>
  * To connect with the server you have to call {@linkplain connect()}. </p>
  */
-public class StreamClient {
+public class StreamClient extends TCPClient {
 
     public final int MAX_TOLERANCE = 40;
     public final int MAX_CONCURRENT_CONNECTION = 15;
 
-    private volatile boolean mOpen;
-    private final InetSocketAddress mAddress;
     private int mFailCounter;
-    private Socket mSocket;
-    private OutputStream mOutput;
-    private ObjectOutputStream mObjectOutput;
-    private LinkedList<DataFrame> mFrameToSend;
-    private Thread mClientThread;
 
     /**
      * Creates a new Stream client.
@@ -55,72 +47,8 @@ public class StreamClient {
      * @param port
      */
     public StreamClient(InetAddress address, int port) {
+        super(new InetSocketAddress(address, port));
         mFailCounter = 0;
-        mOpen = false;
-        mFrameToSend = new LinkedList<>();
-        mAddress = new InetSocketAddress(address, port);
-    }
-
-    public void open() throws Exception {
-        mClientThread = new Thread(() -> connect());
-        mClientThread.setDaemon(true);
-        mClientThread.start();
-    }
-
-    public void close() {
-        mOpen = false;
-        mFrameToSend.clear();
-        mClientThread.interrupt();
-    }
-
-    public void connect() {
-        mOpen = true;
-        // create a socket
-        try (Socket socket = new Socket()) {
-            // connect the socket with given address
-            socket.connect(mAddress, 1000);
-            writeLoop(socket);
-
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to open stream client. ERROR: {0}", ex);
-        }
-    }
-
-    public void writeLoop(Socket socket) throws IOException {
-
-        try ( // get all input streams from socket
-                OutputStream out = socket.getOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(out);) {
-
-            // write loop
-            int sleepCount = 0;
-            while (mOpen) {
-                try {
-                    if (mFrameToSend.isEmpty()) {
-                        // wait a while and loop again
-                        Thread.sleep(20);
-                        ++sleepCount;
-                        // if no input for 10 second then break
-                        if (sleepCount > 500) {
-                            break;
-                        }
-                        continue;
-                    } 
-                    // reset sleep counter
-                    sleepCount = 0;
-                    // send data
-                    oos.writeObject(mFrameToSend.removeFirst());
-                    oos.flush();
-                    out.flush();
-                    // reset fail counter
-                    resetFailCounter();
-                } catch (InterruptedException | IOException ex) {
-                    // failure detected
-                    increaseFailCounter();
-                }
-            }
-
-        }
     }
 
     /**
@@ -130,7 +58,12 @@ public class StreamClient {
      */
     public void sendFrame(final DataFrame frame) {
         if (isOkay()) {
-            mFrameToSend.addLast(frame);
+            try {
+                request(frame.connectedFor(), frame);
+                resetFailCounter();
+            } catch (Exception ex) {
+                increaseFailCounter();
+            }
         }
     }
 
@@ -143,6 +76,6 @@ public class StreamClient {
     }
 
     public boolean isOkay() {
-        return mFailCounter <= MAX_TOLERANCE && mSocket != null && mSocket.isConnected();
+        return mFailCounter <= MAX_TOLERANCE;
     }
 }

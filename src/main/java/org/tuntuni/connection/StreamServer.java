@@ -45,26 +45,6 @@ public class StreamServer extends TCPServer {
         mImage = new SimpleObjectProperty<>(null);
     }
 
-    // process a selection key
-    @Override
-    void processSocket(Socket socket) {
-
-        try (InputStream in = socket.getInputStream();
-                ObjectInputStream ois = new ObjectInputStream(in);) {
-            
-            while (true) {
-                // read all params
-                processFrame((DataFrame) ois.readObject());
-            }
-            
-        } catch (ClassNotFoundException ex) {
-            Logs.error(getClass(), "Packet could not be recognized. ERROR: {0}.", ex);
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to process socket. ERROR: {0}", ex);
-        }
-
-    }
-
     void processFrame(DataFrame frame) {
         switch (frame.connectedFor()) {
             case AUDIO:
@@ -93,6 +73,7 @@ public class StreamServer extends TCPServer {
 
     @Override
     Object getResponse(ConnectFor status, Socket socket, Object[] data) {
+        processFrame((DataFrame) data[0]);
         return null;
     }
 }
