@@ -36,7 +36,7 @@ public enum ConnectFor {
     // to pass port number 
     PORT(7),
     // to pass RTSP request
-    RTSPAddress(8),
+    STREAM_PORT(8),
     // to occupy a call slot in client
     SLOT(9);
 

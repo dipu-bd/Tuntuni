@@ -18,9 +18,7 @@ package org.tuntuni.connection;
 import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -37,7 +35,7 @@ import org.tuntuni.util.Commons;
  * You can not create new client directly. To create a client use
  * {@linkplain Client.open()} method.</p>
  */
-public abstract class AbstractClient {
+public abstract class TCPClient {
 
     // to connect with server    
     private int mTimeout;
@@ -45,7 +43,7 @@ public abstract class AbstractClient {
     private final BooleanProperty mConnected;
 
     // hidesthe constructor and handle it with static open() method
-    public AbstractClient(InetSocketAddress socket, int timeout) {
+    public TCPClient(InetSocketAddress socket, int timeout) {
         mAddress = socket;
         mTimeout = timeout;
         mConnected = new SimpleBooleanProperty(false);
@@ -185,53 +183,10 @@ public abstract class AbstractClient {
             }
         } catch (ClassNotFoundException ex) {
             Logs.severe(Logs.SOCKET_CLASS_FAILED, ex);
-
         } catch (IOException ex) {
             //Logs.severe(null, ex);
         }
         return null;
     }
-
-    /**
-     * Just connect with the server with the status. This connection is
-     * keep-alive
-     *
-     * @param status
-     */
-    void connect(ConnectFor status) {
-        try (Socket socket = new Socket()) {
-            // connect the socket with given address
-            socket.connect(getAddress(), getTimeout());
-            socket.setKeepAlive(true);
-
-            try ( // get all input streams from socket
-                    OutputStream out = socket.getOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(out);
-                    InputStream in = socket.getInputStream();
-                    ObjectInputStream ois = new ObjectInputStream(in);) {
-
-                oos.write(status.data());
-                oos.flush();
-
-                if (!ois.readBoolean()) {
-                    Logs.warning("Connection was refused by the server");
-                } else {
-                    socketReceived(oos, ois, socket);
-                }
-            }
-        } catch (Exception ex) {
-            Logs.severe("Could not keep the {0} connection open.", status, ex);
-        }
-    }
-
-    /**
-     * To communicate between server and client. It is being called from inside
-     * of {@linkplain openConnection()} method.
-     *
-     * @param oi Input stream
-     * @param oo Output stream
-     * @throws ClassNotFoundException
-     */
-    abstract void socketReceived(ObjectOutput oo, ObjectInput oi, Socket socket) throws IOException;
-
+ 
 }

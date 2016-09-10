@@ -21,7 +21,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.net.InetSocketAddress;
 import javax.sound.sampled.AudioFormat;
 
 /**
@@ -48,15 +47,10 @@ public class VideoFormat implements Externalizable {
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
     private boolean mBigEndian = true;
 
-    // inetAddress - where to fetch for data 
-    private String mInetAddress = "localhost";
-    // imagePort - port where image server is running
-    private int mImagePort;
-    // audioPort - where audio server is running
-    private int mAudioPort;
+    // port where the server is running 
+    private int mPort;
 
     public VideoFormat() {
-
     }
 
     public VideoFormat(int width, int height, AudioFormat audio) {
@@ -96,8 +90,7 @@ public class VideoFormat implements Externalizable {
         oo.writeBoolean(mSigned);
         oo.writeBoolean(mBigEndian);
 
-        oo.writeShort((short) mImagePort);
-        oo.writeShort((short) mAudioPort);
+        oo.writeShort((short) mPort);
     }
 
     @Override
@@ -112,8 +105,7 @@ public class VideoFormat implements Externalizable {
         mSigned = oi.readBoolean();
         mBigEndian = oi.readBoolean();
 
-        mImagePort = oi.readShort();
-        mAudioPort = oi.readShort();
+        mPort = oi.readShort();
     }
 
     /**
@@ -242,35 +234,7 @@ public class VideoFormat implements Externalizable {
         this.mBigEndian = BigEndian;
     }
 
-    public int getImagePort() {
-        return mImagePort;
-    }
-
-    public void setImagePort(int imagePort) {
-        mImagePort = imagePort;
-    }
-
-    public int getAudioPort() {
-        return mAudioPort;
-    }
-
-    public void setAudioPort(int audioPort) {
-        mAudioPort = audioPort;
-    }
-
-    public String getIneteAddress() {
-        return mInetAddress;
-    }
-
-    public void setInetAddress(String ip) {
-        mInetAddress = ip;
-    }
-
-    public InetSocketAddress getImageAddress() {
-        return new InetSocketAddress(mInetAddress, mImagePort);
-    }
-
-    public InetSocketAddress getAudioAddress() {
-        return new InetSocketAddress(mInetAddress, mAudioPort);
+    public int getServerPort() {
+        return mPort;
     }
 }

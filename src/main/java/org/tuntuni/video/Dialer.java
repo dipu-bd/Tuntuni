@@ -18,6 +18,7 @@ package org.tuntuni.video;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.tuntuni.connection.Client;
+import org.tuntuni.connection.StreamServer;
 
 /**
  *
@@ -25,11 +26,14 @@ import org.tuntuni.connection.Client;
  */
 public class Dialer {
 
-    public Client mClient;
-    public BooleanProperty mSlot;
+    private Client mClient;
+    private BooleanProperty mSlot;
+    private StreamServer mServer;
+    private VideoCapturer mCapturer;
 
     public Dialer() {
         mSlot = new SimpleBooleanProperty(false);
+        mServer = new StreamServer();
     }
 
     public void dialClient(Client client) throws Exception {
@@ -45,12 +49,12 @@ public class Dialer {
         // start audio and video server
         startServer();
         // get stream server address of client
-        startClient(client.requestRTSPAddress());
+        startClient();
         // dispaly video
         displayVideo();
     }
 
-    public void receiveClient(Client client) throws Exception {
+    public void receiveCall(Client client) throws Exception {
         mClient = client;
         // check if my slot is available
         if (mSlot.get()) {
@@ -67,7 +71,7 @@ public class Dialer {
         // start audio and video server
         startServer();
         // get stream server address of client
-        startClient(client.requestRTSPAddress());
+        startClient();
         // display video
         displayVideo();
     }
@@ -87,6 +91,45 @@ public class Dialer {
         return true;
     }
 
+    public void startServer() throws Exception {
+        mServer.start();
+    }
+
+    public void stopServer() {
+        mCapturer.stop();
+    }
+
+    public void startClient() {
+        mCapturer = new VideoCapturer(mClient);
+        mCapturer.initialize();
+        mCapturer.start();
+    }
+
+    public void stopClient() {
+        if (mCapturer != null) {
+            mCapturer.stop();
+        }
+    }
+
+    public int getStreamPort(Client client) throws Exception {
+        // check slot avaiability
+        if (!mSlot.get()) {
+            throw new Exception("Not available");
+        }
+        // check client
+        if (client.getAddress() != mClient.getAddress()) {
+            throw new Exception("Client mismatch");
+        }
+        // wait atmost 10 sec until server is up.
+        for (int i = 0; i < 100; ++i) {
+            if (mServer.isRunning()) {
+                return mServer.getPort();
+            }
+            Thread.sleep(100);
+        }
+        return -1;
+    }
+
     public boolean acceptCallRequest() {
         return false;
     }
@@ -94,25 +137,4 @@ public class Dialer {
     public void displayVideo() {
 
     }
-
-    public void startServer() {
-
-    }
-
-    public void stopServer() {
-
-    }
-
-    public String getRTPAddress() {
-        return "";
-    }
-
-    public void startClient(String address) {
-
-    }
-
-    public void stopClient() {
-
-    }
-
 }

@@ -20,8 +20,8 @@ import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-import org.tuntuni.connection.StreamServer;
-import org.tuntuni.models.ConnectFor;
+import org.tuntuni.connection.Client;
+import org.tuntuni.connection.StreamClient;
 import org.tuntuni.models.Logs;
 
 /**
@@ -30,39 +30,31 @@ import org.tuntuni.models.Logs;
 public final class VideoCapturer {
 
     private VideoFormat mFormat;
-    private StreamLine<ImageFrame> mImageLine;
-    private StreamLine<AudioFrame> mAudioLine;
-    private StreamServer<ImageFrame> mImageServer;
-    private StreamServer<AudioFrame> mAudioServer;
+    private StreamClient mClient;
 
     private Webcam mWebcam;
-    private long mStartTime;
     private Thread mAudioThread;
     private Thread mVideoThread;
     private DataLine.Info mTargetInfo;
     private TargetDataLine mTargetLine;
 
-    public VideoCapturer() {
-        this(new VideoFormat());
-    }
-
-    public VideoCapturer(VideoFormat format) {
-        mFormat = format;
+    /**
+     * Creates a new video capturer instance
+     * @param client 
+     */
+    public VideoCapturer(Client client) {
+        mFormat = client.getFormat();
+        mClient = new StreamClient(client.getAddress().getAddress(), client.getStreamPort());
     }
 
     public void initialize() {
-
-        // initialize stream lines
-        mImageLine = new StreamLine<>();
-        mAudioLine = new StreamLine<>();
-
         // setup audio
         try {
             mTargetInfo = new DataLine.Info(TargetDataLine.class, mFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
             mTargetLine.open(mFormat.getAudioFormat());
         } catch (Exception ex) {
-            Logs.error("Failed to initialize microphone");
+            Logs.error(getClass(), "Failed to initialize microphone. ERROR: {0}", ex);
         }
 
         // setup video
@@ -70,42 +62,26 @@ public final class VideoCapturer {
             mWebcam = Webcam.getDefault();
             mWebcam.setViewSize(mFormat.getViewSize());
         } catch (Exception ex) {
-            Logs.error("Failed to initialize webcam");
+            Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }
-
-        // initialize servers
-        mImageServer = new StreamServer("Image Server", mImageLine, ConnectFor.IMAGE);
-        mAudioServer = new StreamServer("Audio Server", mAudioLine, ConnectFor.AUDIO);
-
     }
 
     public void start() {
-        // set start time of capturing
-        mStartTime = System.nanoTime();
+        // set start time of capturing 
         // setup and start audio thread
         if (mTargetLine != null) {
             mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
             mAudioThread.setPriority(6);
             mAudioThread.setDaemon(true);
-            mAudioLine.setStart(mStartTime);
             mAudioThread.start();
         }
         // setup and start video thread
         if (mWebcam != null) {
-            mVideoThread = new Thread(() -> videoRunner(), "videoRunner");
+            mVideoThread = new Thread(() -> imageRunner(), "videoRunner");
             mVideoThread.setPriority(7);
             mVideoThread.setDaemon(true);
-            mImageLine.setStart(mStartTime);
             mVideoThread.start();
         }
-        // start stream server
-        if (mImageServer != null) {
-            mImageServer.start();
-        }
-        if (mAudioServer != null) {
-            mAudioServer.start();
-        }
-
     }
 
     public void stop() {
@@ -119,27 +95,29 @@ public final class VideoCapturer {
             mWebcam.close();
             mVideoThread.interrupt();
         }
-        // close server
-        if (mImageServer != null) {
-            mImageServer.stop();
-        }
-        if (mAudioServer != null) {
-            mAudioServer.stop();
-        }
     }
 
-    private void videoRunner() {
+    private void imageRunner() {
         if (mWebcam == null) {
             return;
         }
+        // start image line
         mWebcam.open();
+        // run image capture loop
         while (mWebcam.isOpen()) {
-            long time = System.nanoTime();
+            // capture single image
             ByteBuffer bb = mWebcam.getImageBytes();
             if (bb == null) {
                 continue;
             }
-            mImageLine.push(time, new ImageFrame(bb));
+            // send image frame
+            new Thread(() -> {
+                mClient.sendPacket(new ImageFrame(bb));
+            }).start();
+            // check client is up
+            if (!mClient.isOkay()) {
+                break;
+            }
         }
     }
 
@@ -147,24 +125,25 @@ public final class VideoCapturer {
         if (mTargetLine == null) {
             return;
         }
+        // start target line
         mTargetLine.start();
         int buffer = mTargetLine.getBufferSize() / 10;
         byte[] data = new byte[buffer];
+        // run capture loop
         while (mTargetLine.isOpen()) {
-            long time = System.nanoTime();
+            // read audio
             int len = mTargetLine.read(data, 0, buffer);
             if (len == -1) {
                 break;
             }
-            mAudioLine.push(time, new AudioFrame(data, len));
+            // send audio frame
+            new Thread(() -> {
+                mClient.sendPacket(new AudioFrame(data, len));
+            }).start();
+            // check if client is up
+            if (!mClient.isOkay()) {
+                break;
+            }
         }
-    }
-
-    public int getAudioPort() {
-        return mAudioServer.getPort();
-    }
-
-    public int getImagePort() {
-        return mImageServer.getPort();
     }
 }

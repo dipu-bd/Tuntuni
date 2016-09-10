@@ -20,15 +20,14 @@ import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.models.Message;
-import org.tuntuni.util.SocketUtils;
 
 /**
- * Extended by Server. It provides functions to deal with a request arrived in
- * Server from a client socket.
+ * Extended by MainServer. It provides functions to deal with a request arrived
+ * in MainServer from a client socket.
  */
-public class Server extends AbstractServer {
+public class MainServer extends TCPServer {
 
-    public Server() {
+    public MainServer() {
         super("Main Server", null);
     }
 
@@ -53,6 +52,8 @@ public class Server extends AbstractServer {
                 return format(from);
             case SLOT:
                 return slot(from);
+            case STREAM_PORT:
+                return streamPort(from);
         }
         return null;
     }
@@ -73,23 +74,21 @@ public class Server extends AbstractServer {
             Message message = Message.class.cast(data[0]);
             // get client
             Client client = Core.instance().scanner().getClient(from.getInetAddress());
-            if (client == null) {
-                return false;
+            if (client != null) {
+                // add this message
+                message.setReceiver(true);
+                message.setClient(client);
+                message.setTime(new Date());
+                client.addMessage(message);
+                return true;
             }
-            // add this message
-            client.addMessage(message);
-            message.setReceiver(true);
-            message.setClient(client);
-            message.setTime(new Date());
-            return true;
-
         } catch (Exception ex) {
             // response failure
-            return false;
         }
+        return false;
     }
 
-    public Object format(Socket from) {
+    public Object slot(Socket from) {
         try {
             // get client
             Client client = Core.instance().scanner().getClient(from.getInetAddress());
@@ -97,29 +96,25 @@ public class Server extends AbstractServer {
                 return false;
             }
             // start call
-            Core.instance().main().selectVideoCall();
-            Core.instance().videocall().setClient(client);
-            return Core.instance().videocall().acceptCall();
+            Core.instance().dialer().receiveCall(client);
+            return true;
+        } catch (Exception ex) {
+            // response failure
+            return false;
+        }
+    }
 
+    public Object streamPort(Socket from) {
+        try {
+            // get client
+            Client client = Core.instance().scanner().getClient(from.getInetAddress());
+            if (client != null) {
+                return Core.instance().dialer().getStreamPort(client);
+            }
+            return -1;
         } catch (Exception ex) {
             // response failure
             return null;
-        }
-    }
-
-    public boolean slot(Socket from) {
-        try {
-            // get client
-            Client client = Core.instance().scanner().getClient(from.getInetAddress());
-            if (client == null) {
-                return false;
-            }
-            // start call
-            Core.instance().dialer().receiveClient(client);
-            return true;
-        } catch (Exception ex) {
-            // response failure
-            return false;
         }
     }
 }

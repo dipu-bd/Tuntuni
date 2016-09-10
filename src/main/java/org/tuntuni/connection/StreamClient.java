@@ -15,83 +15,93 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.logging.Level;
-import org.tuntuni.models.ConnectFor;
+import java.net.SocketException;
+import java.security.SecureRandom;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 import org.tuntuni.video.DataFrame;
-import org.tuntuni.video.StreamLine;
 
 /**
  * To manage connection with stream server sockets.
  * <p>
  * To connect with the server you have to call {@linkplain connect()}. </p>
- *
- * @param <T>
  */
-public class StreamClient<T extends DataFrame> extends AbstractClient {
+public class StreamClient {
 
-    private final ConnectFor mClientFor;
-    private final StreamLine<T> mLine;
-    private Socket mSocket;
+    public final int MAX_TOLERANCE = 100;
+    public final int MAX_CONCURRENT_CONNECTION = 15;
+
+    private int mFailCounter;
+    private final int mPort;
+    private final InetAddress mAddress;
 
     /**
      * Creates a new Stream client.
+     * @param address
+     * @param port
+     */
+    public StreamClient(InetAddress address, int port) {
+        mFailCounter = 0;
+        mPort = port;
+        mAddress = address;
+    }
+
+    /**
+     * Sends a datagram packet with given DataFrame in separate thread
      *
-     * @param socket Socket address of this client.
-     * @param line Line to add incoming data
-     * @param clientFor Type of data frame it receives
+     * @param frame
      */
-    public StreamClient(InetSocketAddress socket, StreamLine<T> line, ConnectFor clientFor) {
-        super(socket, 0);
-        mClientFor = clientFor;
-        mLine = line;
-    }
-
-    /**
-     * To connect with the server with the ConnectFor parameter this was created
-     * for.
-     */
-    public void connect() {
-        System.out.println("Connecting with server for " + mClientFor);
-        new Thread(() -> super.connect(mClientFor)).start();
-    }
-
-    /**
-     * To close the socket that is in connection, if any.
-     */
-    public void close() {
+    public void sendPacket(final DataFrame frame) {
+        if (!isOkay()) {
+            return;
+        }
         try {
-            if (!mSocket.isClosed()) {
-                mSocket.close();
-            }
-        } catch (IOException ex) {
-            Logs.log(Level.SEVERE, null, ex);
+            // create new instance of socket
+            int port = Commons.getRandom(10_000, 65500);
+            DatagramSocket socket = createSocket();
+ 
+            // data to send
+            byte[] sendData = Commons.toBytes(frame);
+            // Send the broadcast package! 
+            socket.send(new DatagramPacket(sendData, sendData.length, mAddress, mPort));
+            // reset fail counter
+            resetFailCounter();
+
+            socket.close();
+
+        } catch (Exception ex) {
+            Logs.severe(null, ex);
+            increaseFailCounter();
         }
     }
 
-    // do something with the opened socket 
-    @Override
-    void socketReceived(ObjectOutput oo, ObjectInput oi, Socket socket) throws IOException {
-        mSocket = socket;
-        while (!mSocket.isClosed()) {
+    public DatagramSocket createSocket() throws Exception {
+        // create new instance of socket 
+        for (int i = 0; i < 10; ++i) {
             try {
-                long time = 0; //System.nanoTime() - mLine.getStart();
-                System.out.println("Requesting for data at " + time);
-                oo.writeLong(time);
-                oo.flush();
-
-                DataFrame frame = (DataFrame) oi.readObject();
-                mLine.push(frame.getTime(), (T) frame);
-
-            } catch (ClassNotFoundException ex) {
-                Logs.log(Level.SEVERE, null, ex);
+                int port = Commons.getRandom(10_000, 65500);
+                return new DatagramSocket(port);
+            } catch (SocketException ex) {
             }
         }
+        throw new NullPointerException();
+    }
+ 
+    public void resetFailCounter() {
+        mFailCounter = 0;
     }
 
+    public void increaseFailCounter() {
+        mFailCounter++;
+    }
+
+    public boolean isOkay() {
+        return mFailCounter <= MAX_TOLERANCE;
+    }
 }

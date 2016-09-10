@@ -30,12 +30,7 @@ import org.tuntuni.models.Logs;
  */
 public final class VideoRenderer {
 
-    private final VideoFormat mFormat;
-    private StreamLine<ImageFrame> mImageLine;
-    private StreamLine<AudioFrame> mAudioLine;
-    private StreamClient<ImageFrame> mImageClient;
-    private StreamClient<AudioFrame> mAudioClient;
-
+    private final VideoFormat mFormat;    
     private long mStartTime;
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
@@ -135,8 +130,7 @@ public final class VideoRenderer {
             return;
         }
         mSourceLine.start();
-        while (mSourceLine.isOpen()) {
-            AudioFrame audioFrame = mAudioLine.pop();
+        while (mSourceLine.isOpen()) { 
             byte[] data = audioFrame.getBuffer();
             mSourceLine.write(data, 0, data.length);
         }

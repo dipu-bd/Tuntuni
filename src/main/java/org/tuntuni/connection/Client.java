@@ -15,12 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -34,7 +29,7 @@ import org.tuntuni.video.VideoFormat;
  * Extended by client. It separates data part of client from its connection
  * part.
  */
-public class Client extends AbstractClient {
+public class Client extends TCPClient {
 
     public static final int DEFAULT_TIMEOUT = 500;
 
@@ -108,24 +103,8 @@ public class Client extends AbstractClient {
         return (result instanceof Boolean) ? (boolean) result : false;
     }
 
-    /**
-     * Starts a video call and gets the video format other user might send
-     *
-     * @return
-     */
-    public VideoFormat getFormat() {
-        Object result = request(ConnectFor.FORMAT);
-        return (VideoFormat) result;
-    }
-
-    // not required 
-    @Override
-    void socketReceived(ObjectOutput oo, ObjectInput oi, Socket socket) throws IOException {
-
-    }
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////// 
+    //////////////////////////////////////////////////////////////////////////// 
     /**
      * Gets the state of the user data
      *
@@ -171,18 +150,16 @@ public class Client extends AbstractClient {
      * @param message
      */
     public void addMessage(Message message) {
-        // to be thread safe
-        Platform.runLater(() -> {
-            mMessages.add(message);
-        });
+        mMessages.add(message);
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // methods used in dialer 
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Request for a call slot 
-     * @return 
+     * Request for a call slot
+     *
+     * @return
      */
     public boolean requestSlot() {
         Object result = request(ConnectFor.SLOT);
@@ -190,11 +167,22 @@ public class Client extends AbstractClient {
     }
 
     /**
-     * Request for stream server Address 
-     * @return 
+     * Request for stream server Address
+     *
+     * @return
      */
-    public String requestRTSPAddress() {
-        Object result = request(ConnectFor.RTSPAddress);
-        return result.toString();
+    public int getStreamPort() {
+        Object result = request(ConnectFor.STREAM_PORT);
+        return (result instanceof Integer) ? (int) result : 0;
+    }
+
+    /**
+     * Starts a video call and gets the video format other user might send
+     *
+     * @return
+     */
+    public VideoFormat getFormat() {
+        Object result = request(ConnectFor.FORMAT);
+        return (VideoFormat) result;
     }
 }

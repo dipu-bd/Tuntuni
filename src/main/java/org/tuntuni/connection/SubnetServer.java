@@ -32,7 +32,7 @@ import org.tuntuni.util.Commons;
 /**
  * http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
  */
-public class MulticastServer implements Runnable {
+public class SubnetServer implements Runnable {
 
     private final int mPort;
     private Thread mServerThread;
@@ -45,8 +45,7 @@ public class MulticastServer implements Runnable {
      * @param port PORT address to listen
      * @throws java.net.SocketException
      */
-    public MulticastServer(int port) throws SocketException {
-
+    public SubnetServer(int port) throws SocketException {        
         mPort = port;
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 

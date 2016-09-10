@@ -25,11 +25,18 @@ import org.tuntuni.models.ConnectFor;
 /**
  * Single data frame
  */
-public class DataFrame implements Externalizable, Comparable<ImageFrame> {
+public class DataFrame implements Externalizable, Comparable<DataFrame> {
+
+    private static int FRAME_NUMBER = 0;
 
     private long mTime;
     private byte[] mBuffer;
     private ConnectFor mType;
+
+    public DataFrame(ConnectFor frameType) {
+        mTime = FRAME_NUMBER++;
+        mType = frameType;
+    }
 
     public DataFrame() {
         this(ConnectFor.INVALID);
@@ -37,14 +44,6 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
 
     public ConnectFor connectedFor() {
         return mType;
-    }
-
-    public DataFrame(ConnectFor frameType) {
-        mType = frameType;
-    }
-
-    public void setTime(long time) {
-        mTime = time;
     }
 
     public long getTime() {
@@ -74,7 +73,7 @@ public class DataFrame implements Externalizable, Comparable<ImageFrame> {
     }
 
     @Override
-    public int compareTo(ImageFrame t) {
+    public int compareTo(DataFrame t) {
         return mTime == t.getTime() ? 0 : (mTime < t.getTime() ? -1 : 1);
     }
 

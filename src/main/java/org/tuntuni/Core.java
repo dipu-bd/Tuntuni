@@ -17,8 +17,8 @@ package org.tuntuni;
 
 import java.net.SocketException;
 import javafx.stage.Stage;
-import org.tuntuni.connection.MulticastServer;
-import org.tuntuni.connection.Server;
+import org.tuntuni.connection.SubnetServer;
+import org.tuntuni.connection.MainServer;
 import org.tuntuni.connection.Subnet;
 import org.tuntuni.models.UserProfile;
 import org.tuntuni.controllers.MainController;
@@ -32,8 +32,8 @@ import org.tuntuni.video.Dialer;
  * be access by {@linkplain Core.instance()}.
  * <p>
  * The server and subnet objects are created with constructor. But they are not
- * yet started. Don't forget to call the {@code start()} of Server and Subnet
- * instances, after the initialization phase is done.</p>
+ * yet started. Don't forget to call the {@code start()} of MainServer and Subnet
+ instances, after the initialization phase is done.</p>
  * <p>
  * Note that, the controllers must be set after they are initialized. e.g: To
  * set MainController call {@code Core.instance().main(this)} in the
@@ -61,11 +61,11 @@ public final class Core {
     }
 
     // private variables
-    private final Server mServer;
+    private final MainServer mServer;
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
     // multicast server
-    private MulticastServer mSubnetServer;
+    private SubnetServer mSubnetServer;
     // dialer
     private Dialer mDialer;
     // data  
@@ -80,14 +80,14 @@ public final class Core {
     private Core() {
         // order might be important here
         // put simple & light constructors first 
-        mServer = new Server();
+        mServer = new MainServer();
         mSubnet = new Subnet();
         mUser = new UserProfile();
         mDialer = new Dialer();
         // create a listenner server for network discovery
         for (int port : PORTS) {
             try {
-                mSubnetServer = new MulticastServer(port);
+                mSubnetServer = new SubnetServer(port);
             } catch (SocketException ex) {
             }
         }
@@ -121,7 +121,7 @@ public final class Core {
      *
      * @return
      */
-    public Server server() {
+    public MainServer server() {
         return mServer;
     }
 
@@ -139,7 +139,7 @@ public final class Core {
      *
      * @return
      */
-    public MulticastServer scanner() {
+    public SubnetServer scanner() {
         return mSubnetServer;
     }
 

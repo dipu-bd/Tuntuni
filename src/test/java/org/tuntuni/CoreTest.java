@@ -20,7 +20,7 @@ import javax.swing.SwingUtilities;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.tuntuni.connection.Server;
+import org.tuntuni.connection.MainServer;
 
 /**
  *
@@ -57,7 +57,7 @@ public class CoreTest {
     @Test
     public void testServer() {
         System.out.println("server");
-        Server result = Core.instance().server();
+        MainServer result = Core.instance().server();
         assertNotNull(result);
     }
 

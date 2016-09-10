@@ -20,10 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import static java.lang.System.out;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.security.SecureRandom;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -37,6 +35,12 @@ import javax.imageio.ImageIO;
  * Some commonly used functions and methods
  */
 public class Commons {
+
+    public static final SecureRandom mRandom;
+
+    static {
+        mRandom = new SecureRandom();
+    }
 
     /**
      * Create a new custom pane from FXML data. <br>
@@ -89,8 +93,9 @@ public class Commons {
 
     /**
      * Convert any object to byte array
+     *
      * @param obj
-     * @return 
+     * @return
      */
     public static byte[] toBytes(Object obj) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -104,16 +109,17 @@ public class Commons {
 
     /**
      * Get the object from byte array
+     *
      * @param <T>
      * @param data
      * @param expectedClass
-     * @return 
+     * @return
      */
     public static <T> T fromBytes(byte[] data, Class<T> expectedClass) {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
                 ObjectInputStream ois = new ObjectInputStream(bais)) {
             return expectedClass.cast(ois.readObject());
-        } catch (IOException | ClassNotFoundException ex) { 
+        } catch (IOException | ClassNotFoundException ex) {
             return null;
         }
     }
@@ -143,4 +149,16 @@ public class Commons {
             return null;
         }
     }
+
+    /**
+     * Gets a random number between two given numbers (inclusive)
+     * @param from Minimum number
+     * @param to Maximum number
+     * @return 
+     */
+    public static int getRandom(int from, int to) {
+        return mRandom.nextInt(to - from + 1) + from;
+    }
+    
+    
 }

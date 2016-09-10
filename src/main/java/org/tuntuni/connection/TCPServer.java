@@ -30,7 +30,7 @@ import org.tuntuni.models.Logs;
 /**
  * To listen and respond to clients sockets.
  */
-public abstract class AbstractServer {
+public abstract class TCPServer {
 
     public static final int MAX_EXECUTOR_THREAD = 10;
 
@@ -51,7 +51,7 @@ public abstract class AbstractServer {
      * @param name Name of this server.
      * @param ports Valid ports to use. Null or empty to use default.
      */
-    public AbstractServer(String name, int[] ports) {
+    public TCPServer(String name, int[] ports) {
         mName = name;
         mPorts = ports;
         if (mPorts == null || mPorts.length == 0) {
