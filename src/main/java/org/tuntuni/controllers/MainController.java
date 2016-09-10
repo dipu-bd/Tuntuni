@@ -65,7 +65,7 @@ public class MainController implements Initializable {
             // run build immediately
             buildUserList();
             // listen to user list change
-            Core.instance().subnet().stateProperty().addListener((ov, o, n)
+            Core.instance().subnet().userListProperty().addListener((ov, o, n)
                     -> Platform.runLater(() -> buildUserList()));
 
             // bind profile button text
@@ -106,7 +106,7 @@ public class MainController implements Initializable {
         Core.instance().subnet().userListProperty()
                 .values().stream().forEach(consumer);
         // hide user list if no items
-        userList.setPrefWidth(userList.getItems().size() == 0 ? 0.0 : 250.0);
+        userList.setPrefWidth(userList.getItems().isEmpty() ? 0.0 : 250.0);
         // refresh last user
         Core.instance().profile().refresh();
     }

@@ -108,7 +108,7 @@ public class Subnet {
     // to scan over whole subnet of all networks for active users
     // if new network interfaces are added, it also includes them on the fly
     private final Runnable performScan = () -> {
-        Logs.info(Logs.SUBNET_SCAN_START);
+        Logs.info(getClass(), Logs.SUBNET_SCAN_START);
         try {
             // open a datagram socket at any random port
             mSocket = new DatagramSocket();
@@ -122,7 +122,7 @@ public class Subnet {
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
             }
-            Logs.info(Logs.SUBNET_SCAN_SUCCESS);
+            Logs.info(getClass(), Logs.SUBNET_SCAN_SUCCESS);
 
             // Wait for a response
             recieveBroadcastResponse();
@@ -130,7 +130,7 @@ public class Subnet {
             // Close the socket!
             mSocket.close();
         } catch (Exception ex) {
-            Logs.severe(Logs.SUBNET_SCAN_FAILED, ex);
+            Logs.error(getClass(), Logs.SUBNET_SCAN_FAILED, ex);
         }
 
     };
@@ -169,14 +169,14 @@ public class Subnet {
             });
 
         } catch (Exception ex) {
-            Logs.severe(Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
+             Logs.error(getClass(), Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
         }
     }
 
     // send broadcast request to given address domain
     private void sendBroadcastRequest(InterfaceAddress ia) {
         try {
-            Logs.info(Logs.SUBNET_CHECKING_SUBNETS, ia.getAddress().getHostAddress());
+            Logs.info(getClass(), Logs.SUBNET_CHECKING_SUBNETS, ia.getAddress().getHostAddress());
 
             // data to send
             byte[] sendData = {ConnectFor.PORT.data()};
@@ -188,7 +188,7 @@ public class Subnet {
                 mSocket.send(sendPacket);
             }
         } catch (Exception ex) {
-            Logs.severe("Broadcast request failure. {0}", ex);
+            Logs.error(getClass(), "Broadcast request failure. {0}", ex);
         }
     }
 
@@ -204,7 +204,7 @@ public class Subnet {
             int port = Commons.bytesToInt(data);
 
             // We have a response
-            Logs.info("Broadcast response from server: {0}",
+            Logs.info(getClass(), "Broadcast response from server: {0}",
                     receivePacket.getAddress().getHostAddress());
 
             // add a new client
@@ -212,7 +212,7 @@ public class Subnet {
             addUser(client);
 
         } catch (Exception ex) {
-            Logs.severe("Error recieving broadcast response: {0}", ex);
+            Logs.error(getClass(), "Error recieving broadcast response: {0}", ex);
         }
     }
 

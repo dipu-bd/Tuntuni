@@ -21,8 +21,8 @@ package org.tuntuni.models;
 public enum ConnectFor {
 
     INVALID(0),
-    // to pass port number of server
-    PORT(1),
+    // to pass the state information
+    STATE(1),
     // to pass user profile information
     PROFILE(2),
     // to pass a single message
@@ -32,7 +32,9 @@ public enum ConnectFor {
     // to pass video 
     IMAGE(5),
     // to pass video format
-    FORMAT(6);
+    FORMAT(6),
+    // to pass port number 
+    PORT(7);
 
     private final int mData;
 

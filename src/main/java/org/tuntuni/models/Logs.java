@@ -52,13 +52,17 @@ public abstract class Logs {
             STREAM_ILLEGAL_ACCESS = "This is {0} server. Can not accept {1} requests.",
             //--- end : log message list ---
             FINALIZE = "Log finalized ";
- 
-    public static void log(Level level, String message, Object... data) { 
+
+    public static void log(Level level, String message, Object... data) {
         logger.log(level, message, data);
     }
 
     public static void info(String message, Object... data) {
         log(Level.INFO, message, data);
+    }
+
+    public static void info(Class from, String message, Object... data) {
+        info(from.getName(), message, data);
     }
 
     public static void info(String type, String message, Object... data) {
@@ -72,13 +76,17 @@ public abstract class Logs {
     public static void warning(String message, Object... data) {
         log(Level.WARNING, message, data);
     }
-    
+
     public static void warning(String type, String message, Object... data) {
         warning("[" + type + "]" + message, data);
     }
 
     public static void error(String message, Object... data) {
         severe(message, data);
+    }
+
+    public static void error(Class from, String message, Object... data) {
+        error(from.getName(), message, data);
     }
 
     public static void error(String type, String message, Object... data) {

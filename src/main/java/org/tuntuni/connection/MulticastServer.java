@@ -15,66 +15,87 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import org.tuntuni.Core;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 
 /**
  * http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
  */
 public class MulticastServer implements Runnable {
 
-    int mPort;
-    Thread mServerThread;
-    DatagramSocket mSocket;
+    private final int mPort;
+    private Thread mServerThread;
+    private DatagramSocket mSocket;
 
     /**
      * Creates a MulticastServer by given port to listen.
      *
      * @param port PORT address to listen
+     * @throws java.net.SocketException
      */
-    public MulticastServer(int port) {
+    public MulticastServer(int port) throws SocketException {
         mPort = port;
+
+        // bind a datagram socket to the given port address
+        try {
+            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
+            mSocket.setBroadcast(true);
+        } catch (UnknownHostException ex) {
+            Logs.error(getClass(), null, ex);
+        }
     }
 
     @Override
     public void run() {
-        try {
-            // Listen to all UDP trafic that is destined for mPort
-            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
-            mSocket.setBroadcast(true);
+        Logs.info(getClass(), "Listening for broadcast packets at {0}", mPort);
 
-            while (true) {
-                System.out.println(getClass().getName() + ">>> Ready to receive broadcast packets!");
-
-                //Receive a packet
-                byte[] recvBuf = new byte[15000];
-                DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+        while (true) {
+            try {
+                // receive a packet
+                byte[] data = new byte[1];
+                DatagramPacket packet = new DatagramPacket(data, data.length);
                 mSocket.receive(packet);
 
-                //Packet received
-                System.out.println(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
-                System.out.println(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
+                Logs.info(getClass(), "Discovery packet received from: " + packet.getAddress().getHostAddress());
 
-                //See if the packet holds the right command (message)
-                String message = new String(packet.getData()).trim();
-                if (message.equals("DISCOVER_FUIFSERVER_REQUEST")) {
-                    byte[] sendData = "DISCOVER_FUIFSERVER_RESPONSE".getBytes();
-
-                    //Send a response
-                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, packet.getAddress(), packet.getPort());
-                    mSocket.send(sendPacket);
-
-                    System.out.println(getClass().getName() + ">>>Sent packet to: " + sendPacket.getAddress().getHostAddress());
+                // convert data & check packet validity
+                ConnectFor state = ConnectFor.from(data[0]);
+                if (state != ConnectFor.PORT) {
+                    continue;
                 }
+
+                // send response packet
+                sendResponsePacket(packet);
+            } catch (Exception ex) {
+                Logs.error(getClass(), null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    // called from the run() function
+    private void sendResponsePacket(DatagramPacket packet) {
+        try {
+            // send response
+            byte[] sendData = Commons.intToBytes(Core.instance().server().getPort());
+
+            //Send a response
+            DatagramPacket sendPacket = new DatagramPacket(
+                    sendData, sendData.length, packet.getAddress(), packet.getPort());
+            mSocket.send(sendPacket);
+
+            Logs.info(getClass(), "Response sent to {0}", packet.getAddress());
+
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Failed to send reponse", ex);
+        }
+
     }
 
     /**
@@ -82,7 +103,6 @@ public class MulticastServer implements Runnable {
      */
     public void start() {
         try {
-            stop();
             mServerThread = new Thread(this);
             mServerThread.setDaemon(true);
             mServerThread.start();
@@ -96,7 +116,9 @@ public class MulticastServer implements Runnable {
      */
     public void stop() {
         try {
-            mServerThread.interrupt();
+            if (mServerThread != null && mServerThread.isAlive()) {
+                mServerThread.interrupt();
+            }
         } catch (Exception ex) {
             Logs.severe("Failed to STOP multicast server.", ex);
         }

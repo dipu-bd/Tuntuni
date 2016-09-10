@@ -107,10 +107,11 @@ public class Client extends AbstractClient {
         Object result = request(ConnectFor.MESSAGE, toSent);
         return (result instanceof Boolean) ? (boolean) result : false;
     }
-    
+
     /**
      * Starts a video call and gets the video format other user might send
-     * @return 
+     *
+     * @return
      */
     public VideoFormat getFormat() {
         Object result = request(ConnectFor.FORMAT);

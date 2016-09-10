@@ -15,17 +15,16 @@
  */
 package org.tuntuni;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import java.net.SocketException;
 import javafx.stage.Stage;
+import org.tuntuni.connection.MulticastServer;
 import org.tuntuni.connection.Server;
-import org.tuntuni.connection.Subnet; 
+import org.tuntuni.connection.Subnet;
 import org.tuntuni.models.UserProfile;
 import org.tuntuni.controllers.MainController;
 import org.tuntuni.controllers.MessagingController;
-import org.tuntuni.controllers.ProfileController; 
+import org.tuntuni.controllers.ProfileController;
 import org.tuntuni.controllers.VideoCallController;
-import org.tuntuni.models.Logs; 
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -33,7 +32,7 @@ import org.tuntuni.models.Logs;
  * <p>
  * The server and subnet objects are created with constructor. But they are not
  * yet started. Don't forget to call the {@code start()} of Server and Subnet
- instances, after the initialization phase is done.</p>
+ * instances, after the initialization phase is done.</p>
  * <p>
  * Note that, the controllers must be set after they are initialized. e.g: To
  * set MainController call {@code Core.instance().main(this)} in the
@@ -45,9 +44,6 @@ public final class Core {
         24914, //PRIMARY_PORT
         42016, //BACKUP_PORT  
     };
-    
-    // logger
-    private static final Logger logger = Logger.getGlobal();
 
     // instance of context
     private static final Core mInstance = new Core();
@@ -66,32 +62,48 @@ public final class Core {
     private final Subnet mSubnet;
     private Stage mPrimaryStage;
     // data  
-    private final UserProfile mUser; 
+    private final UserProfile mUser;
     // controllers
-    private MainController mMain; 
+    private MainController mMain;
     private VideoCallController mVideoCall;
     private MessagingController mMessaging;
     private ProfileController mProfile;
+    // multicast server
+    private MulticastServer mSubnetServer;
 
     // Creates a new context. hidden from public.
     private Core() {
         // order might be important here
         // put simple & light constructors first 
         mServer = new Server();
-        mSubnet = new Subnet(); 
-        mUser = new UserProfile(); 
+        mSubnet = new Subnet();
+        mUser = new UserProfile();
+
+        // create a listenner server for network discovery
+        for (int port : PORTS) {
+            try {
+                mSubnetServer = new MulticastServer(port);
+            } catch (SocketException ex) {
+            }
+        }
     }
 
+    /**
+     * Starts all server and background tasks
+     */
     public void start() {
         mServer.start();
+        mSubnetServer.start();
         mSubnet.start();
     }
 
+    /**
+     * Stop server and background tasks
+     */
     public void close() {
-        logger.log(Level.INFO, Logs.PROGRAM_CLOSING);
-        // stop all
-        mServer.stop();
         mSubnet.stop();
+        mSubnetServer.stop();
+        mServer.stop();
     }
 
     ///
@@ -134,7 +146,7 @@ public final class Core {
     public Stage stage() {
         return mPrimaryStage;
     }
- 
+
     /**
      * Gets the current user user.
      *
@@ -143,7 +155,7 @@ public final class Core {
     public UserProfile user() {
         return mUser;
     }
- 
+
     ///
     ////////////////////////////////////////////////////////////////////////////
     /// CONTROLLERS : getter and setter functions for controllers
@@ -167,7 +179,7 @@ public final class Core {
     public MainController main() {
         return mMain;
     }
- 
+
     /**
      * Sets the ProfileController controller. Set when the controller is
      * initialized.

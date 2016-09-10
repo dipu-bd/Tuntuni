@@ -65,9 +65,7 @@ public class Server extends AbstractServer {
     }
 
     // what to do when ConnectFor.PROFILE getResponse arrived
-    public Object profile(Socket from) {
-        Core.instance().subnet().addAsClient(
-                SocketUtils.getRemoteHost(from));
+    public Object profile(Socket from) { 
         return Core.instance().user().getData();
     }
 
