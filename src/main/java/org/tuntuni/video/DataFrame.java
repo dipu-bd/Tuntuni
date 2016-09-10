@@ -44,6 +44,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
+        oo.writeByte(mType.data());
         oo.writeLong(mTime);
         oo.writeInt(mBuffer.length);
         oo.write(mBuffer);
@@ -51,6 +52,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+        mType = ConnectFor.from(oi.readByte());
         mTime = oi.readLong();
         mBuffer = new byte[oi.readInt()];
         oi.readFully(mBuffer);
