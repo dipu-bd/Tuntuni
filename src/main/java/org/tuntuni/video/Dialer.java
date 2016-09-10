@@ -15,8 +15,6 @@
  */
 package org.tuntuni.video;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.tuntuni.Core;
@@ -117,6 +115,9 @@ public class Dialer {
         try {
             mServer = new StreamServer();
             mServer.start();
+            if (mServer.getPort() == -1) {
+                throw new Exception("Server start failed!");
+            }
         } catch (Exception ex) {
             Logs.severe(null, ex);
             throw new DialerException("Failed to start server");

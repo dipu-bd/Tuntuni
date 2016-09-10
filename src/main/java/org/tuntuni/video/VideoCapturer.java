@@ -126,7 +126,7 @@ public final class VideoCapturer {
         }
         // start target line
         mTargetLine.start();
-        int buffer = mTargetLine.getBufferSize() / 10;
+        int buffer = mTargetLine.getBufferSize() / 100;
         byte[] data = new byte[buffer];
         // run capture loop
         while (mTargetLine.isOpen()) {

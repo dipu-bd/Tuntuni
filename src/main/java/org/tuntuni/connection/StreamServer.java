@@ -80,8 +80,8 @@ public class StreamServer implements Runnable {
         // create new instance of socket 
         for (int i = 0; i < 10; ++i) {
             try {
-                mPort = Commons.getRandom(10_000, 65500);
-                mSocket = new DatagramSocket(mPort);
+                mPort = Commons.getRandom(10_000, 65500); 
+                mSocket = new DatagramSocket(mPort); 
                 break;
             } catch (SocketException ex) {
                 mSocket = null;
@@ -151,7 +151,7 @@ public class StreamServer implements Runnable {
      * @return
      */
     public int getPort() {
-        return mSocket.getPort();
+        return mSocket.getLocalPort();
     }
 
     public AudioFrame getAudioFrame() {
