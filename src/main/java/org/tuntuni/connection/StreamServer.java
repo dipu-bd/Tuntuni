@@ -151,7 +151,7 @@ public class StreamServer implements Runnable {
      * @return
      */
     public int getPort() {
-        return onRun ? mSocket.getPort() : -1;
+        return mSocket.getPort();
     }
 
     public AudioFrame getAudioFrame() {

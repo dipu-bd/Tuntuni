@@ -52,9 +52,9 @@ public class Dialer {
             }
             // start audio and video server
             startServer();
-            // get stream server address of client
+            // start video capturer
             startClient();
-            // dispaly video
+            // start videp renderer
             displayVideo();
         } catch (DialerException ex) {
             Logs.severe(null, ex);
@@ -79,9 +79,9 @@ public class Dialer {
         try {
             // start audio and video server
             startServer();
-            // get stream server address of client
+            // start video capturer
             startClient();
-            // display video
+            // start video renderer
             displayVideo();
         } catch (DialerException ex) {
             Logs.severe(null, ex);
