@@ -18,11 +18,7 @@ package org.tuntuni.connection;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.security.SecureRandom;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 import org.tuntuni.video.DataFrame;
@@ -34,7 +30,7 @@ import org.tuntuni.video.DataFrame;
  */
 public class StreamClient {
 
-    public final int MAX_TOLERANCE = 100;
+    public final int MAX_TOLERANCE = 40;
     public final int MAX_CONCURRENT_CONNECTION = 15;
 
     private int mFailCounter;
@@ -69,6 +65,7 @@ public class StreamClient {
 
             // data to send
             byte[] sendData = Commons.toBytes(frame);
+            System.out.println(">>>> message size: " + sendData);
             // Send the broadcast package! 
             socket.send(new DatagramPacket(sendData, sendData.length, mAddress, mPort));
             // reset fail counter

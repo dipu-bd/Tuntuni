@@ -130,16 +130,6 @@ public class ClientTest {
         assertEquals(expResult, result);
     }
 
-    @Test
-    public void testGetTimeout() {
-        System.out.println("getTimeout");
-        String host = "192.45.21.2";
-        Client instance = new Client(new InetSocketAddress(host, 1223));
-        instance.setTimeout(233);
-        int expResult = 233;
-        int result = instance.getTimeout();
-        assertEquals(expResult, result);
-    }
 
     @Test
     public void testGetUserData() {

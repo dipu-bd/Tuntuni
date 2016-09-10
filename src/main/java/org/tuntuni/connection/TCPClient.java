@@ -37,15 +37,13 @@ import org.tuntuni.util.Commons;
  */
 public abstract class TCPClient {
 
-    // to connect with server    
-    private int mTimeout;
-    private final InetSocketAddress mAddress;
+    // to connect with server     
+    private InetSocketAddress mAddress;
     private final BooleanProperty mConnected;
 
     // hidesthe constructor and handle it with static open() method
-    public TCPClient(InetSocketAddress socket, int timeout) {
+    public TCPClient(InetSocketAddress socket) {
         mAddress = socket;
-        mTimeout = timeout;
         mConnected = new SimpleBooleanProperty(false);
     }
 
@@ -70,6 +68,15 @@ public abstract class TCPClient {
      */
     public int getIntegerAddress() {
         return Commons.bytesToInt(mAddress.getAddress().getAddress());
+    }
+
+    /**
+     * Update the current address of the client
+     *
+     * @param address
+     */
+    public void updateAddress(InetSocketAddress address) {
+        mAddress = address;
     }
 
     /**
@@ -99,27 +106,7 @@ public abstract class TCPClient {
     public int getPort() {
         return mAddress.getPort();
     }
-
-    /**
-     * Gets the timeout for a connection
-     *
-     * @return Timeout for a connection
-     */
-    public int getTimeout() {
-        return mTimeout;
-    }
-
-    /**
-     * Set the timeout for an attempt to connect with server.
-     * <p>
-     * Default is {@value #DEFAULT_TIMEOUT}.</p>
-     *
-     * @param timeout in milliseconds.
-     */
-    public void setTimeout(int timeout) {
-        mTimeout = timeout;
-    }
-
+ 
     /**
      * Gets the connected property
      *
@@ -158,7 +145,7 @@ public abstract class TCPClient {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
-            socket.connect(getAddress(), getTimeout());
+            socket.connect(getAddress(), 1000);
 
             try ( // get all input streams from socket
                     OutputStream out = socket.getOutputStream();
@@ -188,5 +175,5 @@ public abstract class TCPClient {
         }
         return null;
     }
- 
+
 }

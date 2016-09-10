@@ -154,12 +154,16 @@ public class SubnetServer implements Runnable {
     private void addUser(final InetAddress address, final int port) {
         Thread t = new Thread(() -> {
             // check if already added
-            if (getClient(address) == null) {
+            Client client = getClient(address);
+            if (client == null) {
                 // check the server for connection status and profile information first
-                Client client = new Client(new InetSocketAddress(address, port));
+                client = new Client(new InetSocketAddress(address, port));
                 client.checkServer();
                 // add new user
                 mUserList.put(client.getIntegerAddress(), client);
+            } else {
+                // update user
+                client.updateAddress(new InetSocketAddress(address, port));
             }
         });
         t.setDaemon(true);

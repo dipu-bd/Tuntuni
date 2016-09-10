@@ -29,16 +29,14 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class Client extends TCPClient {
-
-    public static final int DEFAULT_TIMEOUT = 500;
-
+ 
     // local data from server 
     private final ObjectProperty<UserData> mUserData;
     private final SimpleListProperty<Message> mMessages;
 
     // hides the constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
-        super(socket, Client.DEFAULT_TIMEOUT);
+        super(socket);
         // initialize properties 
         mUserData = new SimpleObjectProperty<>(this, "UserData");
         mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
