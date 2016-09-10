@@ -15,6 +15,8 @@
  */
 package org.tuntuni.video;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.tuntuni.Core;
@@ -137,21 +139,17 @@ public class Dialer {
         }
     }
 
-    public int getStreamPort(Client client) throws Exception {
-        // check slot avaiability
-        if (!mSlot.get()) {
-            throw new Exception("Not available");
-        }
-        // check client
-        if (client.getAddress() != mClient.getAddress()) {
-            throw new Exception("Client mismatch");
-        }
-        // wait atmost 10 sec until server is up.
-        for (int i = 0; i < 100; ++i) {
-            if (mServer.isRunning()) {
-                return mServer.getPort();
+    public int getStreamPort() {
+        try {
+            // wait atmost 10 sec until server is up.
+            for (int i = 0; i < 100; ++i) {
+                if (mServer.isRunning()) {
+                    return mServer.getPort();
+                }
+                Thread.sleep(100);
             }
-            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            Logs.error(getClass(), "Failed to aquire stream port. ERROR: {0}", ex);
         }
         return -1;
     }

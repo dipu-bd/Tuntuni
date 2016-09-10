@@ -43,76 +43,54 @@ public class MainServer extends TCPServer {
     Object getResponse(ConnectFor status, Socket from, Object[] data) {
         switch (status) {
             case STATE:
-                return state();
+                return Core.instance().user().getState();
             case PROFILE: // send user data
-                return profile(from);
-            case MESSAGE: // a message arrived
-                return message(from, data); 
-            case DIAL:
-                return dial(from);
+                return Core.instance().user().getData();
             case STREAM_PORT:
-                return streamPort(from);
+                return Core.instance().dialer().getStreamPort();
+            case MESSAGE: // a message arrived
+                return message(getClient(from), data);
+            case DIAL:
+                return dial(getClient(from));
         }
         return null;
     }
 
-    public Object state() {
-        return Core.instance().user().getState();
-    }
-
-    // what to do when ConnectFor.PROFILE getResponse arrived
-    public Object profile(Socket from) {
-        return Core.instance().user().getData();
+    public Client getClient(Socket socket) {
+        return Core.instance().scanner().getClient(socket.getInetAddress());
     }
 
     // display the message 
-    public Object message(Socket from, Object[] data) {
+    public Object message(Client client, Object[] data) {
+        // get client 
+        if (client == null) {
+            return false;
+        }
         try {
             // get message
             Message message = Message.class.cast(data[0]);
-            // get client
-            Client client = Core.instance().scanner().getClient(from.getInetAddress());
-            if (client != null) {
-                // add this message
-                message.setReceiver(true);
-                message.setClient(client);
-                message.setTime(new Date());
-                client.addMessage(message);
-                return true;
-            }
+            // add this message
+            message.setReceiver(true);
+            message.setClient(client);
+            message.setTime(new Date());
+            client.addMessage(message);
+            return true;
         } catch (Exception ex) {
             // response failure
         }
         return false;
     }
 
-    public Object dial(Socket from) {
+    public Object dial(Client client) {
+        if (client == null) {
+            return false;
+        }
         try {
-            // get client
-            Client client = Core.instance().scanner().getClient(from.getInetAddress());
-            if (client == null) {
-                return false;
-            }
-            // start call
             Core.instance().dialer().receiveCall(client);
             return true;
         } catch (Exception ex) {
             // response failure
             return false;
-        }
-    }
-
-    public Object streamPort(Socket from) {
-        try {
-            // get client
-            Client client = Core.instance().scanner().getClient(from.getInetAddress());
-            if (client != null) {
-                return Core.instance().dialer().getStreamPort(client);
-            }
-            return -1;
-        } catch (Exception ex) {
-            // response failure
-            return null;
         }
     }
 }

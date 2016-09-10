@@ -172,7 +172,7 @@ public class Client extends TCPClient {
      */
     public int getStreamPort() {
         Object result = request(ConnectFor.STREAM_PORT);
-        return (result instanceof Integer) ? (int) result : 0;
+        return (result instanceof Integer) ? (int) result : -1;
     }
  
 }
