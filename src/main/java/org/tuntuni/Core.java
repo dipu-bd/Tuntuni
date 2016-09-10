@@ -41,6 +41,11 @@ import org.tuntuni.models.Logs;
  */
 public final class Core {
 
+    public static final int PORTS[] = {
+        24914, //PRIMARY_PORT
+        42016, //BACKUP_PORT  
+    };
+    
     // logger
     private static final Logger logger = Logger.getGlobal();
 

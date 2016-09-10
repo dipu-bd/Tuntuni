@@ -21,8 +21,8 @@ package org.tuntuni.models;
 public enum ConnectFor {
 
     INVALID(0),
-    // to pass state information
-    STATE(1),
+    // to pass port number of server
+    PORT(1),
     // to pass user profile information
     PROFILE(2),
     // to pass a single message

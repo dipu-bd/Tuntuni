@@ -15,47 +15,34 @@
  */
 package org.tuntuni.connection;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleMapProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.Core;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 
 /**
  * Search all subnet masks for active users and update user-list periodically.
  */
 public class Subnet {
 
-    private final boolean TEST_MODE = true;
-
-    // logger
-    private static final Logger logger = Logger.getGlobal();
-
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
     public static final int SCAN_INTERVAL_MILLIS = 15_000;
-    public static final int REACHABLE_THREAD_COUNT = 256;
-    public static final int REACHABLE_TIMEOUT_MILLIS = 500;
 
-    private final StringProperty mState;
-    private final ExecutorService mExecutor;
+    private DatagramSocket mSocket;
     private final ScheduledExecutorService mSchedular;
     private final SimpleMapProperty<String, Client> mUserList;
 
@@ -63,25 +50,13 @@ public class Subnet {
      * Creates a new instance of Subnet.
      */
     public Subnet() {
-        mState = new SimpleStringProperty(UUID.randomUUID().toString());
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
-        mExecutor = Executors.newFixedThreadPool(REACHABLE_THREAD_COUNT);
         mSchedular = Executors.newSingleThreadScheduledExecutor();
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Properties and public methods
-    ////////////////////////////////////////////////////////////////////////////    
-    /**
-     * Gets the current state of the subnet. Every time a client arrives or
-     * leaves, the state changes.
-     *
-     * @return
-     */
-    public StringProperty stateProperty() {
-        return mState;
-    }
-
+    ////////////////////////////////////////////////////////////////////////////     
     /**
      * Gets the read-only user list property.
      * <p>
@@ -106,16 +81,7 @@ public class Subnet {
             return mUserList.get(address);
         }
     }
-
-    /**
-     * Adds the address as client if not already exists
-     *
-     * @param address Address to check
-     */
-    public void addAsClient(String address) {
-        mExecutor.submit(() -> checkAddress(address, true));
-    }
-
+ 
     ////////////////////////////////////////////////////////////////////////////
     // MOST IMPORTANT: Start or stop subnet scans
     ////////////////////////////////////////////////////////////////////////////    
@@ -135,26 +101,36 @@ public class Subnet {
     /**
      * Cancel the scheduled task.
      */
-    public void stop() {
-        mExecutor.shutdownNow();
+    public void stop() { 
         mSchedular.shutdownNow();
     }
 
     // to scan over whole subnet of all networks for active users
     // if new network interfaces are added, it also includes them on the fly
     private final Runnable performScan = () -> {
-        logger.log(Level.INFO, Logs.SUBNET_SCAN_START);
+        Logs.info(Logs.SUBNET_SCAN_START);
         try {
+            // open a datagram socket at any random port
+            mSocket = new DatagramSocket();
+            mSocket.setBroadcast(true);
+
             // get all network interfaces
             Enumeration<NetworkInterface> ne
                     = NetworkInterface.getNetworkInterfaces();
+
             // loop through all of them
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
             }
-            logger.log(Level.INFO, Logs.SUBNET_SCAN_SUCCESS);
-        } catch (SocketException ex) {
-            logger.log(Level.SEVERE, Logs.SUBNET_SCAN_FAILED, ex);
+            Logs.info(Logs.SUBNET_SCAN_SUCCESS);
+
+            // Wait for a response
+            recieveBroadcastResponse();
+
+            // Close the socket!
+            mSocket.close();
+        } catch (Exception ex) {
+            Logs.severe(Logs.SUBNET_SCAN_FAILED, ex);
         }
 
     };
@@ -170,7 +146,6 @@ public class Subnet {
 
             // list of all tasks
             //ArrayList<Callable<Integer>> taskList = new ArrayList<>();
-
             // loop through addresses assigned to this interface. (usually 1)
             ni.getInterfaceAddresses().stream().forEach((ia) -> {
                 // get network address
@@ -189,107 +164,62 @@ public class Subnet {
                     return;
                 }
 
-                logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
-                
+                //send the broadcast signal
                 sendBroadcastRequest(ia);
- 
-//                // get network's first and last hosts
-//                int prefix = ia.getNetworkPrefixLength();
-//                int current = SocketUtils.addressAsInteger(address);
-//                int first = SocketUtils.getFirstHost(address, prefix);
-//                int last = SocketUtils.getLastHost(address, prefix);
-//                /*
-//                 System.out.println("Prefix Length: " + prefix);
-//                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
-//                 System.out.println("  First Address : " + SocketUtils.addressAsString(first));
-//                 System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
-//                 */
-//                // find all active hosts in the same local network
-//                for (int ip = first; ip <= last; ++ip) {
-//                    // skip current address
-//                    if (ip == current) {
-//                        continue;
-//                    }
-//                    String host = SocketUtils.addressAsString(ip);
-//                    taskList.add(checkAddress(host, false));
-//                }
-//
-//                if (TEST_MODE) {
-//                    testMode(address.getHostAddress());
-//                }
-                
             });
 
-            // wait until all tasks are done    
-            //mExecutor.invokeAll(taskList);
-            //changeState();
-
-        } catch (SocketException ex) {
-            logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
-        }  
+        } catch (Exception ex) {
+            Logs.severe(Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
+        }
     }
-    
+
     // send broadcast request to given address domain
     private void sendBroadcastRequest(InterfaceAddress ia) {
-        
+        try {
+            Logs.info(Logs.SUBNET_CHECKING_SUBNETS, ia.getAddress().getHostAddress());
+
+            // data to send
+            byte[] sendData = {ConnectFor.PORT.data()};
+
+            // Send the broadcast package!
+            for (int port : Core.PORTS) {
+                DatagramPacket sendPacket = new DatagramPacket(
+                        sendData, sendData.length, ia.getBroadcast(), port);
+                mSocket.send(sendPacket);
+            }
+        } catch (Exception ex) {
+            Logs.severe("Broadcast request failure. {0}", ex);
+        }
     }
 
-    // check if the given address is active.    
-    private Callable<Integer> checkAddress(String address, boolean changeStateNow) {
-        // returns 1 only when something changes
-        return () -> {
-            // the address might be on the list. check it first
-            Client real = getClient(address);
-            if (real != null && real.checkServer()) {
-                return 0;     // retains connection
-            }
-            // try new connection with the server 
-            int i = Server.PORTS.length - 1;
-            for (; i >= 0; --i) {
+    // recieve broadcast response and process it
+    private void recieveBroadcastResponse() {
+        try {
+            // recieve response
+            byte[] data = new byte[4];
+            DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+            mSocket.receive(receivePacket);
 
-                Client sub = new Client(
-                        new InetSocketAddress(address, Server.PORTS[i]));
-                if (sub.checkServer()) {
-                    addUser(sub);   // new connection 
-                    break;
-                }
-            }
-            if (real == null || i < 0) {
-                return 0;  // no change
-            }
-            // has change
-            if (changeStateNow) {
-                changeState(); // update change
-            }
-            return 1;
-        };
+            // convert response data
+            int port = Commons.bytesToInt(data);
+
+            // We have a response
+            Logs.info("Broadcast response from server: {0}",
+                    receivePacket.getAddress().getHostAddress());
+
+            // add a new client
+            Client client = new Client(new InetSocketAddress(receivePacket.getAddress(), port));
+            addUser(client);
+
+        } catch (Exception ex) {
+            Logs.severe("Error recieving broadcast response: {0}", ex);
+        }
     }
 
-    private synchronized void addUser(Client client) {
+    // add new client to the list
+    private void addUser(Client client) {
         Platform.runLater(() -> {
             mUserList.put(client.getHostString(), client);
         });
-    }
-
-    private synchronized void changeState() {
-        Platform.runLater(() -> {
-            mState.set(UUID.randomUUID().toString());
-        });
-    }
-
-    private void testMode(String ip) {
-        int port = Core.instance().server().getPort();
-        int i = Server.PORTS.length - 1;
-        for (; i >= 0; --i) {
-            if (Server.PORTS[i] == port) {
-                continue;
-            }
-            Client sub = new Client(
-                    new InetSocketAddress(ip, Server.PORTS[i]));
-            if (sub.checkServer()) {
-                addUser(sub);   // new connection 
-                return;
-            }
-        }
     }
 }

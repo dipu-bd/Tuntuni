@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.sockets;
+package org.tuntuni.connection;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,21 +21,32 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.tuntuni.models.Logs;
 
 /**
- * @source http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
+ * http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
  */
 public class MulticastServer implements Runnable {
 
-    DatagramSocket socket;
+    int mPort;
+    Thread mServerThread;
+    DatagramSocket mSocket;
+
+    /**
+     * Creates a MulticastServer by given port to listen.
+     *
+     * @param port PORT address to listen
+     */
+    public MulticastServer(int port) {
+        mPort = port;
+    }
 
     @Override
     public void run() {
         try {
-            // Keep a socket open to listen to all 
-            // the UDP trafic that is destined for this port
-            socket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
-            socket.setBroadcast(true);
+            // Listen to all UDP trafic that is destined for mPort
+            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
+            mSocket.setBroadcast(true);
 
             while (true) {
                 System.out.println(getClass().getName() + ">>> Ready to receive broadcast packets!");
@@ -43,7 +54,7 @@ public class MulticastServer implements Runnable {
                 //Receive a packet
                 byte[] recvBuf = new byte[15000];
                 DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
-                socket.receive(packet);
+                mSocket.receive(packet);
 
                 //Packet received
                 System.out.println(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
@@ -56,7 +67,7 @@ public class MulticastServer implements Runnable {
 
                     //Send a response
                     DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, packet.getAddress(), packet.getPort());
-                    socket.send(sendPacket);
+                    mSocket.send(sendPacket);
 
                     System.out.println(getClass().getName() + ">>>Sent packet to: " + sendPacket.getAddress().getHostAddress());
                 }
@@ -66,13 +77,28 @@ public class MulticastServer implements Runnable {
         }
     }
 
-    public static MulticastServer getInstance() {
-        return DiscoveryThreadHolder.INSTANCE;
+    /**
+     * Starts the server thread.
+     */
+    public void start() {
+        try {
+            stop();
+            mServerThread = new Thread(this);
+            mServerThread.setDaemon(true);
+            mServerThread.start();
+        } catch (Exception ex) {
+            Logs.severe("Failed to START multicast server.", ex);
+        }
     }
 
-    private static class DiscoveryThreadHolder {
-
-        private static final MulticastServer INSTANCE = new MulticastServer();
+    /**
+     * Stops the current server thread, if any.
+     */
+    public void stop() {
+        try {
+            mServerThread.interrupt();
+        } catch (Exception ex) {
+            Logs.severe("Failed to STOP multicast server.", ex);
+        }
     }
-
 }
