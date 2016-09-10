@@ -52,6 +52,10 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </HBox>
-      <Pane fx:id="viewPane" VBox.vgrow="ALWAYS" />
+      <BorderPane fx:id="viewPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <center>
+            <ImageView fx:id="videoImage" fitHeight="480.0" fitWidth="640.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
    </children>
 </VBox>

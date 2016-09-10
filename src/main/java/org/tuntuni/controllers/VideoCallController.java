@@ -30,12 +30,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
-import org.tuntuni.connection.StreamServer;
-import org.tuntuni.video.AudioFrame;
-import org.tuntuni.video.ImageFrame;
 
 /**
  * Controller for video calling. It shows video in background.
@@ -51,17 +47,13 @@ public class VideoCallController implements Initializable {
     @FXML
     private ImageView userPhoto;
     @FXML
-    private Label userName;
+    private Label userName; 
     @FXML
-    private Pane viewPane;
-
     private ImageView videoImage;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
-        videoImage = new ImageView();
-        viewPane.getChildren().add(videoImage);
     }
 
     public void setClient(Client client) {
