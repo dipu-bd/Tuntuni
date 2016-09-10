@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video;
 
+import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import javafx.scene.image.Image;
 import org.tuntuni.models.ConnectFor;
@@ -29,18 +30,13 @@ public class ImageFrame extends DataFrame {
         this(null);
     }
 
-    public ImageFrame(ByteBuffer buffer) {
+    public ImageFrame(BufferedImage image) {
         super(ConnectFor.IMAGE);
-        byte[] data = new byte[buffer.limit()];
-        buffer.get(data);
-        setBuffer(data);
+        setBuffer(Commons.imageToBytes(image));
     }
 
     public Image getImage() {
         return Commons.bytesToImage(getBuffer());
     }
 
-    public ByteBuffer getByteBuffer() {
-        return ByteBuffer.wrap(getBuffer());
-    }
 }

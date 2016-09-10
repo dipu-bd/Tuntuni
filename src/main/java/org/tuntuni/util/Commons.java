@@ -15,6 +15,7 @@
  */
 package org.tuntuni.util;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,13 +125,17 @@ public class Commons {
         }
     }
 
-    public static byte[] imageToBytes(Image img) {
+    public static byte[] imageToBytes(BufferedImage img) {
         try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
-            ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", byteOutput);
+            ImageIO.write(img, "png", byteOutput);
             return byteOutput.toByteArray();
         } catch (IOException ex) {
             return null;
         }
+    }
+
+    public static byte[] imageToBytes(Image img) {
+        return imageToBytes(SwingFXUtils.fromFXImage(img, null));
     }
 
     public static Image bytesToImage(byte[] data) {
@@ -152,13 +157,13 @@ public class Commons {
 
     /**
      * Gets a random number between two given numbers (inclusive)
+     *
      * @param from Minimum number
      * @param to Maximum number
-     * @return 
+     * @return
      */
     public static int getRandom(int from, int to) {
         return mRandom.nextInt(to - from + 1) + from;
     }
-    
-    
+
 }

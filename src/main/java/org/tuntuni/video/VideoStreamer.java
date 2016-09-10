@@ -16,13 +16,18 @@
 package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
+import com.sun.imageio.plugins.common.I18N;
+import java.awt.image.BufferedImage;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
 import org.tuntuni.connection.StreamClient;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 
 /**
  *
@@ -40,6 +45,7 @@ public final class VideoStreamer {
 
     /**
      * Creates a new video capturer instance
+     *
      * @param address
      * @param port
      */
@@ -107,13 +113,13 @@ public final class VideoStreamer {
         // run image capture loop
         while (mWebcam.isOpen()) {
             // capture single image
-            ByteBuffer bb = mWebcam.getImageBytes();
-            if (bb == null) {
+            BufferedImage image = mWebcam.getImage();
+            if (image == null) {
                 continue;
             }
             // send image frame
-            Thread t = new Thread(() -> {
-                mClient.sendFrame(new ImageFrame(bb));
+            Thread t = new Thread(() -> { 
+                mClient.sendFrame(new ImageFrame(image));
             });
             t.setDaemon(true);
             t.start();

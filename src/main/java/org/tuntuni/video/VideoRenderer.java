@@ -17,7 +17,6 @@ package org.tuntuni.video;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.image.ImageView;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
