@@ -143,6 +143,6 @@ public class StreamClient {
     }
 
     public boolean isOkay() {
-        return mFailCounter <= MAX_TOLERANCE && mSocket.isConnected();
+        return mFailCounter <= MAX_TOLERANCE && mSocket != null && mSocket.isConnected();
     }
 }
