@@ -16,7 +16,8 @@
 package org.tuntuni.connection;
 
 import java.net.Socket;
-import java.util.TreeSet;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.AudioFrame;
@@ -28,24 +29,17 @@ import org.tuntuni.video.ImageFrame;
  */
 public class StreamServer extends TCPServer {
 
-    private final int AUDIO_BUFFER_SIZE = 30;
-    private final int IMAGE_BUFFER_SIZE = 50;
-
-    // separate audio video frames
-    private long mAudioTime;
-    private long mImageTime;
-    private TreeSet<AudioFrame> mAudio;
-    private TreeSet<ImageFrame> mImage;
+    // separate audio video frames 
+    private ObjectProperty<AudioFrame> mAudio;
+    private ObjectProperty<ImageFrame> mImage;
 
     /**
      * Creates a new stream Server.
      */
     public StreamServer() {
         super("Stream Server", null);
-        mAudioTime = 0;
-        mImageTime = 0;
-        mAudio = new TreeSet<>();
-        mImage = new TreeSet<>();
+        mAudio = new SimpleObjectProperty<>(null);
+        mImage = new SimpleObjectProperty<>(null);
     }
 
     @Override
@@ -53,21 +47,15 @@ public class StreamServer extends TCPServer {
         DataFrame frame = (DataFrame) data[0];
         switch (frame.connectedFor()) {
             case AUDIO:
-                if (frame.getTime() > mAudioTime) {
-                    mAudio.add((AudioFrame) frame);
-                    if (mAudio.size() > AUDIO_BUFFER_SIZE) {
-                        mAudio.remove(mAudio.first());
-                    }
+                if (mAudio.get() != null || frame.getTime() > mAudio.get().getTime()) {
+                    mAudio.set((AudioFrame) frame);
                 }
                 Logs.info(getClass(), "Audio frame received: Time = " + frame.getTime());
                 break;
 
             case IMAGE:
-                if (frame.getTime() > mImageTime) {
-                    mImage.add((ImageFrame) frame);
-                    if (mImage.size() > IMAGE_BUFFER_SIZE) {
-                        mImage.remove(mImage.first());
-                    }
+                if (mImage.get() != null || frame.getTime() > mImage.get().getTime()) {
+                    mImage.set((ImageFrame) frame);
                 }
                 Logs.info(getClass(), "Image frame received: Time = " + frame.getTime());
                 break;
@@ -75,28 +63,11 @@ public class StreamServer extends TCPServer {
         return null;
     }
 
-    public AudioFrame getAudioFrame() {
-        if (mAudio.isEmpty()) {
-            return null;
-        }
-        AudioFrame audFrame = mAudio.first();
-        mAudio.remove(audFrame);
-        mAudioTime = Math.max(mAudioTime, audFrame.getTime());
-        return audFrame;
+    public ObjectProperty<AudioFrame> getAudio() {
+        return mAudio;
     }
 
-    /**
-     * Returns the first frame in time order. If none found a null is returned.
-     *
-     * @return
-     */
-    public ImageFrame getImageFrame() {
-        if (mImage.isEmpty()) {
-            return null;
-        }
-        ImageFrame imgFrame = mImage.first();
-        mImage.remove(imgFrame);
-        mImageTime = Math.max(mImageTime, imgFrame.getTime());
-        return imgFrame;
+    public ObjectProperty<ImageFrame> getImage() {
+        return mImage;
     }
 }

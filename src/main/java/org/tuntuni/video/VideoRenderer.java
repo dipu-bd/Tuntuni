@@ -16,6 +16,8 @@
 package org.tuntuni.video;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.image.ImageView;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -32,10 +34,10 @@ public class VideoRenderer {
     private final StreamServer mServer;
     private final ImageView mImage;
 
-    private Thread mAudioThread;
-    private Thread mVideoThread;
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
+    private ChangeListener<ImageFrame> imageListener;
+    private ChangeListener<AudioFrame> audioListener;
 
     /**
      * Creates a new video renderer instance
@@ -61,8 +63,6 @@ public class VideoRenderer {
         // setup video
         try {
             mImage.setSmooth(true);
-            mImage.setFitWidth(VideoFormat.WIDTH);
-            mImage.setFitHeight(VideoFormat.HEIGHT);
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize image view. ERROR: {0}.", ex);
         }
@@ -72,15 +72,14 @@ public class VideoRenderer {
         // set start time of capturing 
         // setup and start audio thread
         if (mSourceLine != null) {
-            mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
-            mAudioThread.setDaemon(true);
-            mAudioThread.start();
+            mSourceLine.start();
+            audioListener = (ov, o, n) -> audioRunner(n);
+            mServer.getAudio().addListener(audioListener);
         }
         // setup and start video thread
         if (mImage != null) {
-            mVideoThread = new Thread(() -> imageRunner(), "videoRunner");
-            mVideoThread.setDaemon(true);
-            mVideoThread.start();
+            imageListener = (ov, o, n) -> imageRunner(n);
+            mServer.getImage().addListener(imageListener);
         }
     }
 
@@ -88,25 +87,19 @@ public class VideoRenderer {
         // stop audio
         if (mSourceLine != null) {
             mSourceLine.close();
-            mAudioThread.interrupt();
+            mServer.getAudio().removeListener(audioListener);
         }
         // stop video
         if (mImage != null) {
-            mVideoThread.interrupt();
+            mServer.getImage().removeListener(imageListener);
         }
     }
 
-    private void imageRunner() {
+    private void imageRunner(ImageFrame frame) {
         if (mImage == null) {
             return;
         }
-        // run image capture loop
-        while (mServer.isOpen()) {
-            // get single image
-            ImageFrame frame = mServer.getImageFrame();
-            if (frame == null) {
-                continue;
-            }
+        if (mServer.isOpen() && frame != null) {
             // display image
             Platform.runLater(() -> {
                 mImage.setImage(frame.getImage());
@@ -114,19 +107,11 @@ public class VideoRenderer {
         }
     }
 
-    private void audioRunner() {
+    private void audioRunner(AudioFrame frame) {
         if (mSourceLine == null) {
             return;
         }
-        // start target line
-        mSourceLine.start();
-        // run capture loop
-        while (mSourceLine.isOpen() && mServer.isOpen()) {
-            // get frame
-            AudioFrame frame = mServer.getAudioFrame();
-            if (frame == null) {
-                continue;
-            }
+        if (mSourceLine.isOpen() && frame != null) {
             // play audio
             byte[] data = frame.getBuffer();
             mSourceLine.write(data, 0, data.length);

@@ -17,6 +17,7 @@ package org.tuntuni.connection;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.DataFrame;
 
@@ -53,7 +54,9 @@ public class StreamClient extends TCPClient {
             return;
         }
         try {
-            request(frame.connectedFor(), frame);
+            if (frame.connectedFor() == ConnectFor.IMAGE) {
+                request(frame.connectedFor(), frame);
+            }
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to send packet! {0}", ex);
             increaseFailCounter();
