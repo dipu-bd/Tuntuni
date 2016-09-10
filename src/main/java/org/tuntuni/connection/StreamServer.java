@@ -45,14 +45,14 @@ public class StreamServer extends TCPServer {
     void processFrame(DataFrame frame) {
         switch (frame.connectedFor()) {
             case AUDIO:
-                if (mAudio.get() != null || frame.getTime() > mAudio.get().getTime()) {
+                if (mAudio.get() == null || frame.getTime() > mAudio.get().getTime()) {
                     mAudio.set((AudioFrame) frame);
                 }
                 Logs.info(getClass(), "Audio frame received: Time = " + frame.getTime());
                 break;
 
             case IMAGE:
-                if (mImage.get() != null || frame.getTime() > mImage.get().getTime()) {
+                if (mImage.get() == null || frame.getTime() > mImage.get().getTime()) {
                     mImage.set((ImageFrame) frame);
                 }
                 Logs.info(getClass(), "Image frame received: Time = " + frame.getTime());

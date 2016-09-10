@@ -100,6 +100,7 @@ public class VideoRenderer {
         }
         if (mServer.isOpen() && frame != null) {
             // display image
+            System.out.println(">>>>>> Image recieved <<<<<<< ");
             Platform.runLater(() -> {
                 mImage.setImage(frame.getImage());
             });

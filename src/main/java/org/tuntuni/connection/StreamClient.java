@@ -17,7 +17,6 @@ package org.tuntuni.connection;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.tuntuni.video.DataFrame;
