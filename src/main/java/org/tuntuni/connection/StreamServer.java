@@ -18,11 +18,7 @@ package org.tuntuni.connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.models.ConnectFor;
@@ -62,6 +58,7 @@ public class StreamServer extends TCPServer {
                     // read all params
                     processFrame((DataFrame) ois.readObject());
                 } catch (ClassNotFoundException ex) {
+                    Logs.error(getClass(), "Packet could not be recognized. ERROR: {0}.", ex);
                     break;
                 }
             }

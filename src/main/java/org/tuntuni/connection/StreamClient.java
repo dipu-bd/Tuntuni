@@ -50,6 +50,30 @@ public class StreamClient {
         mAddress = new InetSocketAddress(address, port);
     }
 
+    public void open() throws Exception {
+        try {
+            // create a socket
+            mSocket = new Socket();
+            mSocket.connect(mAddress, 1000);
+
+            mOutput = mSocket.getOutputStream();
+            mObjectOutput = new ObjectOutputStream(mOutput);
+
+        } catch (Exception ex) {
+            close();
+            throw ex;
+        }
+    }
+
+    public void close() {
+        try {
+            mObjectOutput.close();
+            mOutput.close();
+            mSocket.close();
+        } catch (Exception ex) {
+        }
+    }
+
     /**
      * Sends a datagram packet with given DataFrame in separate thread
      *
@@ -68,30 +92,6 @@ public class StreamClient {
         }
     }
 
-    public void open() throws Exception {
-        try {
-            // create a socket
-            mSocket = new Socket();
-            mSocket.connect(mAddress, 1000);
-
-            mOutput = mSocket.getOutputStream();
-            mObjectOutput = new ObjectOutputStream(mOutput);
-
-        } catch (Exception ex) {
-            close();
-            throw ex;
-        }
-    }
-
-    public void close() {
-        try {
-            mSocket.close();
-            mOutput.close();
-            mObjectOutput.close(); 
-        } catch (Exception ex) {
-        }
-    }
-
     public void resetFailCounter() {
         mFailCounter = 0;
     }
@@ -101,6 +101,6 @@ public class StreamClient {
     }
 
     public boolean isOkay() {
-        return mFailCounter <= MAX_TOLERANCE;
-    } 
+        return mFailCounter <= MAX_TOLERANCE && mSocket.isConnected();
+    }
 }
