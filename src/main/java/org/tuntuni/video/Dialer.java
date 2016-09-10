@@ -57,7 +57,7 @@ public class Dialer {
             // start videp renderer
             displayVideo();
         } catch (DialerException ex) {
-            Logs.error(getClass(), "Failed to dial. Error: {0}", ex); 
+            Logs.error(getClass(), "Failed to dial. Error: {0}", ex);
             endCall();
             throw ex;
         }
@@ -83,7 +83,7 @@ public class Dialer {
             // start video renderer
             displayVideo();
         } catch (DialerException ex) {
-            Logs.error(getClass(), "Failed to accept. Error: {0}", ex); 
+            Logs.error(getClass(), "Failed to accept. Error: {0}", ex);
             endCall();
             throw ex;
         }
@@ -127,7 +127,10 @@ public class Dialer {
     }
 
     public void stopServer() {
-        mCapturer.stop();
+        if (mServer != null) {
+            mServer.stop();
+            mRenderer.stop();
+        }
     }
 
     public void startClient() {
