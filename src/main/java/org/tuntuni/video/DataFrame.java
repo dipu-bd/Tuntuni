@@ -42,22 +42,6 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         this(ConnectFor.INVALID);
     }
 
-    public ConnectFor connectedFor() {
-        return mType;
-    }
-
-    public long getTime() {
-        return mTime;
-    }
-
-    public byte[] getBuffer() {
-        return mBuffer;
-    }
-
-    public void setBuffer(byte[] data) {
-        mBuffer = data;
-    }
-
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
         oo.writeLong(mTime);
@@ -70,6 +54,22 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         mTime = oi.readLong();
         mBuffer = new byte[oi.readInt()];
         oi.readFully(mBuffer);
+    }
+
+    public ConnectFor connectedFor() {
+        return mType;
+    }
+
+    public long getTime() {
+        return mTime;
+    }
+
+    public byte[] getBuffer() {
+        return mBuffer;
+    }
+
+    public final void setBuffer(byte[] data) {
+        mBuffer = data;
     }
 
     @Override

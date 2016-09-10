@@ -51,7 +51,7 @@ public class StreamServer extends TCPServer {
     @Override
     Object getResponse(ConnectFor status, Socket socket, Object[] data) {
         DataFrame frame = (DataFrame) data[0];
-        switch (status) {
+        switch (frame.connectedFor()) {
             case AUDIO:
                 if (frame.getTime() > mAudioTime) {
                     mAudio.add((AudioFrame) frame);

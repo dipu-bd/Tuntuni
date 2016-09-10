@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-import org.tuntuni.connection.Client;
 import org.tuntuni.connection.StreamClient;
 import org.tuntuni.models.Logs;
 
@@ -32,19 +31,19 @@ public final class VideoCapturer {
 
     private final StreamClient mClient;
 
-    private Webcam mWebcam;
     private Thread mAudioThread;
     private Thread mVideoThread;
+
+    private Webcam mWebcam;
     private DataLine.Info mTargetInfo;
     private TargetDataLine mTargetLine;
 
     /**
      * Creates a new video capturer instance
-     *
-     * @param client
+     * @param address
+     * @param port
      */
     public VideoCapturer(InetAddress address, int port) {
-        System.out.println(">>>> my client = " + address + ":" + port);
         mClient = new StreamClient(address, port);
     }
 
@@ -128,10 +127,10 @@ public final class VideoCapturer {
         }
         // start target line
         mTargetLine.start();
-        int buffer = mTargetLine.getBufferSize() / 10;
+        int buffer = mTargetLine.getBufferSize();
         byte[] data = new byte[buffer];
         // run capture loop
-        while (mTargetLine.isOpen()) {
+        while (mTargetLine.isOpen() && mClient.isOkay()) {
             // read audio
             int len = mTargetLine.read(data, 0, buffer);
             if (len == -1) {
@@ -143,10 +142,6 @@ public final class VideoCapturer {
             });
             t.setDaemon(true);
             t.start();
-            // check if client is up
-            if (!mClient.isOkay()) {
-                break;
-            }
         }
     }
 }
