@@ -46,6 +46,7 @@ public class StreamClient {
     private OutputStream mOutput;
     private ObjectOutputStream mObjectOutput;
     private LinkedList<DataFrame> mFrameToSend;
+    private Thread mClientThread;
 
     /**
      * Creates a new Stream client.
@@ -61,46 +62,64 @@ public class StreamClient {
     }
 
     public void open() throws Exception {
+        mClientThread = new Thread(() -> connect());
+        mClientThread.setDaemon(true);
+        mClientThread.start();
+    }
+
+    public void close() {
+        mOpen = false;
+        mFrameToSend.clear();
+        mClientThread.interrupt();
+    }
+
+    public void connect() {
         mOpen = true;
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
             socket.connect(mAddress, 1000);
             writeLoop(socket);
+
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to open stream client. ERROR: {0}", ex);
         }
     }
 
-    public void close() {
-        mOpen = false;
-        mFrameToSend.clear();
-    }
-
     public void writeLoop(Socket socket) throws IOException {
-        
+
         try ( // get all input streams from socket
                 OutputStream out = socket.getOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(out);) {
 
             // write loop
+            int sleepCount = 0;
             while (mOpen) {
                 try {
                     if (mFrameToSend.isEmpty()) {
-                        Thread.sleep(10);
+                        // wait a while and loop again
+                        Thread.sleep(20);
+                        ++sleepCount;
+                        // if no input for 10 second then break
+                        if (sleepCount > 500) {
+                            break;
+                        }
                         continue;
-                    }
+                    } 
+                    // reset sleep counter
+                    sleepCount = 0;
                     // send data
                     oos.writeObject(mFrameToSend.removeFirst());
                     oos.flush();
                     out.flush();
-
+                    // reset fail counter
                     resetFailCounter();
                 } catch (InterruptedException | IOException ex) {
+                    // failure detected
                     increaseFailCounter();
                 }
             }
-            
+
         }
     }
 
@@ -110,7 +129,7 @@ public class StreamClient {
      * @param frame
      */
     public void sendFrame(final DataFrame frame) {
-        if (!isOkay()) {
+        if (isOkay()) {
             mFrameToSend.addLast(frame);
         }
     }
