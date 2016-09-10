@@ -28,10 +28,10 @@ import org.tuntuni.models.Logs;
  *
  */
 public final class VideoCapturer {
-
+    
     private VideoFormat mFormat;
     private StreamClient mClient;
-
+    
     private Webcam mWebcam;
     private Thread mAudioThread;
     private Thread mVideoThread;
@@ -40,13 +40,14 @@ public final class VideoCapturer {
 
     /**
      * Creates a new video capturer instance
-     * @param client 
+     *
+     * @param client
      */
     public VideoCapturer(Client client) {
-        mFormat = client.getFormat();
+        mFormat = new VideoFormat();
         mClient = new StreamClient(client.getAddress().getAddress(), client.getStreamPort());
     }
-
+    
     public void initialize() {
         // setup audio
         try {
@@ -65,25 +66,23 @@ public final class VideoCapturer {
             Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }
     }
-
+    
     public void start() {
         // set start time of capturing 
         // setup and start audio thread
         if (mTargetLine != null) {
             mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
-            mAudioThread.setPriority(6);
             mAudioThread.setDaemon(true);
             mAudioThread.start();
         }
         // setup and start video thread
         if (mWebcam != null) {
             mVideoThread = new Thread(() -> imageRunner(), "videoRunner");
-            mVideoThread.setPriority(7);
             mVideoThread.setDaemon(true);
             mVideoThread.start();
         }
     }
-
+    
     public void stop() {
         // stop audio
         if (mTargetLine != null) {
@@ -96,7 +95,7 @@ public final class VideoCapturer {
             mVideoThread.interrupt();
         }
     }
-
+    
     private void imageRunner() {
         if (mWebcam == null) {
             return;
@@ -111,16 +110,18 @@ public final class VideoCapturer {
                 continue;
             }
             // send image frame
-            new Thread(() -> {
+            Thread t = new Thread(() -> {
                 mClient.sendPacket(new ImageFrame(bb));
-            }).start();
+            });
+            t.setDaemon(true);
+            t.start();
             // check client is up
             if (!mClient.isOkay()) {
                 break;
             }
         }
     }
-
+    
     private void audioRunner() {
         if (mTargetLine == null) {
             return;
@@ -137,9 +138,11 @@ public final class VideoCapturer {
                 break;
             }
             // send audio frame
-            new Thread(() -> {
+            Thread t = new Thread(() -> {
                 mClient.sendPacket(new AudioFrame(data, len));
-            }).start();
+            });
+            t.setDaemon(true);
+            t.start();
             // check if client is up
             if (!mClient.isOkay()) {
                 break;

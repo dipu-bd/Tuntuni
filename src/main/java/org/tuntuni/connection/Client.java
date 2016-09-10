@@ -175,14 +175,5 @@ public class Client extends TCPClient {
         Object result = request(ConnectFor.STREAM_PORT);
         return (result instanceof Integer) ? (int) result : 0;
     }
-
-    /**
-     * Starts a video call and gets the video format other user might send
-     *
-     * @return
-     */
-    public VideoFormat getFormat() {
-        Object result = request(ConnectFor.FORMAT);
-        return (VideoFormat) result;
-    }
+ 
 }

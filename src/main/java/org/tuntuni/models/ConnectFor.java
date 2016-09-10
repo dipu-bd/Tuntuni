@@ -30,9 +30,7 @@ public enum ConnectFor {
     // to pass audio 
     AUDIO(4),
     // to pass video 
-    IMAGE(5),
-    // to pass video format
-    FORMAT(6),
+    IMAGE(5), 
     // to pass port number 
     PORT(7),
     // to pass RTSP request

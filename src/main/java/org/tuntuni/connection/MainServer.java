@@ -47,9 +47,7 @@ public class MainServer extends TCPServer {
             case PROFILE: // send user data
                 return profile(from);
             case MESSAGE: // a message arrived
-                return message(from, data);
-            case FORMAT:
-                return format(from);
+                return message(from, data); 
             case SLOT:
                 return slot(from);
             case STREAM_PORT:
