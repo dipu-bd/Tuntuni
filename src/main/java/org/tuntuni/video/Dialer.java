@@ -132,7 +132,8 @@ public class Dialer {
     }
 
     public void startClient() {
-        mCapturer = new VideoCapturer(mClient);
+        mCapturer = new VideoCapturer(
+                mClient.getAddress().getAddress(), mClient.getStreamPort());
         mCapturer.initialize();
         mCapturer.start();
     }

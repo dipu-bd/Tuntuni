@@ -16,6 +16,7 @@
 package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -28,9 +29,9 @@ import org.tuntuni.models.Logs;
  *
  */
 public final class VideoCapturer {
-      
+
     private final StreamClient mClient;
-    
+
     private Webcam mWebcam;
     private Thread mAudioThread;
     private Thread mVideoThread;
@@ -42,10 +43,11 @@ public final class VideoCapturer {
      *
      * @param client
      */
-    public VideoCapturer(Client client) { 
-        mClient = new StreamClient(client.getAddress().getAddress(), client.getStreamPort());
+    public VideoCapturer(InetAddress address, int port) {
+        System.out.println(">>>> my client = " + address + ":" + port);
+        mClient = new StreamClient(address, port);
     }
-    
+
     public void initialize() {
         // setup audio
         try {
@@ -64,7 +66,7 @@ public final class VideoCapturer {
             Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }
     }
-    
+
     public void start() {
         // set start time of capturing 
         // setup and start audio thread
@@ -80,7 +82,7 @@ public final class VideoCapturer {
             mVideoThread.start();
         }
     }
-    
+
     public void stop() {
         // stop audio
         if (mTargetLine != null) {
@@ -93,7 +95,7 @@ public final class VideoCapturer {
             mVideoThread.interrupt();
         }
     }
-    
+
     private void imageRunner() {
         if (mWebcam == null) {
             return;
@@ -119,7 +121,7 @@ public final class VideoCapturer {
             }
         }
     }
-    
+
     private void audioRunner() {
         if (mTargetLine == null) {
             return;
