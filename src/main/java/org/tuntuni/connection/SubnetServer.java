@@ -106,7 +106,7 @@ public class SubnetServer implements Runnable {
                 }
 
                 // We have a response
-                Logs.info(getClass(), "Broadcast packet from server: {0}. Response = {1}",
+                Logs.info(getClass(), "Broadcast packet from server: {0}. Data = {1}",
                         packet.getAddress().getHostAddress(), dd.getPort());
 
                 // check validity of the address

@@ -196,10 +196,6 @@ public abstract class TCPServer {
             // param length
             int length = ois.readInt();
 
-            // log this connection
-            Logs.info(this.name(), Logs.SERVER_RECEIVED_CLIENT,
-                    new Object[]{status, length, socket});
-
             // read all params
             Object[] data = new Object[length];
             for (int i = 0; i < length; ++i) {

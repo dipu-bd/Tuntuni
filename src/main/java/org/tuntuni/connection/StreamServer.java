@@ -18,6 +18,7 @@ package org.tuntuni.connection;
 import java.net.Socket;
 import java.util.TreeSet;
 import org.tuntuni.models.ConnectFor;
+import org.tuntuni.models.Logs;
 import org.tuntuni.video.AudioFrame;
 import org.tuntuni.video.DataFrame;
 import org.tuntuni.video.ImageFrame;
@@ -58,7 +59,8 @@ public class StreamServer extends TCPServer {
                         mAudio.remove(mAudio.first());
                     }
                 }
-                return null;
+                Logs.info(getClass(), "Audio frame received: Time = " + frame.getTime());
+                break;
 
             case IMAGE:
                 if (frame.getTime() > mImageTime) {
@@ -67,11 +69,10 @@ public class StreamServer extends TCPServer {
                         mImage.remove(mImage.first());
                     }
                 }
-                return null;
-
-            default:
-                return null;
+                Logs.info(getClass(), "Image frame received: Time = " + frame.getTime());
+                break;
         }
+        return null;
     }
 
     public AudioFrame getAudioFrame() {

@@ -19,6 +19,7 @@ import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
+import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
 
 /**
@@ -41,6 +42,10 @@ public class MainServer extends TCPServer {
      */
     @Override
     Object getResponse(ConnectFor status, Socket from, Object[] data) {
+        // log this connection
+        Logs.info(this.name(), Logs.SERVER_RECEIVED_CLIENT,
+                new Object[]{status, data.length, from});
+
         switch (status) {
             case STATE:
                 return Core.instance().user().getState();
