@@ -54,6 +54,14 @@ public class ProfileController implements Initializable {
     private Button avatarButton;
     @FXML
     private ImageView avatarImage;
+
+    @FXML
+    private Button editNameButton;
+    @FXML
+    private Button editStatusButton;
+    @FXML
+    private Button editAboutMeButton;
+
     @FXML
     private GridPane aboutGridPane;
     @FXML
@@ -64,11 +72,6 @@ public class ProfileController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().profile(this);
-
-        // bind all 
-        userName.textProperty().addListener((a, b, c) -> changeName());
-        statusText.textProperty().addListener((a, b, c) -> changeStatus());
-        aboutMe.textProperty().addListener((a, b, c) -> changeAboutMe());
     }
 
     public synchronized void setClient(Client client) {
@@ -80,49 +83,57 @@ public class ProfileController implements Initializable {
         Platform.runLater(() -> loadAll());
     }
 
-    private synchronized void loadAll() {
-        
-        boolean showme = mClient == null || !mClient.isConnected();
+    private void loadAll() {
+        // preliminary values
+        final boolean showme = (mClient == null);
+        final double width = avatarImage.getFitWidth();
+        final double height = avatarImage.getFitHeight();
 
-        double width = avatarImage.getFitWidth();
-        double height = avatarImage.getFitHeight();
-
-        String name = Core.instance().user().username();
-        String status = Core.instance().user().status();
-        String about = Core.instance().user().aboutme();
-        Image image = Core.instance().user().getAvatarImage(width, height);
-
-        if (!showme) {
-            name = mClient.getUserData().getUserName() + " ";
-            status = mClient.getUserData().getStatus() + " ";
-            about = mClient.getUserData().getAboutMe() + " ";
-            image = mClient.getUserData().getAvatar(width, height);
+        // display all data
+        if (showme) {
+            userName.setText(Core.instance().user().username());
+            statusText.setText(Core.instance().user().status());
+            aboutMe.setText(Core.instance().user().aboutme());
+            avatarImage.setImage(Core.instance().user().getAvatarImage(width, height));
+        } else {
+            userName.setText(mClient.getUserData().getUserName() + " ");
+            statusText.setText(mClient.getUserData().getStatus() + " ");
+            aboutMe.setText(mClient.getUserData().getAboutMe() + " ");
+            avatarImage.setImage(mClient.getUserData().getAvatar(width, height));
         }
 
-        userName.setText(name);
-        statusText.setText(status);
-        aboutMe.setText(about);
-        avatarImage.setImage(image);
-
+        // set edit states of each controls
         aboutMe.setEditable(showme);
         userName.setEditable(showme);
         statusText.setEditable(showme);
+
+        userName.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
+        statusText.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
+        avatarButton.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
+
         messageButton.setVisible(!showme);
         videoCallButton.setVisible(!showme);
+        aboutGridPane.getColumnConstraints().get(1).setMinWidth(showme ? 0 : 160);
+        aboutGridPane.getColumnConstraints().get(1).setMaxWidth(showme ? 0 : 160);
 
-        if (showme) {
-            userName.setCursor(Cursor.TEXT);
-            statusText.setCursor(Cursor.TEXT);
-            avatarButton.setCursor(Cursor.HAND);
-            aboutGridPane.getColumnConstraints().get(1).setMinWidth(0);
-            aboutGridPane.getColumnConstraints().get(1).setMaxWidth(0);
-        } else {
-            userName.setCursor(Cursor.DEFAULT);
-            statusText.setCursor(Cursor.DEFAULT);
-            avatarButton.setCursor(Cursor.DEFAULT);
-            aboutGridPane.getColumnConstraints().get(1).setMinWidth(60);
-            aboutGridPane.getColumnConstraints().get(1).setMaxWidth(60);
-        }
+        // bind them all
+        editNameButton.setVisible(false);
+        userName.textProperty().addListener((a, b, c) -> {
+            editNameButton.setVisible(showme
+                    && !userName.getText().equals(Core.instance().user().username()));
+        });
+
+        editStatusButton.setVisible(false);
+        statusText.textProperty().addListener((a, b, c) -> {
+            editStatusButton.setVisible(showme
+                    && !statusText.getText().equals(Core.instance().user().status()));
+        });
+
+        editAboutMeButton.setVisible(false);
+        aboutMe.textProperty().addListener((a, b, c) -> {
+            editAboutMeButton.setVisible(showme
+                    && !aboutMe.getText().equals(Core.instance().user().aboutme()));
+        });
     }
 
     @FXML
@@ -157,22 +168,22 @@ public class ProfileController implements Initializable {
         refresh();
     }
 
+    @FXML
     private void changeName() {
-        if (mClient == null) {
-            Core.instance().user().username(userName.getText());
-        }
+        Core.instance().user().username(userName.getText());
+        editNameButton.setVisible(false);
     }
 
+    @FXML
     private void changeStatus() {
-        if (mClient == null) {
-            Core.instance().user().status(statusText.getText());
-        }
+        Core.instance().user().status(statusText.getText());
+        editStatusButton.setVisible(false);
     }
 
+    @FXML
     private void changeAboutMe() {
-        if (mClient == null) {
-            Core.instance().user().aboutme(aboutMe.getText());
-        }
+        Core.instance().user().aboutme(aboutMe.getText());
+        editAboutMeButton.setVisible(false);
     }
 
     private void changeAvatar(File choosen) {

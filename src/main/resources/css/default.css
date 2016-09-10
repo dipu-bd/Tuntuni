@@ -28,11 +28,20 @@
     -fx-text-fill: black;
 }
 
+/* HIDE Tab pane header */
+.tab-pane {
+    -fx-tab-max-height: 0; 
+} 
+.tab-pane .tab-header-area {
+    visibility: hidden ;
+}
+
+/*
 .tab-pane .tab-header-background {
     -fx-background-color: transparent;
 }
 
-.tab-pane .tab-label {
+.tab-pane .tab-label { 
     -fx-text-fill: white;
     -fx-font-size: 1.1em;
 }
@@ -51,12 +60,15 @@
 }
 
 .tab-pane .tab-content-area {
+    -fx-min-height: 0;
+    -fx-max-height: 0;
     -fx-background-color: rgba(0,0,0,0.25);
 }
 
 .tab-pane {
     -fx-open-tab-animation: grow;
 }
+*/
 
 .highlight-button {
     -fx-cursor: hand;

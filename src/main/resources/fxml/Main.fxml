@@ -67,7 +67,7 @@
         </ListView>
     </left>
     <center>
-        <TabPane id="tab-pane" fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="120.0" BorderPane.alignment="CENTER">
+        <TabPane id="tab-pane" fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab text="Profile">
                     <content>

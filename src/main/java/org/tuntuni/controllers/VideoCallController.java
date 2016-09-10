@@ -16,11 +16,8 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
-import java.text.Format;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -162,7 +159,7 @@ public class VideoCallController implements Initializable {
             mImage.setValue(null);
             callButton.setUserData(null);
             callButton.setDisable(false);
-            callButton.setText("Start Call");
+            callButton.setText("Send Call");
         });
         mCapturer.stop();
         mRenderer.stop();
