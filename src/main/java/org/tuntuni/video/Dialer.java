@@ -29,7 +29,7 @@ import org.tuntuni.models.Logs;
 public class Dialer {
 
     private Client mClient;
-    private VideoCapturer mCapturer;
+    private VideoStreamer mStreamer;
     private StreamServer mServer;
     private final BooleanProperty mSlot;
     private VideoRenderer mRenderer;
@@ -133,16 +133,20 @@ public class Dialer {
         }
     }
 
-    public void startClient() {
-        mCapturer = new VideoCapturer(
-                mClient.getAddress().getAddress(), mClient.getStreamPort());
-        mCapturer.initialize();
-        mCapturer.start();
+    public void startClient() throws DialerException {
+        try {
+            mStreamer = new VideoStreamer(
+                    mClient.getAddress().getAddress(), mClient.getStreamPort());
+            mStreamer.initialize();
+            mStreamer.start();
+        } catch (Exception ex) {
+            throw new DialerException("Failed to start video streamer");
+        }
     }
 
     public void stopClient() {
-        if (mCapturer != null) {
-            mCapturer.stop();
+        if (mStreamer != null) {
+            mStreamer.stop();
         }
     }
 

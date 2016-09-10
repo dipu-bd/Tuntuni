@@ -15,7 +15,14 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.models.ConnectFor;
@@ -30,8 +37,8 @@ import org.tuntuni.video.ImageFrame;
 public class StreamServer extends TCPServer {
 
     // separate audio video frames 
-    private ObjectProperty<AudioFrame> mAudio;
-    private ObjectProperty<ImageFrame> mImage;
+    private final ObjectProperty<AudioFrame> mAudio;
+    private final ObjectProperty<ImageFrame> mImage;
 
     /**
      * Creates a new stream Server.
@@ -42,9 +49,28 @@ public class StreamServer extends TCPServer {
         mImage = new SimpleObjectProperty<>(null);
     }
 
+    // process a selection key
     @Override
-    Object getResponse(ConnectFor status, Socket socket, Object[] data) {
-        DataFrame frame = (DataFrame) data[0];
+    void processSocket(Socket socket) {
+
+        try ( // DON'T CHANGE THE ORDER
+                InputStream in = socket.getInputStream();
+                ObjectInputStream ois = new ObjectInputStream(in);) {
+
+            while (true) {
+                try {
+                    // read all params
+                    processFrame((DataFrame) ois.readObject());
+                } catch (ClassNotFoundException ex) {
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to process socket. ERROR: {0}", ex);
+        }
+    }
+
+    void processFrame(DataFrame frame) {
         switch (frame.connectedFor()) {
             case AUDIO:
                 if (mAudio.get() != null || frame.getTime() > mAudio.get().getTime()) {
@@ -60,7 +86,6 @@ public class StreamServer extends TCPServer {
                 Logs.info(getClass(), "Image frame received: Time = " + frame.getTime());
                 break;
         }
-        return null;
     }
 
     public ObjectProperty<AudioFrame> getAudio() {
@@ -69,5 +94,10 @@ public class StreamServer extends TCPServer {
 
     public ObjectProperty<ImageFrame> getImage() {
         return mImage;
+    }
+
+    @Override
+    Object getResponse(ConnectFor status, Socket socket, Object[] data) {
+        return null;
     }
 }

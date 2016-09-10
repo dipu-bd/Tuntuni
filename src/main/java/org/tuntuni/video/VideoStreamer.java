@@ -27,7 +27,7 @@ import org.tuntuni.models.Logs;
 /**
  *
  */
-public final class VideoCapturer {
+public final class VideoStreamer {
 
     private final StreamClient mClient;
 
@@ -43,7 +43,7 @@ public final class VideoCapturer {
      * @param address
      * @param port
      */
-    public VideoCapturer(InetAddress address, int port) {
+    public VideoStreamer(InetAddress address, int port) {
         mClient = new StreamClient(address, port);
     }
 
@@ -66,8 +66,9 @@ public final class VideoCapturer {
         }
     }
 
-    public void start() {
-        // set start time of capturing 
+    public void start() throws Exception {
+        // start client
+        mClient.open();
         // setup and start audio thread
         if (mTargetLine != null) {
             mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
@@ -93,6 +94,8 @@ public final class VideoCapturer {
             mWebcam.close();
             mVideoThread.interrupt();
         }
+        // close clientt
+        mClient.close();
     }
 
     private void imageRunner() {
@@ -110,7 +113,7 @@ public final class VideoCapturer {
             }
             // send image frame
             Thread t = new Thread(() -> {
-                mClient.sendPacket(new ImageFrame(bb));
+                mClient.sendFrame(new ImageFrame(bb));
             });
             t.setDaemon(true);
             t.start();
@@ -138,7 +141,7 @@ public final class VideoCapturer {
             }
             // send audio frame
             Thread t = new Thread(() -> {
-                mClient.sendPacket(new AudioFrame(data, len));
+                mClient.sendFrame(new AudioFrame(data, len));
             });
             t.setDaemon(true);
             t.start();

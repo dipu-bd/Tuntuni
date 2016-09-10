@@ -106,7 +106,7 @@ public abstract class TCPClient {
     public int getPort() {
         return mAddress.getPort();
     }
- 
+
     /**
      * Gets the connected property
      *
@@ -175,5 +175,5 @@ public abstract class TCPClient {
         }
         return null;
     }
-
+ 
 }
