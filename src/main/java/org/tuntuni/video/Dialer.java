@@ -17,8 +17,10 @@ package org.tuntuni.video;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.connection.StreamServer;
+import org.tuntuni.models.Logs;
 
 /**
  *
@@ -27,60 +29,72 @@ import org.tuntuni.connection.StreamServer;
 public class Dialer {
 
     private Client mClient;
-    private BooleanProperty mSlot;
-    private StreamServer mServer;
     private VideoCapturer mCapturer;
+    private StreamServer mServer;
+    private final BooleanProperty mSlot;
+    private VideoRenderer mRenderer;
+    private volatile int mAcceptance = -1;
 
     public Dialer() {
         mSlot = new SimpleBooleanProperty(false);
-        mServer = new StreamServer();
     }
 
-    public void dialClient(Client client) throws Exception {
+    public void dialClient(Client client) throws DialerException {
         mClient = client;
         // occupy my slot
         if (!occupySlot()) {
-            throw new Exception("Slot in your pc is unavailable");
+            throw new DialerException("Slot in your pc is unavailable");
         }
-        // occupy a slot in client
-        if (!client.requestSlot()) {
-            throw new Exception("Slot in client pc is unavailable");
+        try {
+            // occupy a slot in client
+            if (!client.requestSlot()) {
+                throw new DialerException("Slot in client pc is unavailable");
+            }
+            // start audio and video server
+            startServer();
+            // get stream server address of client
+            startClient();
+            // dispaly video
+            displayVideo();
+        } catch (DialerException ex) {
+            Logs.severe(null, ex);
+            // free slot
+            freeSlot();
+            throw ex;
         }
-        // start audio and video server
-        startServer();
-        // get stream server address of client
-        startClient();
-        // dispaly video
-        displayVideo();
     }
 
-    public void receiveCall(Client client) throws Exception {
+    public void receiveCall(Client client) throws DialerException {
         mClient = client;
         // check if my slot is available
         if (mSlot.get()) {
-            throw new Exception("Slot is already occupied");
+            throw new DialerException("Slot is already occupied");
         }
         // request user to accept the call
-        if (!acceptCallRequest()) {
-            throw new Exception("Call was rejected by you");
-        }
+        acceptCallRequest();
         // occupy my slot
         if (!occupySlot()) {
-            throw new Exception("Slot in your pc is unavailable");
+            throw new DialerException("Slot in your pc is unavailable");
         }
-        // start audio and video server
-        startServer();
-        // get stream server address of client
-        startClient();
-        // display video
-        displayVideo();
+        try {
+            // start audio and video server
+            startServer();
+            // get stream server address of client
+            startClient();
+            // display video
+            displayVideo();
+        } catch (DialerException ex) {
+            Logs.severe(null, ex);
+            freeSlot();
+            throw ex;
+        }
     }
 
     public void endCall() {
         stopClient();
         stopServer();
         mClient = null;
-        mSlot.set(false);
+        freeSlot();
     }
 
     public boolean occupySlot() {
@@ -88,11 +102,23 @@ public class Dialer {
             return false;
         }
         mSlot.set(true);
+        Core.instance().videocall().callStarting();
         return true;
     }
 
-    public void startServer() throws Exception {
-        mServer.start();
+    public void freeSlot() {
+        mSlot.set(false);
+        Core.instance().videocall().callEnded();
+    }
+
+    public void startServer() throws DialerException {
+        try {
+            mServer = new StreamServer();
+            mServer.start();
+        } catch (Exception ex) {
+            Logs.severe(null, ex);
+            throw new DialerException("Failed to start server");
+        }
     }
 
     public void stopServer() {
@@ -130,11 +156,34 @@ public class Dialer {
         return -1;
     }
 
-    public boolean acceptCallRequest() {
-        return false;
+    public void acceptCallRequest() throws DialerException {
+        try {
+            Core.instance().videocall().acceptCallDialog(mClient);
+            while (mAcceptance == -1) {
+                Thread.sleep(100);
+            }
+            if (mAcceptance != 0) {
+                throw new DialerException("The call was rejected by the user.");
+            };
+        } catch (Exception ex) {
+            Logs.severe(null, ex);
+            throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
+        }
     }
 
-    public void displayVideo() {
+    public void informAcceptance(boolean result) {
+        mAcceptance = result ? 0 : 1;
+    }
 
+    public void displayVideo() throws DialerException {
+        try {
+            Core.instance().videocall().prepareDisplay();
+            mRenderer = new VideoRenderer(mServer, Core.instance().videocall().getVideoImage());
+            mRenderer.initialize();
+            mRenderer.start();
+        } catch (Exception ex) {
+            Logs.severe(null, ex);
+            throw new DialerException("Failed to display image");
+        }
     }
 }

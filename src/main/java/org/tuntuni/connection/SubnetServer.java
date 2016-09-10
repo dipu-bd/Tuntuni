@@ -28,6 +28,7 @@ import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.DiscoveryData;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
+import org.tuntuni.util.SocketUtils;
 
 /**
  * http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
@@ -45,7 +46,7 @@ public class SubnetServer implements Runnable {
      * @param port PORT address to listen
      * @throws java.net.SocketException
      */
-    public SubnetServer(int port) throws SocketException {        
+    public SubnetServer(int port) throws SocketException {
         mPort = port;
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
@@ -115,7 +116,7 @@ public class SubnetServer implements Runnable {
                 }
 
                 // add new client
-                addUser(new Client(new InetSocketAddress(packet.getAddress(), dd.getPort())));
+                addUser(packet.getAddress(), dd.getPort());
 
             } catch (Exception ex) {
                 Logs.error(getClass(), "Error processing multicast socket {0}", ex);
@@ -145,16 +146,23 @@ public class SubnetServer implements Runnable {
      * @param address Address of the user to search for
      * @return null if not found.
      */
-    public Client getClient(InetAddress address) {
-        return mUserList.get(Commons.bytesToInt(address.getAddress()));
+    public Client getClient(final InetAddress address) {
+        return mUserList.get(SocketUtils.addressAsInteger(address));
     }
 
     // add new client to the list
-    private void addUser(Client client) {
-        new Thread(() -> {
-            // check the server for connection status and profile information first
-            client.checkServer();
-            mUserList.put(client.getIntegerAddress(), client);
-        }).start();
+    private void addUser(final InetAddress address, final int port) {
+        Thread t = new Thread(() -> {
+            // check if already added
+            if (getClient(address) == null) {
+                // check the server for connection status and profile information first
+                Client client = new Client(new InetSocketAddress(address, port));
+                client.checkServer();
+                // add new user
+                mUserList.put(client.getIntegerAddress(), client);
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 }

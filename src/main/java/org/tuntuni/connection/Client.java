@@ -23,7 +23,6 @@ import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.UserData;
-import org.tuntuni.video.VideoFormat;
 
 /**
  * Extended by client. It separates data part of client from its connection
@@ -162,7 +161,7 @@ public class Client extends TCPClient {
      * @return
      */
     public boolean requestSlot() {
-        Object result = request(ConnectFor.SLOT);
+        Object result = request(ConnectFor.DIAL);
         return (result instanceof Boolean) ? (boolean) result : false;
     }
 

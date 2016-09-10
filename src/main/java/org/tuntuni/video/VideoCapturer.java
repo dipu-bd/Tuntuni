@@ -28,9 +28,8 @@ import org.tuntuni.models.Logs;
  *
  */
 public final class VideoCapturer {
-    
-    private VideoFormat mFormat;
-    private StreamClient mClient;
+      
+    private final StreamClient mClient;
     
     private Webcam mWebcam;
     private Thread mAudioThread;
@@ -43,17 +42,16 @@ public final class VideoCapturer {
      *
      * @param client
      */
-    public VideoCapturer(Client client) {
-        mFormat = new VideoFormat();
+    public VideoCapturer(Client client) { 
         mClient = new StreamClient(client.getAddress().getAddress(), client.getStreamPort());
     }
     
     public void initialize() {
         // setup audio
         try {
-            mTargetInfo = new DataLine.Info(TargetDataLine.class, mFormat.getAudioFormat());
+            mTargetInfo = new DataLine.Info(TargetDataLine.class, VideoFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
-            mTargetLine.open(mFormat.getAudioFormat());
+            mTargetLine.open(VideoFormat.getAudioFormat());
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize microphone. ERROR: {0}", ex);
         }
@@ -61,7 +59,7 @@ public final class VideoCapturer {
         // setup video
         try {
             mWebcam = Webcam.getDefault();
-            mWebcam.setViewSize(mFormat.getViewSize());
+            mWebcam.setViewSize(VideoFormat.getViewSize());
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }

@@ -34,11 +34,16 @@
                </HBox.margin>
             </Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="callButton" mnemonicParsing="false" onAction="#startVideoCall" prefHeight="30.0" prefWidth="150.0" styleClass="videocall-button" text="Start Call" textFill="#e3ebcb">
+            <Button fx:id="stopButton" mnemonicParsing="false" onAction="#endVideoCall" prefHeight="30.0" prefWidth="150.0" styleClass="videocall-button" text="End Call" textFill="#cbebe3">
                <font>
                   <Font name="System Bold" size="16.0" />
                </font>
             </Button>
+            <Button fx:id="startButton" mnemonicParsing="false" onAction="#startVideoCall" prefHeight="30.0" prefWidth="150.0" styleClass="videocall-button" text="Start Call" textFill="#e3ebcb">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Button> 
          </children>
          <effect>
             <DropShadow />

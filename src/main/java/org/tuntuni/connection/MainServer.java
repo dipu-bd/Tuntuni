@@ -48,8 +48,8 @@ public class MainServer extends TCPServer {
                 return profile(from);
             case MESSAGE: // a message arrived
                 return message(from, data); 
-            case SLOT:
-                return slot(from);
+            case DIAL:
+                return dial(from);
             case STREAM_PORT:
                 return streamPort(from);
         }
@@ -86,7 +86,7 @@ public class MainServer extends TCPServer {
         return false;
     }
 
-    public Object slot(Socket from) {
+    public Object dial(Socket from) {
         try {
             // get client
             Client client = Core.instance().scanner().getClient(from.getInetAddress());

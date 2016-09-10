@@ -164,6 +164,11 @@ public class StreamServer implements Runnable {
         return audFrame;
     }
 
+    /**
+     * Returns the first frame in time order. If none found a null is returned.
+     *
+     * @return
+     */
     public ImageFrame getImageFrame() {
         if (mImage.isEmpty()) {
             return null;

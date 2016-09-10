@@ -77,7 +77,7 @@ public class Subnet {
     // to scan over whole subnet of all networks for active users
     // if new network interfaces are added, it also includes them on the fly
     private final Runnable performScan = () -> {
-        Logs.info(getClass(), Logs.SUBNET_SCAN_START);
+        //Logs.info(getClass(), Logs.SUBNET_SCAN_START);
         try {
             // open a datagram socket at any random port
             mSocket = new DatagramSocket();
@@ -142,7 +142,7 @@ public class Subnet {
     // send broadcast request to given address domain
     private void sendBroadcastRequest(InterfaceAddress ia) {
         try {
-            Logs.info(getClass(), "Sending a port request to ", ia.getBroadcast());
+            //Logs.info(getClass(), "Sending a port request to ", ia.getBroadcast());
 
             // add to my address list
             myAddress.add(ia.getAddress().getHostAddress());
