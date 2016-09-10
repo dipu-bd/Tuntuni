@@ -91,10 +91,13 @@ public class Dialer {
     }
 
     public void endCall() {
-        stopClient();
-        stopServer();
-        mClient = null;
-        freeSlot();
+        try {
+            stopClient();
+            stopServer();
+            mClient = null;
+            freeSlot();
+        } catch (Exception ex) {
+        }
     }
 
     public boolean occupySlot() {

@@ -136,9 +136,7 @@ public abstract class TCPServer {
                 initialize();
             }
             // execute server in separate thread
-            mExecutor.submit(() -> {
-                runServer();
-            });
+            mExecutor.submit(() -> runServer());
         } catch (IOException ex) {
             mError = ex;
         }

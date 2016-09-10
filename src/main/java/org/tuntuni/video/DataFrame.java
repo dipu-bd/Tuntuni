@@ -27,7 +27,7 @@ import org.tuntuni.models.ConnectFor;
  */
 public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
-    private static int FRAME_NUMBER = 0;
+    public static long FRAME_NUMBER = 1;
 
     private long mTime;
     private byte[] mBuffer;
