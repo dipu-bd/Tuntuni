@@ -16,18 +16,13 @@
 package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
-import com.sun.imageio.plugins.common.I18N;
 import java.awt.image.BufferedImage;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
 import org.tuntuni.connection.StreamClient;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.Commons;
 
 /**
  *
@@ -72,7 +67,7 @@ public final class VideoStreamer {
         }
     }
 
-    public void start() throws Exception { 
+    public void start() throws Exception {
         // setup and start audio thread
         if (mTargetLine != null) {
             mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
@@ -97,7 +92,7 @@ public final class VideoStreamer {
         if (mWebcam != null) {
             mWebcam.close();
             mVideoThread.interrupt();
-        } 
+        }
     }
 
     private void imageRunner() {
@@ -107,22 +102,14 @@ public final class VideoStreamer {
         // start image line
         mWebcam.open();
         // run image capture loop
-        while (mWebcam.isOpen()) {
+        while (mWebcam.isOpen() && mClient.isOkay()) {
             // capture single image
             BufferedImage image = mWebcam.getImage();
             if (image == null) {
                 continue;
             }
-            // send image frame
-            Thread t = new Thread(() -> { 
-                mClient.sendFrame(new ImageFrame(image));
-            });
-            t.setDaemon(true);
-            t.start();
-            // check client is up
-            if (!mClient.isOkay()) {
-                break;
-            }
+            // send image frame 
+            mClient.sendFrame(new ImageFrame(image));
         }
     }
 
@@ -141,12 +128,8 @@ public final class VideoStreamer {
             if (len == -1) {
                 break;
             }
-            // send audio frame
-            Thread t = new Thread(() -> {
-                mClient.sendFrame(new AudioFrame(data, len));
-            });
-            t.setDaemon(true);
-            t.start();
+            // send audio frame 
+            mClient.sendFrame(new AudioFrame(data, len));
         }
     }
 }

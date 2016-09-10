@@ -15,17 +15,11 @@
  */
 package org.tuntuni.connection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.LinkedList;
-import org.tuntuni.models.Logs;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.tuntuni.video.DataFrame;
 
 /**
@@ -38,7 +32,8 @@ public class StreamClient extends TCPClient {
     public final int MAX_TOLERANCE = 40;
     public final int MAX_CONCURRENT_CONNECTION = 15;
 
-    private int mFailCounter;
+    private volatile int mFailCounter;
+    private ExecutorService mExecutor;
 
     /**
      * Creates a new Stream client.
@@ -49,6 +44,7 @@ public class StreamClient extends TCPClient {
     public StreamClient(InetAddress address, int port) {
         super(new InetSocketAddress(address, port));
         mFailCounter = 0;
+        mExecutor = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -58,12 +54,14 @@ public class StreamClient extends TCPClient {
      */
     public void sendFrame(final DataFrame frame) {
         if (isOkay()) {
-            try {
-                request(frame.connectedFor(), frame);
-                resetFailCounter();
-            } catch (Exception ex) {
-                increaseFailCounter();
-            }
+            mExecutor.submit(() -> {
+                try {
+                    request(frame.connectedFor(), frame);
+                    resetFailCounter();
+                } catch (Exception ex) {
+                    increaseFailCounter();
+                }
+            });
         }
     }
 
