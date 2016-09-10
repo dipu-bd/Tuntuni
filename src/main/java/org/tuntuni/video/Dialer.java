@@ -144,7 +144,7 @@ public class Dialer {
         try {
             // wait atmost 10 sec until server is up.
             for (int i = 0; i < 100; ++i) {
-                if (mServer.isRunning()) {
+                if (mServer.isOpen()) {
                     return mServer.getPort();
                 }
                 Thread.sleep(100);

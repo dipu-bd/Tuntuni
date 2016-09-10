@@ -101,7 +101,7 @@ public class VideoRenderer {
             return;
         }
         // run image capture loop
-        while (mServer.isRunning()) {
+        while (mServer.isOpen()) {
             // get single image
             ImageFrame frame = mServer.getImageFrame();
             if (frame == null) {
@@ -121,7 +121,7 @@ public class VideoRenderer {
         // start target line
         mSourceLine.start();
         // run capture loop
-        while (mSourceLine.isOpen() && mServer.isRunning()) {
+        while (mSourceLine.isOpen() && mServer.isOpen()) {
             // get frame
             AudioFrame frame = mServer.getAudioFrame();
             if (frame == null) {

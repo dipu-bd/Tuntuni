@@ -15,12 +15,9 @@
  */
 package org.tuntuni.connection;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.InetSocketAddress;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.Commons;
 import org.tuntuni.video.DataFrame;
 
 /**
@@ -28,14 +25,12 @@ import org.tuntuni.video.DataFrame;
  * <p>
  * To connect with the server you have to call {@linkplain connect()}. </p>
  */
-public class StreamClient {
+public class StreamClient extends TCPClient {
 
     public final int MAX_TOLERANCE = 40;
     public final int MAX_CONCURRENT_CONNECTION = 15;
 
     private int mFailCounter;
-    private final int mPort;
-    private final InetAddress mAddress;
 
     /**
      * Creates a new Stream client.
@@ -44,9 +39,8 @@ public class StreamClient {
      * @param port
      */
     public StreamClient(InetAddress address, int port) {
+        super(new InetSocketAddress(address, port));
         mFailCounter = 0;
-        mPort = port;
-        mAddress = address;
     }
 
     /**
@@ -59,37 +53,11 @@ public class StreamClient {
             return;
         }
         try {
-            // create new instance of socket
-            int port = Commons.getRandom(10_000, 65500);
-            DatagramSocket socket = createSocket();
-
-            // data to send
-            byte[] sendData = Commons.toBytes(frame);
-            System.out.println(">>>> message size: " + sendData);
-            // Send the broadcast package! 
-            socket.send(new DatagramPacket(sendData, sendData.length, mAddress, mPort));
-            // reset fail counter
-            resetFailCounter();
-            
-            // must close socket
-            socket.close();
-
+            request(frame.connectedFor(), frame);
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to send packet! {0}", ex);
             increaseFailCounter();
         }
-    }
-
-    public DatagramSocket createSocket() throws Exception {
-        // create new instance of socket 
-        for (int i = 0; i < 10; ++i) {
-            try {
-                int port = Commons.getRandom(10_000, 65500);
-                return new DatagramSocket(port);
-            } catch (SocketException ex) {
-            }
-        }
-        throw new NullPointerException("Failed to create socket");
     }
 
     public void resetFailCounter() {
