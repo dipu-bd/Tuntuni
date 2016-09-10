@@ -46,20 +46,19 @@ public class Dialer {
             throw new DialerException("Slot in your pc is unavailable");
         }
         try {
+            // start audio and video server
+            startServer();
             // occupy a slot in client
             if (!client.requestSlot()) {
                 throw new DialerException("Slot in client pc is unavailable");
             }
-            // start audio and video server
-            startServer();
             // start video capturer
             startClient();
             // start videp renderer
             displayVideo();
         } catch (DialerException ex) {
-            Logs.severe(null, ex);
-            // free slot
-            freeSlot();
+            Logs.error(getClass(), "Failed to dial. Error: {0}", ex); 
+            endCall();
             throw ex;
         }
     }
@@ -84,8 +83,8 @@ public class Dialer {
             // start video renderer
             displayVideo();
         } catch (DialerException ex) {
-            Logs.severe(null, ex);
-            freeSlot();
+            Logs.error(getClass(), "Failed to accept. Error: {0}", ex); 
+            endCall();
             throw ex;
         }
     }
