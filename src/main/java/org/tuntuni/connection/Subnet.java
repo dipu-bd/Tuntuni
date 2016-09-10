@@ -18,6 +18,7 @@ package org.tuntuni.connection;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -38,7 +38,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.SocketUtils;
 
 /**
  * Search all subnet masks for active users and update user-list periodically.
@@ -161,19 +160,19 @@ public class Subnet {
     };
 
     // check all address avaiable in a network interface
-    private void checkNetworkInterface(NetworkInterface netFace) {
+    private void checkNetworkInterface(NetworkInterface ni) {
         try {
             // loopbacks are not necessary to check
             // only check the interface that is up or active.
-            if (netFace.isLoopback() || !netFace.isUp()) {
+            if (ni.isLoopback() || !ni.isUp()) {
                 return;
             }
 
             // list of all tasks
-            ArrayList<Callable<Integer>> taskList = new ArrayList<>();
+            //ArrayList<Callable<Integer>> taskList = new ArrayList<>();
 
             // loop through addresses assigned to this interface. (usually 1)
-            netFace.getInterfaceAddresses().stream().forEach((ia) -> {
+            ni.getInterfaceAddresses().stream().forEach((ia) -> {
                 // get network address
                 InetAddress address = ia.getAddress();
 
@@ -191,42 +190,48 @@ public class Subnet {
                 }
 
                 logger.log(Level.INFO, Logs.SUBNET_CHECKING_SUBNETS, address.getHostAddress());
-
-                // get network's first and last hosts
-                int prefix = ia.getNetworkPrefixLength();
-                int current = SocketUtils.addressAsInteger(address);
-                int first = SocketUtils.getFirstHost(address, prefix);
-                int last = SocketUtils.getLastHost(address, prefix);
-                /*
-                 System.out.println("Prefix Length: " + prefix);
-                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
-                 System.out.println("  First Address : " + SocketUtils.addressAsString(first));
-                 System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
-                 */
-                // find all active hosts in the same local network
-                for (int ip = first; ip <= last; ++ip) {
-                    // skip current address
-                    if (ip == current) {
-                        continue;
-                    }
-                    String host = SocketUtils.addressAsString(ip);
-                    taskList.add(checkAddress(host, false));
-                }
-
-                if (TEST_MODE) {
-                    testMode(address.getHostAddress());
-                }
+                
+                sendBroadcastRequest(ia);
+ 
+//                // get network's first and last hosts
+//                int prefix = ia.getNetworkPrefixLength();
+//                int current = SocketUtils.addressAsInteger(address);
+//                int first = SocketUtils.getFirstHost(address, prefix);
+//                int last = SocketUtils.getLastHost(address, prefix);
+//                /*
+//                 System.out.println("Prefix Length: " + prefix);
+//                 System.out.println("Current Address : " + SocketUtils.addressAsString(current));
+//                 System.out.println("  First Address : " + SocketUtils.addressAsString(first));
+//                 System.out.println("   Last Address : " + SocketUtils.addressAsString(last));
+//                 */
+//                // find all active hosts in the same local network
+//                for (int ip = first; ip <= last; ++ip) {
+//                    // skip current address
+//                    if (ip == current) {
+//                        continue;
+//                    }
+//                    String host = SocketUtils.addressAsString(ip);
+//                    taskList.add(checkAddress(host, false));
+//                }
+//
+//                if (TEST_MODE) {
+//                    testMode(address.getHostAddress());
+//                }
+                
             });
 
             // wait until all tasks are done    
-            mExecutor.invokeAll(taskList);
-            changeState();
+            //mExecutor.invokeAll(taskList);
+            //changeState();
 
         } catch (SocketException ex) {
             logger.log(Level.SEVERE, Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
-        } catch (InterruptedException iex) {
-            //logger.log(Level.SEVERE, null, ex);
-        }
+        }  
+    }
+    
+    // send broadcast request to given address domain
+    private void sendBroadcastRequest(InterfaceAddress ia) {
+        
     }
 
     // check if the given address is active.    
