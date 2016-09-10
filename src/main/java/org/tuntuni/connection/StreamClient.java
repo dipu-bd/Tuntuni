@@ -43,6 +43,7 @@ public class StreamClient {
 
     /**
      * Creates a new Stream client.
+     *
      * @param address
      * @param port
      */
@@ -65,18 +66,19 @@ public class StreamClient {
             // create new instance of socket
             int port = Commons.getRandom(10_000, 65500);
             DatagramSocket socket = createSocket();
- 
+
             // data to send
             byte[] sendData = Commons.toBytes(frame);
             // Send the broadcast package! 
             socket.send(new DatagramPacket(sendData, sendData.length, mAddress, mPort));
             // reset fail counter
             resetFailCounter();
-
+            
+            // must close socket
             socket.close();
 
         } catch (Exception ex) {
-            Logs.severe(null, ex);
+            Logs.error(getClass(), "Failed to send packet! {0}", ex);
             increaseFailCounter();
         }
     }
@@ -90,9 +92,9 @@ public class StreamClient {
             } catch (SocketException ex) {
             }
         }
-        throw new NullPointerException();
+        throw new NullPointerException("Failed to create socket");
     }
- 
+
     public void resetFailCounter() {
         mFailCounter = 0;
     }

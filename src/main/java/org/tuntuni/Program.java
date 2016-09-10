@@ -54,6 +54,10 @@ public class Program extends Application {
         stage.setTitle("Tuntuni");
         // set the scene to stage
         stage.setScene(scene);
+        
+        // stage size
+        stage.setWidth(1024);
+        stage.setHeight(600);
 
         // set the icon
         Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        
