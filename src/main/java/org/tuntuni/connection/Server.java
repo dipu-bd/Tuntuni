@@ -27,14 +27,9 @@ import org.tuntuni.util.SocketUtils;
  * Server from a client socket.
  */
 public class Server extends AbstractServer {
-
-    public static final int PORTS[] = {
-        24914, //PRIMARY_PORT
-        42016, //BACKUP_PORT  
-    };
-
+ 
     public Server() {
-        super("Main Server", PORTS);
+        super("Main Server", null);
     }
 
     /**

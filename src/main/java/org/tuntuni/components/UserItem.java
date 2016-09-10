@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import org.tuntuni.connection.Client;
+import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 
 /**
@@ -32,9 +33,7 @@ import org.tuntuni.util.Commons;
  * @author Sudipto Chandra
  */
 public class UserItem extends BorderPane {
-    
-    private static Logger logger = Logger.getGlobal();
-    
+
     public static UserItem createInstance(Client client) {
         try {
             // build the component
@@ -44,20 +43,20 @@ public class UserItem extends BorderPane {
             // return main object
             return uitem;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            Logs.error("UserItem", null, ex);
+            return null;
         }
-        return null;
     }
-    
+
     @FXML
     private ImageView imageView;
     @FXML
     private Label fullName;
     @FXML
     private Label statusLabel;
-    
+
     private Client mClient;
-    
+
     private void refresh() {
         if (mClient == null || mClient.getUserData() == null) {
             return;
@@ -68,16 +67,16 @@ public class UserItem extends BorderPane {
         String status = mClient.getUserData().getStatus();
         statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
     }
-    
+
     private void setClient(Client client) {
         mClient = client;
         mClient.userdataProperty().addListener((ov, n, o)
                 -> Platform.runLater(() -> refresh()));
         refresh();
     }
-    
+
     public Client getClient() {
         return mClient;
     }
-    
+
 }

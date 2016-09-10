@@ -54,7 +54,7 @@ public class ClientTest {
     @Test
     public void testConstructor() throws Exception {
         System.out.println("testConstructor()");
-        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
+        Client instance = new Client(new InetSocketAddress(Core.PORTS[0]));
         assertNotNull(instance);
         System.out.println();
     }
@@ -62,7 +62,7 @@ public class ClientTest {
     @Test
     public void testServer() throws Exception {
         System.out.println("testServer()");
-        Client instance = new Client(new InetSocketAddress(Server.PORTS[0]));
+        Client instance = new Client(new InetSocketAddress(Core.PORTS[0]));
         assertNotNull(instance);
         System.out.println("++host=" + instance.getHostString());
         boolean result = instance.checkServer();
@@ -74,7 +74,7 @@ public class ClientTest {
     public void testRandom() throws Exception {
         System.out.println("testRandom()");
         Client instance = new Client(
-                new InetSocketAddress("192.121.11.23", Server.PORTS[0]));
+                new InetSocketAddress("192.121.11.23", Core.PORTS[0]));
         assertNotNull(instance);
         System.out.println("++host=" + instance.getHostString());
         boolean result = instance.checkServer();

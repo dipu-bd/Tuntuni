@@ -23,10 +23,10 @@ import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.Core;
@@ -40,16 +40,18 @@ import org.tuntuni.util.Commons;
 public class Subnet {
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
-    public static final int SCAN_INTERVAL_MILLIS = 15_000;
+    public static final int SCAN_INTERVAL_MILLIS = 5_000;
 
     private DatagramSocket mSocket;
     private final ScheduledExecutorService mSchedular;
+    private final HashSet<String> myAddress;
     private final SimpleMapProperty<String, Client> mUserList;
 
     /**
      * Creates a new instance of Subnet.
      */
     public Subnet() {
+        myAddress = new HashSet<>();
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
         mSchedular = Executors.newSingleThreadScheduledExecutor();
     }
@@ -81,7 +83,7 @@ public class Subnet {
             return mUserList.get(address);
         }
     }
- 
+
     ////////////////////////////////////////////////////////////////////////////
     // MOST IMPORTANT: Start or stop subnet scans
     ////////////////////////////////////////////////////////////////////////////    
@@ -101,7 +103,7 @@ public class Subnet {
     /**
      * Cancel the scheduled task.
      */
-    public void stop() { 
+    public void stop() {
         mSchedular.shutdownNow();
     }
 
@@ -169,14 +171,17 @@ public class Subnet {
             });
 
         } catch (Exception ex) {
-             Logs.error(getClass(), Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
+            Logs.error(getClass(), Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
         }
     }
 
     // send broadcast request to given address domain
     private void sendBroadcastRequest(InterfaceAddress ia) {
         try {
-            Logs.info(getClass(), Logs.SUBNET_CHECKING_SUBNETS, ia.getAddress().getHostAddress());
+            Logs.info(getClass(), "Sending a port request to ", ia.getBroadcast());
+
+            // add to my address list
+            myAddress.add(ia.getAddress().getHostAddress());
 
             // data to send
             byte[] sendData = {ConnectFor.PORT.data()};
@@ -204,13 +209,17 @@ public class Subnet {
             int port = Commons.bytesToInt(data);
 
             // We have a response
-            Logs.info(getClass(), "Broadcast response from server: {0}",
-                    receivePacket.getAddress().getHostAddress());
+            Logs.info(getClass(), "Broadcast response from server: {0}. Response = {1}",
+                    receivePacket.getAddress().getHostAddress(), port);
 
-            // add a new client
-            Client client = new Client(new InetSocketAddress(receivePacket.getAddress(), port));
-            addUser(client);
+            // check validity of the address
+            if (port == Core.instance().server().getPort()
+                    && myAddress.contains(receivePacket.getAddress().getHostAddress())) {
+                return;
+            }
 
+            // add new client
+            addUser(new Client(new InetSocketAddress(receivePacket.getAddress(), port)));
         } catch (Exception ex) {
             Logs.error(getClass(), "Error recieving broadcast response: {0}", ex);
         }
@@ -218,8 +227,10 @@ public class Subnet {
 
     // add new client to the list
     private void addUser(Client client) {
-        Platform.runLater(() -> {
+        new Thread(() -> {
+            // check the server for connection status and profile information first
+            client.checkServer();
             mUserList.put(client.getHostString(), client);
-        });
+        }).start();
     }
 }

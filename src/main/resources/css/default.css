@@ -91,7 +91,7 @@
 }
 
 #message-receiver {
-    //-fx-padding: 3px 50px 3px 6px;      
+    /* -fx-padding: 3px 50px 3px 6px;  */  
 }
 
 #message-receiver .inner-grid {
@@ -100,7 +100,7 @@
 }
 
 #message-sender { 
-    //-fx-padding: 3px 6px 3px 50px;     
+    /* -fx-padding: 3px 6px 3px 50px; */    
 }
 
 #message-sender .inner-grid {

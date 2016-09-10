@@ -17,7 +17,6 @@ package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -60,26 +59,23 @@ public class MainController implements Initializable {
         // set main controller to core
         Core.instance().main(this);
 
-        // build user list later
-        Platform.runLater(() -> {
-            // run build immediately
-            buildUserList();
-            // listen to user list change
-            Core.instance().subnet().userListProperty().addListener((ov, o, n)
-                    -> Platform.runLater(() -> buildUserList()));
+        // listen to user list change
+        Core.instance().subnet().userListProperty().addListener((ov, o, n)
+                -> Platform.runLater(() -> buildUserList()));
 
-            // bind profile button text
-            profileButton.setText(Core.instance().user().username());
-            Core.instance().user().usernameProperty().addListener(
-                    (ov, o, n) -> profileButton.setText(n));
+        Core.instance().user().usernameProperty().addListener(
+                (ov, o, n) -> profileButton.setText(n));
 
-            // avatar image
-            ChangeListener updateAvatar = (ov, o, n)
-                    -> ((ImageView) profileButton.getGraphic())
-                    .setImage(Core.instance().user().getAvatarImage(32, 32));
-            updateAvatar.changed(null, null, null);
-            Core.instance().user().avatarProperty().addListener(updateAvatar);
-        });
+        // bind profile button text
+        profileButton.setText(Core.instance().user().username());
+
+        // avatar image
+        ChangeListener updateAvatar = (ov, o, n)
+                -> ((ImageView) profileButton.getGraphic())
+                .setImage(Core.instance().user().getAvatarImage(32, 32));
+        updateAvatar.changed(null, null, null);
+
+        Core.instance().user().avatarProperty().addListener(updateAvatar);
     }
 
     @FXML
@@ -89,25 +85,20 @@ public class MainController implements Initializable {
         userList.getSelectionModel().clearSelection();
     }
 
-    private synchronized void buildUserList() {
-        // defaine client consumer
-        Consumer<Client> consumer = (client) -> {
-            // check if client is connected
-            if (client.isConnected()) {
-                // show client
-                UserItem item = UserItem.createInstance(client);
-                userList.getItems().add(item);
-                item.setOnMouseClicked((evt) -> showUser(item));
-                item.setOnKeyReleased((evt) -> showUser(item));
-            }
-        };
-        // add all items
+    private void buildUserList() {
+        // clear previous items
         userList.getItems().clear();
-        Core.instance().subnet().userListProperty()
-                .values().stream().forEach(consumer);
+        // add all items 
+        for (Client client : Core.instance().subnet().userListProperty().values()) {
+            // show client
+            UserItem item = UserItem.createInstance(client);
+            userList.getItems().add(item);
+            item.setOnMouseClicked((evt) -> showUser(item));
+            item.setOnKeyReleased((evt) -> showUser(item));
+        }
         // hide user list if no items
         userList.setPrefWidth(userList.getItems().isEmpty() ? 0.0 : 250.0);
-        // refresh last user
+        // refresh profile view to show last user information
         Core.instance().profile().refresh();
     }
 
