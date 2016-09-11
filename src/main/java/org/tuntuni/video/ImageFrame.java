@@ -16,7 +16,6 @@
 package org.tuntuni.video;
 
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import javafx.scene.image.Image;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.util.Commons;

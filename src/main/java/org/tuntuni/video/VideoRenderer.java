@@ -109,7 +109,8 @@ public class VideoRenderer {
             ImageFrame frame = mClient.getImage();
             
             if (frame != null) {
-                resetFailCounter();
+                resetFailCounter(); 
+                
                 // display image 
                 Platform.runLater(() -> {
                     mImage.setImage(frame.getImage());
@@ -124,7 +125,7 @@ public class VideoRenderer {
         mSourceLine.start();
         while (isOkay()) {
             // request audio
-            AudioFrame frame = mClient.getAudio();
+            AudioFrame frame = mClient.getAudio(); 
             
             if (mSourceLine.isOpen() && frame != null) {
                 resetFailCounter();

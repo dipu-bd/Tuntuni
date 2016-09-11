@@ -17,9 +17,11 @@ package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
 import java.awt.image.BufferedImage;
+import javafx.application.Platform;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
+import org.tuntuni.Core;
 import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
 
@@ -105,8 +107,8 @@ public final class VideoStreamer {
             if (image == null) {
                 continue;
             }
-            // send image frame 
-            mServer.addImage(new ImageFrame(image));
+            // send image frame  
+            mServer.addImage(new ImageFrame(image)); 
         }
     }
 

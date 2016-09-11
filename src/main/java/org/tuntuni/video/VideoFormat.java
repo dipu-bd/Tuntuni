@@ -30,7 +30,7 @@ public abstract class VideoFormat {
     // frame height
     public static final int HEIGHT = 480;
     // image type
-    public static final int TYPE = BufferedImage.TYPE_INT_RGB;
+    public static final int TYPE = BufferedImage.TYPE_INT_ARGB;
 
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;

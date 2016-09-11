@@ -19,6 +19,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.tuntuni.models.ConnectFor;
 
@@ -28,6 +29,8 @@ import org.tuntuni.models.ConnectFor;
 public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     public static long FRAME_NUMBER = 1;
+    // maximum buffer to send at a time
+    private static final int CHUNK_SIZE = 10_000;
 
     private long mTime;
     private byte[] mBuffer;
@@ -47,7 +50,12 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         oo.writeByte(mType.data());
         oo.writeLong(mTime);
         oo.writeInt(mBuffer.length);
-        oo.write(mBuffer);
+        // write data in chunks
+        for (int pos = 0; pos < mBuffer.length; pos += CHUNK_SIZE) {
+            int len = mBuffer.length - pos;
+            len = Math.min(len, CHUNK_SIZE);
+            oo.write(mBuffer, pos, len);
+        }
     }
 
     @Override
@@ -55,7 +63,12 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         mType = ConnectFor.from(oi.readByte());
         mTime = oi.readLong();
         mBuffer = new byte[oi.readInt()];
-        oi.readFully(mBuffer);
+         // read data in chunks
+        for (int pos = 0; pos < mBuffer.length; pos += CHUNK_SIZE) {
+            int len = mBuffer.length - pos;
+            len = Math.min(len, CHUNK_SIZE);
+            oi.readFully(mBuffer, pos, len);
+        }
     }
 
     public ConnectFor connectedFor() {

@@ -206,10 +206,12 @@ public abstract class TCPServer {
             Object result = getResponse(status, socket, data);
             if (result != null) {
                 oos.writeObject(result);
+                oos.flush();
             }
 
         } catch (IOException ex) {
             Logs.warning(getClass(), Logs.SERVER_IO_FAILED, ex);
+            ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
             Logs.warning(this.name(), Logs.SOCKET_CLASS_FAILED, ex);
         }
