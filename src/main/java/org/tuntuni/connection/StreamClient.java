@@ -17,9 +17,9 @@ package org.tuntuni.connection;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.tuntuni.video.DataFrame;
+import org.tuntuni.models.ConnectFor;
+import org.tuntuni.video.AudioFrame;
+import org.tuntuni.video.ImageFrame;
 
 /**
  * To manage connection with stream server sockets.
@@ -28,11 +28,10 @@ import org.tuntuni.video.DataFrame;
  */
 public class StreamClient extends TCPClient {
 
-    public final int MAX_TOLERANCE = 40;
-    public final int MAX_CONCURRENT_CONNECTION = 15;
-
-    private volatile int mFailCounter;
-    private ExecutorService mExecutor;
+    private long lastAudio;
+    private long lastImage;
+    private AudioFrame mAudio;
+    private ImageFrame mImage;
 
     /**
      * Creates a new Stream client.
@@ -42,37 +41,34 @@ public class StreamClient extends TCPClient {
      */
     public StreamClient(InetAddress address, int port) {
         super(new InetSocketAddress(address, port));
-        mFailCounter = 0;
-        mExecutor = Executors.newSingleThreadExecutor();
     }
 
     /**
      * Sends a datagram packet with given DataFrame in separate thread
      *
-     * @param frame
+     * @return
      */
-    public void sendFrame(final DataFrame frame) {
-        if (isOkay()) {
-            mExecutor.submit(() -> {
-                try {
-                    request(frame.connectedFor(), frame);
-                    resetFailCounter();
-                } catch (Exception ex) {
-                    increaseFailCounter();
-                }
-            });
+    public AudioFrame getAudio() {
+        Object data = request(ConnectFor.AUDIO, lastAudio);
+        if (data instanceof AudioFrame) {
+            mAudio = (AudioFrame) data;
+            lastAudio = Math.max(lastAudio, mAudio.getTime());
         }
+        return mAudio;
     }
 
-    public void resetFailCounter() {
-        mFailCounter = 0;
+    /**
+     * Sends a datagram packet with given DataFrame in separate thread
+     *
+     * @return
+     */
+    public ImageFrame getImage() {
+        Object data = request(ConnectFor.IMAGE, lastImage);
+        if (data instanceof ImageFrame) {
+            mImage = (ImageFrame) data;
+            lastImage = Math.max(lastImage, mImage.getTime());
+        }
+        return mImage;
     }
 
-    public void increaseFailCounter() {
-        mFailCounter++;
-    }
-
-    public boolean isOkay() {
-        return mFailCounter <= MAX_TOLERANCE;
-    }
 }

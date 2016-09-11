@@ -17,11 +17,10 @@ package org.tuntuni.video;
 
 import com.github.sarxos.webcam.Webcam;
 import java.awt.image.BufferedImage;
-import java.net.InetAddress;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-import org.tuntuni.connection.StreamClient;
+import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
 
 /**
@@ -29,7 +28,7 @@ import org.tuntuni.models.Logs;
  */
 public final class VideoStreamer {
 
-    private final StreamClient mClient;
+    private final StreamServer mServer;
 
     private Thread mAudioThread;
     private Thread mVideoThread;
@@ -41,11 +40,10 @@ public final class VideoStreamer {
     /**
      * Creates a new video capturer instance
      *
-     * @param address
-     * @param port
+     * @param server
      */
-    public VideoStreamer(InetAddress address, int port) {
-        mClient = new StreamClient(address, port);
+    public VideoStreamer(StreamServer server) {
+        mServer = server;
     }
 
     public void initialize() {
@@ -60,7 +58,7 @@ public final class VideoStreamer {
 
         // setup video
         try {
-            mWebcam = Webcam.getDefault(); 
+            mWebcam = Webcam.getDefault();
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }
@@ -101,14 +99,14 @@ public final class VideoStreamer {
         // start image line
         mWebcam.open();
         // run image capture loop
-        while (mWebcam.isOpen() && mClient.isOkay()) {
+        while (mWebcam.isOpen() && mServer.isOpen()) {
             // capture single image
             BufferedImage image = mWebcam.getImage();
             if (image == null) {
                 continue;
             }
             // send image frame 
-            mClient.sendFrame(new ImageFrame(image));
+            mServer.addImage(new ImageFrame(image));
         }
     }
 
@@ -121,14 +119,14 @@ public final class VideoStreamer {
         int buffer = mTargetLine.getBufferSize();
         byte[] data = new byte[buffer];
         // run capture loop
-        while (mTargetLine.isOpen() && mClient.isOkay()) {
+        while (mTargetLine.isOpen() && mServer.isOpen()) {
             // read audio
             int len = mTargetLine.read(data, 0, buffer);
             if (len == -1) {
                 break;
             }
             // send audio frame 
-            mClient.sendFrame(new AudioFrame(data, len));
+            mServer.addAudio(new AudioFrame(data, len));
         }
     }
 }

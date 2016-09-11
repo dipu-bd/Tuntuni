@@ -15,19 +15,15 @@
  */
 package org.tuntuni.video;
 
-import java.io.InputStream;
-import java.net.URL;
+import java.net.InetAddress;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
-import org.tuntuni.connection.StreamServer;
+import org.tuntuni.connection.StreamClient;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.FileService;
 
 /**
  *
@@ -35,8 +31,14 @@ import org.tuntuni.util.FileService;
  */
 public class VideoRenderer {
 
-    private final StreamServer mServer;
+    private final int MAX_TOLERANCE = 100;
+
+    private final StreamClient mClient;
     private final ImageView mImage;
+
+    private Thread mAudioThread;
+    private Thread mVideoThread;
+    private volatile int mFailCount;
 
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
@@ -46,15 +48,22 @@ public class VideoRenderer {
     /**
      * Creates a new video renderer instance
      *
-     * @param server
+     * @param address
+     * @param port
      * @param image
      */
-    public VideoRenderer(StreamServer server, ImageView image) {
-        mServer = server;
+    public VideoRenderer(InetAddress address, int port, ImageView image) {
+        mClient = new StreamClient(address, port);
         mImage = image;
     }
 
     public void initialize() {
+        // setup video
+        try {
+            mImage.setSmooth(true);
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Failed to initialize image view. ERROR: {0}.", ex);
+        }
         // setup audio
         try {
             mSourceInfo = new DataLine.Info(SourceDataLine.class, VideoFormat.getAudioFormat());
@@ -63,57 +72,80 @@ public class VideoRenderer {
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize speacker. ERROR: {0}", ex);
         }
-
-        // setup video
-        try {
-            mImage.setSmooth(true);
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Failed to initialize image view. ERROR: {0}.", ex);
-        }
+        // other setup
+        resetFailCounter();
     }
 
     public void start() {
-        // set start time of capturing 
+        //  start video thread
+        if (mImage != null) {
+            mVideoThread = new Thread(() -> imageRunner(), "videoRunner");
+            mVideoThread.setDaemon(true);
+            mVideoThread.start();
+        }
         // setup and start audio thread
         if (mSourceLine != null) {
-            mSourceLine.start();
-            audioListener = (ov, o, n) -> audioRunner(n);
-            mServer.getAudio().addListener(audioListener);
-        }
-        // setup and start video thread
-        if (mImage != null) {
-            imageListener = (ov, o, n) -> imageRunner(n);
-            mServer.getImage().addListener(imageListener); 
+            mAudioThread = new Thread(() -> audioRunner(), "audioRunner");
+            mAudioThread.setDaemon(true);
+            mAudioThread.start();
         }
     }
 
     public void stop() {
-        // stop audio
-        if (mSourceLine != null) {
-            mServer.getAudio().removeListener(audioListener);
-            mSourceLine.close();
-        }
         // stop video
         if (mImage != null) {
-            mServer.getImage().removeListener(imageListener);
+            mVideoThread.interrupt();
+        }
+        // stop audio
+        if (mSourceLine != null) {
+            mAudioThread.interrupt();
+            mSourceLine.close();
         }
     }
 
-    private void imageRunner(ImageFrame frame) {
-        if (mImage != null && frame != null) {
-            // display image
-            System.out.println(">>>>>> Image recieved <<<<<<< ");
-            Platform.runLater(() -> {
-                mImage.setImage(frame.getImage());
-            });
+    private void imageRunner() {
+        while (isOkay()) {
+            // request image
+            ImageFrame frame = mClient.getImage();
+            
+            if (frame != null) {
+                resetFailCounter();
+                // display image 
+                Platform.runLater(() -> {
+                    mImage.setImage(frame.getImage());
+                });
+            } else {
+                increaseFailCount();
+            }
         }
     }
 
-    private void audioRunner(AudioFrame frame) {
-        if (mSourceLine != null && mSourceLine.isOpen() && frame != null) {
-            // play audio
-            byte[] data = frame.getBuffer();
-            mSourceLine.write(data, 0, data.length);
+    private void audioRunner() {
+        mSourceLine.start();
+        while (isOkay()) {
+            // request audio
+            AudioFrame frame = mClient.getAudio();
+            
+            if (mSourceLine.isOpen() && frame != null) {
+                resetFailCounter();
+                // play audio
+                byte[] data = frame.getBuffer();
+                mSourceLine.write(data, 0, data.length);
+            } else {
+                increaseFailCount();
+            }
         }
+    }
+
+    public void resetFailCounter() {
+        mFailCount = 0;
+    }
+
+    public void increaseFailCount() {
+        mFailCount++;
+    }
+
+    public boolean isOkay() {
+        return mFailCount <= MAX_TOLERANCE;
     }
 }

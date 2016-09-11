@@ -16,12 +16,8 @@
 package org.tuntuni.connection;
 
 import java.net.Socket;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.models.ConnectFor;
-import org.tuntuni.models.Logs;
 import org.tuntuni.video.AudioFrame;
-import org.tuntuni.video.DataFrame;
 import org.tuntuni.video.ImageFrame;
 
 /**
@@ -30,47 +26,40 @@ import org.tuntuni.video.ImageFrame;
 public class StreamServer extends TCPServer {
 
     // separate audio video frames 
-    private final ObjectProperty<AudioFrame> mAudio;
-    private final ObjectProperty<ImageFrame> mImage;
+    private AudioFrame mAudio;
+    private ImageFrame mImage;
 
     /**
      * Creates a new stream Server.
      */
     public StreamServer() {
         super("Stream Server", null);
-        mAudio = new SimpleObjectProperty<>(null);
-        mImage = new SimpleObjectProperty<>(null);
-    }
-
-    void processFrame(DataFrame frame) {
-        switch (frame.connectedFor()) {
-            case AUDIO:
-                if (mAudio.get() == null || frame.getTime() > mAudio.get().getTime()) {
-                    mAudio.set((AudioFrame) frame);
-                }
-                Logs.info(getClass(), "Audio frame received: Time = " + frame.getTime());
-                break;
-
-            case IMAGE:
-                if (mImage.get() == null || frame.getTime() > mImage.get().getTime()) {
-                    mImage.set((ImageFrame) frame);
-                }
-                Logs.info(getClass(), "Image frame received: Time = " + frame.getTime());
-                break;
-        }
-    }
-
-    public ObjectProperty<AudioFrame> getAudio() {
-        return mAudio;
-    }
-
-    public ObjectProperty<ImageFrame> getImage() {
-        return mImage;
     }
 
     @Override
     Object getResponse(ConnectFor status, Socket socket, Object[] data) {
-        processFrame((DataFrame) data[0]);
+        long last = (long) data[0];
+        switch (status) {
+            case AUDIO:
+                if (mAudio != null && last != mAudio.getTime()) {
+                    return mAudio;
+                }
+                break;
+
+            case IMAGE:
+                if (mImage != null && last != mImage.getTime()) {
+                    return mImage;
+                }
+                break;
+        }
         return null;
+    }
+
+    public void addAudio(AudioFrame audio) {
+        mAudio = audio;
+    }
+
+    public void addImage(ImageFrame image) {
+        mImage = image;
     }
 }
