@@ -116,7 +116,7 @@ public final class VideoStreamer {
         }
         // start target line
         mTargetLine.start();
-        int buffer = mTargetLine.getBufferSize();
+        int buffer = mTargetLine.getBufferSize() / 8;
         byte[] data = new byte[buffer];
         // run capture loop
         while (mTargetLine.isOpen() && mServer.isOpen()) {

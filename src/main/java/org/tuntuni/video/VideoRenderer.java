@@ -41,9 +41,7 @@ public class VideoRenderer {
     private volatile int mFailCount;
 
     private DataLine.Info mSourceInfo;
-    private SourceDataLine mSourceLine;
-    private ChangeListener<ImageFrame> imageListener;
-    private ChangeListener<AudioFrame> audioListener;
+    private SourceDataLine mSourceLine; 
 
     /**
      * Creates a new video renderer instance
