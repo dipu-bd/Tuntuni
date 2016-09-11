@@ -17,6 +17,7 @@ package org.tuntuni.video;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.util.Callback;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.connection.StreamServer;
@@ -61,6 +62,19 @@ public class Dialer {
             endCall();
             throw ex;
         }
+    }
+
+    public void dialClientAsync(final Client client, Callback<Exception, Void> callback) {
+        Thread t = new Thread(() -> {
+            try {
+                dialClient(client);
+                callback.call(null);
+            } catch (Exception ex) {
+                callback.call(ex);
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     public void receiveCall(Client client) throws DialerException {
@@ -168,15 +182,18 @@ public class Dialer {
     public void acceptCallRequest() throws DialerException {
         try {
             Core.instance().videocall().acceptCallDialog(mClient);
-            while (mAcceptance == -1) {
+            // wait 30 sec to accept the call
+            for (int i = 0; i < 300; ++i) {
+                if (mAcceptance != -1) {
+                    break;
+                }
                 Thread.sleep(100);
             }
-            if (mAcceptance != 0) {
-                throw new DialerException("The call was rejected by the user.");
-            };
-        } catch (Exception ex) {
-            Logs.severe(null, ex);
+        } catch (InterruptedException ex) {
             throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
+        }
+        if (mAcceptance != 0) {
+            throw new DialerException("The call was rejected by the user.");
         }
     }
 

@@ -15,6 +15,7 @@
  */
 package org.tuntuni.controllers;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,6 +30,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -47,7 +49,7 @@ public class VideoCallController implements Initializable {
     @FXML
     private ImageView userPhoto;
     @FXML
-    private Label userName; 
+    private Label userName;
     @FXML
     private ImageView videoImage;
 
@@ -110,19 +112,18 @@ public class VideoCallController implements Initializable {
 
     @FXML
     private void startVideoCall(ActionEvent evt) {
-        try {
 
-            Core.instance().dialer().dialClient(mClient);
+        Core.instance().dialer().dialClientAsync(mClient, (Exception ex) -> {
+            if (ex != null) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Call failed!");
+                alert.setHeaderText("Call failed!");
+                alert.setContentText("ERROR: " + ex.getMessage());
 
-        } catch (Exception ex) {
-
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Call failed!");
-            alert.setHeaderText("Call failed!");
-            alert.setContentText("ERROR: " + ex.getMessage());
-
-            alert.showAndWait();
-        }
+                alert.showAndWait();
+            }
+            return null;
+        });
     }
 
     @FXML
@@ -139,6 +140,9 @@ public class VideoCallController implements Initializable {
         Platform.runLater(() -> {
             startButton.setVisible(false);
             stopButton.setVisible(false);
+            // show default image
+            InputStream is = getClass().getResourceAsStream("/img/calling.gif");
+            videoImage.setImage(new Image(is));
         });
     }
 

@@ -15,14 +15,19 @@
  */
 package org.tuntuni.video;
 
+import java.io.InputStream;
+import java.net.URL;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.FileService;
 
 /**
  *
@@ -78,15 +83,15 @@ public class VideoRenderer {
         // setup and start video thread
         if (mImage != null) {
             imageListener = (ov, o, n) -> imageRunner(n);
-            mServer.getImage().addListener(imageListener);
+            mServer.getImage().addListener(imageListener); 
         }
     }
 
     public void stop() {
         // stop audio
         if (mSourceLine != null) {
-            mSourceLine.close();
             mServer.getAudio().removeListener(audioListener);
+            mSourceLine.close();
         }
         // stop video
         if (mImage != null) {
@@ -95,10 +100,7 @@ public class VideoRenderer {
     }
 
     private void imageRunner(ImageFrame frame) {
-        if (mImage == null) {
-            return;
-        }
-        if (mServer.isOpen() && frame != null) {
+        if (mImage != null && frame != null) {
             // display image
             System.out.println(">>>>>> Image recieved <<<<<<< ");
             Platform.runLater(() -> {
@@ -108,10 +110,7 @@ public class VideoRenderer {
     }
 
     private void audioRunner(AudioFrame frame) {
-        if (mSourceLine == null) {
-            return;
-        }
-        if (mSourceLine.isOpen() && frame != null) {
+        if (mSourceLine != null && mSourceLine.isOpen() && frame != null) {
             // play audio
             byte[] data = frame.getBuffer();
             mSourceLine.write(data, 0, data.length);
