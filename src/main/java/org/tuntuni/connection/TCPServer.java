@@ -209,7 +209,7 @@ public abstract class TCPServer {
             }
 
         } catch (IOException ex) {
-            //logger.log(Level.WARNING, Logs.SERVER_IO_FAILED, ex);
+            Logs.warning(getClass(), Logs.SERVER_IO_FAILED, ex);
         } catch (ClassNotFoundException ex) {
             Logs.warning(this.name(), Logs.SOCKET_CLASS_FAILED, ex);
         }

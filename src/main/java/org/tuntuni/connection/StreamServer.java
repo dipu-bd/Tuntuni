@@ -48,6 +48,7 @@ public class StreamServer extends TCPServer {
 
             case IMAGE:
                 if (mImage != null && last != mImage.getTime()) {
+                    System.out.println(">>>> IMAGE RETURN <<<<");
                     return mImage;
                 }
                 break;

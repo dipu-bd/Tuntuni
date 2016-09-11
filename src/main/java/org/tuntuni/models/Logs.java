@@ -81,6 +81,10 @@ public abstract class Logs {
         warning("[" + type + "]" + message, data);
     }
 
+    public static void warning(Class from, String message, Object... data) {
+        warning(from.getName(), message, data);
+    }
+
     public static void error(String message, Object... data) {
         severe(message, data);
     }
