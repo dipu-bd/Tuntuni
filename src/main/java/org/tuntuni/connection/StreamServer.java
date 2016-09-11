@@ -17,8 +17,8 @@ package org.tuntuni.connection;
 
 import java.net.Socket;
 import org.tuntuni.models.ConnectFor;
-import org.tuntuni.video.AudioFrame;
-import org.tuntuni.video.ImageFrame;
+import org.tuntuni.video.audio.AudioFrame;
+import org.tuntuni.video.image.ImageFrame;
 
 /**
  * To listen and respond to clients sockets.
@@ -43,14 +43,14 @@ public class StreamServer extends TCPServer {
         switch (status) {
             case AUDIO:
                 AudioFrame audio = getAudio();
-                if (audio != null && last != audio.getTime()) {
+                if (audio != null && last != audio.getID()) {
                     return audio;
                 }
                 break;
 
             case IMAGE:
                 ImageFrame image = getImage();
-                if (image != null && last != image.getTime()) {
+                if (image != null && last != image.getID()) {
                     return image;
                 }
                 break;
@@ -67,10 +67,10 @@ public class StreamServer extends TCPServer {
     }
 
     public AudioFrame getAudio() {
-        return (AudioFrame) mAudio.copy();
+        return mAudio == null ? null : (AudioFrame) mAudio.copy();
     }
 
     public ImageFrame getImage() {
-        return (ImageFrame) mImage.copy();
+        return mImage == null ? null : (ImageFrame) mImage.copy();
     }
 }

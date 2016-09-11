@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video;
 
+import org.tuntuni.video.image.ImageFrame;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -29,17 +30,17 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     public static long FRAME_NUMBER = 1;
 
-    private long mTime;
+    private long mID;
     private byte[] mBuffer;
     private ConnectFor mType;
 
     public DataFrame(ConnectFor frameType) {
-        mTime = FRAME_NUMBER++;
+        mID = FRAME_NUMBER++;
         mType = frameType;
     }
 
     public DataFrame(ConnectFor frameType, long time) {
-        mTime = time;
+        mID = time;
         mType = frameType;
     }
 
@@ -50,7 +51,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
         oo.writeByte(mType.data());
-        oo.writeLong(mTime);
+        oo.writeLong(mID);
         oo.writeInt(mBuffer.length);
         oo.write(mBuffer);
     }
@@ -58,7 +59,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
         mType = ConnectFor.from(oi.readByte());
-        mTime = oi.readLong();
+        mID = oi.readLong();
         mBuffer = new byte[oi.readInt()];
         oi.readFully(mBuffer);
     }
@@ -67,8 +68,8 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         return mType;
     }
 
-    public long getTime() {
-        return mTime;
+    public long getID() {
+        return mID;
     }
 
     public byte[] getBuffer() {
@@ -81,7 +82,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     @Override
     public int compareTo(DataFrame t) {
-        return mTime == t.getTime() ? 0 : (mTime < t.getTime() ? -1 : 1);
+        return mID == t.getID() ? 0 : (mID < t.getID() ? -1 : 1);
     }
 
     @Override
@@ -89,13 +90,13 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         if (t == null || !(t instanceof ImageFrame)) {
             return false;
         }
-        return ((ImageFrame) t).getTime() == mTime;
+        return ((ImageFrame) t).getID() == mID;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 29 * hash + (int) (this.mTime ^ (this.mTime >>> 32));
+        hash = 29 * hash + (int) (this.mID ^ (this.mID >>> 32));
         hash = 29 * hash + Arrays.hashCode(this.mBuffer);
         return hash;
     }

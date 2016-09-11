@@ -15,6 +15,8 @@
  */
 package org.tuntuni.video;
 
+import org.tuntuni.video.image.ImageFrame;
+import org.tuntuni.video.audio.AudioFrame;
 import java.net.InetAddress;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

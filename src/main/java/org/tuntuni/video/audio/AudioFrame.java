@@ -13,38 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video;
+package org.tuntuni.video.audio;
 
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
-import javafx.scene.image.Image;
 import org.tuntuni.models.ConnectFor;
-import org.tuntuni.util.Commons;
+import org.tuntuni.video.DataFrame;
 
 /**
- * Image data frame. Holds image information.
+ * Audio data frame. Holds audio information.
  */
-public class ImageFrame extends DataFrame {
+public class AudioFrame extends DataFrame {
 
-    public ImageFrame() {
-        super(ConnectFor.IMAGE);
+    public AudioFrame() {
+        super(ConnectFor.AUDIO);
     }
 
-    public ImageFrame(byte[] data) {
+    public AudioFrame(byte[] data, int length) {
         this();
-        setBuffer(Arrays.copyOf(data, data.length));
+        setBuffer(Arrays.copyOf(data, length));
     }
 
-    public ImageFrame(BufferedImage image) {
-        this();
-        setBuffer(Commons.imageToBytes(image));
-    }
-
-    public Image getImage() {
-        return Commons.bytesToImage(getBuffer());
-    }
-
-    public ImageFrame copy() {
-        return new ImageFrame(getBuffer());
+    public AudioFrame copy() {
+        return new AudioFrame(getBuffer(), getBuffer().length);
     }
 }

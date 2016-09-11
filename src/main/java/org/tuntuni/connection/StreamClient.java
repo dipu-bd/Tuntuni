@@ -18,8 +18,8 @@ package org.tuntuni.connection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import org.tuntuni.models.ConnectFor;
-import org.tuntuni.video.AudioFrame;
-import org.tuntuni.video.ImageFrame;
+import org.tuntuni.video.audio.AudioFrame;
+import org.tuntuni.video.image.ImageFrame;
 
 /**
  * To manage connection with stream server sockets.
@@ -52,7 +52,7 @@ public class StreamClient extends TCPClient {
         Object data = request(ConnectFor.AUDIO, lastAudio);
         if (data instanceof AudioFrame) {
             mAudio = (AudioFrame) data;
-            lastAudio = Math.max(lastAudio, mAudio.getTime());
+            lastAudio = Math.max(lastAudio, mAudio.getID());
         }
         return mAudio;
     }
@@ -66,7 +66,7 @@ public class StreamClient extends TCPClient {
         Object data = request(ConnectFor.IMAGE, lastImage);
         if (data instanceof ImageFrame) {
             mImage = (ImageFrame) data;
-            lastImage = Math.max(lastImage, mImage.getTime());
+            lastImage = Math.max(lastImage, mImage.getID());
         }
         return mImage;
     }

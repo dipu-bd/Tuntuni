@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video;
-
-import java.util.Arrays;
-import org.tuntuni.models.ConnectFor;
+package org.tuntuni.video.audio;
 
 /**
- * Audio data frame. Holds audio information.
+ *
+ * @author Sudipto Chandra
  */
-public class AudioFrame extends DataFrame {
-
-    public AudioFrame() {
-        super(ConnectFor.AUDIO);
-    }
-
-    public AudioFrame(byte[] data, int length) {
-        this();
-        setBuffer(Arrays.copyOf(data, length));
-    }
-
-    public AudioFrame copy() {
-        return new AudioFrame(getBuffer(), getBuffer().length);
-    }
+public class MicrophoneAudio extends AudioSource {
+    
 }

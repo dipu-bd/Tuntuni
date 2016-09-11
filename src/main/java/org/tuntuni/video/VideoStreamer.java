@@ -15,6 +15,8 @@
  */
 package org.tuntuni.video;
 
+import org.tuntuni.video.image.ImageFrame;
+import org.tuntuni.video.audio.AudioFrame;
 import com.github.sarxos.webcam.Webcam;
 import java.awt.image.BufferedImage;
 import javax.sound.sampled.AudioSystem;
@@ -116,7 +118,7 @@ public final class VideoStreamer {
         }
         // start target line
         mTargetLine.start();
-        int buffer = mTargetLine.getBufferSize() / 8;
+        int buffer = mTargetLine.getBufferSize();
         byte[] data = new byte[buffer];
         // run capture loop
         while (mTargetLine.isOpen() && mServer.isOpen()) {
