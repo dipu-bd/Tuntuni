@@ -24,11 +24,15 @@ import org.tuntuni.models.ConnectFor;
 public class AudioFrame extends DataFrame {
 
     public AudioFrame() {
+        super(ConnectFor.AUDIO);
     }
 
     public AudioFrame(byte[] data, int length) {
-        super(ConnectFor.AUDIO);
+        this();
         setBuffer(Arrays.copyOf(data, length));
     }
 
+    public AudioFrame copy() {
+        return new AudioFrame(getBuffer(), getBuffer().length);
+    }
 }

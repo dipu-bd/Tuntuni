@@ -38,17 +38,20 @@ public class StreamServer extends TCPServer {
 
     @Override
     Object getResponse(ConnectFor status, Socket socket, Object[] data) {
+
         long last = (long) data[0];
         switch (status) {
             case AUDIO:
-                if (mAudio != null && last != mAudio.getTime()) {
-                    return mAudio;
+                AudioFrame audio = getAudio();
+                if (audio != null && last != audio.getTime()) {
+                    return audio;
                 }
                 break;
 
             case IMAGE:
-                if (mImage != null && last != mImage.getTime()) { 
-                    return mImage;
+                ImageFrame image = getImage();
+                if (image != null && last != image.getTime()) {
+                    return image;
                 }
                 break;
         }
@@ -61,5 +64,13 @@ public class StreamServer extends TCPServer {
 
     public void addImage(ImageFrame image) {
         mImage = image;
+    }
+
+    public AudioFrame getAudio() {
+        return (AudioFrame) mAudio.copy();
+    }
+
+    public ImageFrame getImage() {
+        return (ImageFrame) mImage.copy();
     }
 }
