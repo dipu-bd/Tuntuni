@@ -60,8 +60,7 @@ public final class VideoStreamer {
 
         // setup video
         try {
-            mWebcam = Webcam.getDefault();
-            mWebcam.setViewSize(VideoFormat.getViewSize());
+            mWebcam = Webcam.getDefault(); 
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to initialize webcam. ERROR: {0}.", ex);
         }

@@ -37,7 +37,7 @@ import org.tuntuni.util.Commons;
 public class Subnet {
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
-    public static final int SCAN_INTERVAL_MILLIS = 5_000;
+    public static final int SCAN_INTERVAL_MILLIS = 15_000;
 
     private DatagramSocket mSocket;
     private final ScheduledExecutorService mSchedular;
@@ -125,13 +125,15 @@ public class Subnet {
                 // using a public prefix. 
                 // Routers will forward datagrams using site-local addresses 
                 // within the site, but not outside it to the public Internet.
-                if (!address.isSiteLocalAddress()
-                        || !(address instanceof Inet4Address)) {
-                    return;
-                }
-
+                //if (!address.isSiteLocalAddress()
+                //        || !(address instanceof Inet4Address)) {
+                //    return;
+                //}
+                //
                 //send the broadcast signal
-                sendBroadcastRequest(ia);
+                if (address instanceof Inet4Address) {
+                    sendBroadcastRequest(ia);
+                }
             });
 
         } catch (Exception ex) {
