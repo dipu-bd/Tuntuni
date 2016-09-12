@@ -60,6 +60,7 @@ public class VideoCallController implements Initializable {
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             dialStatusChanged(n);
         });
+        dialStatusChanged(DialStatus.IDLE);
     }
 
     public void setClient(Client client) {
@@ -133,12 +134,13 @@ public class VideoCallController implements Initializable {
     private void startVideoCall(ActionEvent evt) {
         Core.instance().dialer().dialClientAsync(mClient, (Exception ex) -> {
             if (ex != null) {
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.setTitle("Call failed!");
-                alert.setHeaderText("Call failed!");
-                alert.setContentText("ERROR: " + ex.getMessage());
-
-                alert.showAndWait();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Call failed!");
+                    alert.setHeaderText("Call failed!");
+                    alert.setContentText("ERROR: " + ex.getMessage());
+                    alert.showAndWait();
+                });
             }
             return null;
         });
