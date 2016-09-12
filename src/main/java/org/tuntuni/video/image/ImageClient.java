@@ -15,8 +15,6 @@
  */
 package org.tuntuni.video.image;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;

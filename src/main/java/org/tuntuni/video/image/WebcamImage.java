@@ -24,7 +24,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Sudipto Chandra
  */
-public class WebcamImage extends ImageSource {
+public class WebcamImage implements ImageSource {
 
     private final Webcam mWebcam;
 

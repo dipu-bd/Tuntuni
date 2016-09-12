@@ -15,14 +15,94 @@
  */
 package org.tuntuni.video.image;
 
+import java.net.SocketException;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.image.Image;
+import org.tuntuni.models.Logs;
+
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImagePlayer {
+public class ImagePlayer implements Runnable {
 
-    ImageFrame getEmptyFrame() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    // time to wait between to successive display operation
+    public static final int WAIT_INTERVAL = 25; // milliseconds
+
+    private ImageClient mClient;
+    private Thread mPlayerThread;
+    private ObjectProperty<Image> mImage;
+
+    public ImagePlayer(ImageClient client) {
+        mClient = client;
+        mImage = new SimpleObjectProperty<>(null);
     }
-    
+
+    /**
+     * Starts the player
+     *
+     * @throws SocketException
+     */
+    public void start() throws SocketException {
+        mClient.open();
+        mPlayerThread = new Thread(this);
+        mPlayerThread.setDaemon(true);
+        mPlayerThread.start();
+    }
+
+    /**
+     * Stops the player
+     */
+    public void stop() {
+        mClient.close();
+        mPlayerThread.interrupt();
+    }
+
+    @Override
+    public void run() {
+        while (mClient.isOpen()) {
+            try {
+                display();
+                Thread.sleep(WAIT_INTERVAL);
+            } catch (InterruptedException ex) {
+                Logs.error(getClass(), "Thread sleep was interrupted. ERROR: {0}", ex);
+            }
+        }
+    }
+
+    private void display() {
+        if (!mClient.isImageNew()) {
+            return;
+        }
+        // gets the image frame
+        ImageFrame frame = mClient.getFrame();
+        if (frame == null) {
+            return;
+        }
+        // update image
+        updateImage(frame.getImage());
+    }
+
+    private void updateImage(Image image) {
+        mImage.set(image);
+    }
+
+    /**
+     * Gets the image
+     *
+     * @return
+     */
+    public Image getImage() {
+        return mImage.get();
+    }
+
+    /**
+     * Gets the image property
+     *
+     * @return
+     */
+    public ObjectProperty<Image> imageProperty() {
+        return mImage;
+    }
 }
