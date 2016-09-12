@@ -17,6 +17,7 @@ package org.tuntuni.video.image;
 
 import java.net.SocketException;
 import java.util.LinkedList;
+import java.util.TreeSet;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
@@ -36,11 +37,11 @@ public class ImagePlayer implements Runnable {
     private final ImageClient mClient;
     private Thread mPlayerThread;
     private ObjectProperty<Image> mImage;
-    private LinkedList<Image> mImageQueue;
+    private TreeSet<Image> mImageQueue;
     
     public ImagePlayer(ImageClient client) {
         mClient = client;
-        mImageQueue = new LinkedList<>();
+        mImageQueue = new TreeSet<>();
         mImage = new SimpleObjectProperty<>(null);
     }
 
@@ -99,9 +100,9 @@ public class ImagePlayer implements Runnable {
     }
     
     private void updateImage(Image image) {
-        mImageQueue.addLast(image);
+        mImageQueue.add(image);
         if (mImageQueue.size() > MAX_BUFFER) {
-            mImage.set(mImageQueue.removeFirst());
+            mImage.set(mImageQueue.pollFirst());
         }
     }
 

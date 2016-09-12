@@ -28,9 +28,9 @@ import org.tuntuni.models.ConnectFor;
  */
 public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
-    public static long FRAME_NUMBER = 1;
+    public static int FRAME_NUMBER = 1;
 
-    private long mID;
+    private int mID;
     private byte[] mBuffer;
     private ConnectFor mType;
 
@@ -39,7 +39,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         mType = frameType;
     }
 
-    public DataFrame(ConnectFor frameType, long time) {
+    public DataFrame(ConnectFor frameType, int time) {
         mID = time;
         mType = frameType;
     }
@@ -50,16 +50,16 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-        oo.writeByte(mType.data());
-        oo.writeLong(mID);
+        //oo.writeByte(mType.data());
+        oo.writeInt(mID);
         oo.writeInt(mBuffer.length);
         oo.write(mBuffer);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-        mType = ConnectFor.from(oi.readByte());
-        mID = oi.readLong();
+        //mType = ConnectFor.from(oi.readByte());
+        mID = oi.readInt();
         mBuffer = new byte[oi.readInt()];
         oi.readFully(mBuffer);
     }
@@ -68,7 +68,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         return mType;
     }
 
-    public long getTime() {
+    public int getTime() {
         return mID;
     }
 

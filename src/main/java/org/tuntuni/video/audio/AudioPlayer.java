@@ -26,16 +26,18 @@ import org.tuntuni.video.VideoFormat;
  *
  * @author Sudipto Chandra
  */
-public class AudioPlayer implements Runnable {
-    
+public class AudioPlayer {
+
     private final AudioClient mClient;
-    private Thread mPlayerThread;
 
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
 
     public AudioPlayer(AudioClient client) {
         mClient = client;
+        mClient.audioProperty().addListener((ov, oldVal, newVal) -> {
+            playAudio(newVal);
+        });
     }
 
     /**
@@ -49,10 +51,6 @@ public class AudioPlayer implements Runnable {
             mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
             mSourceLine.open(VideoFormat.getAudioFormat());
             mSourceLine.start();
-            // start player thread
-            mPlayerThread = new Thread(this);
-            mPlayerThread.setDaemon(true);
-            mPlayerThread.start();
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
         }
@@ -66,7 +64,6 @@ public class AudioPlayer implements Runnable {
             // close player
             mSourceLine.stop();
             mSourceLine.close();
-            mPlayerThread.interrupt();
         } catch (Exception ex) {
         }
     }
@@ -83,23 +80,9 @@ public class AudioPlayer implements Runnable {
         return mClient.isOpen() && mSourceLine.isOpen();
     }
 
-    @Override
-    public void run() {
-        while (isActive()) {
-            // play audio
-            byte[] data = getdata(); 
-            mSourceLine.write(data, 0, data.length);
-        }
-    }
-
-    private byte[] getdata() {
-        // get new audio data
-        if (mClient.isAudioNew()) {
-            AudioFrame frame = mClient.getFrame();
-            return frame.getBuffer();
-        }
-        // return 100bytes of empty data
-        // will play for almost 1 milliseconds
-        return new byte[100];
+    private void playAudio(AudioFrame frame) {
+        // play new audio data
+        byte[] data = frame.getBuffer();
+        mSourceLine.write(data, 0, data.length);
     }
 }

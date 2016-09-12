@@ -19,6 +19,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.models.Logs;
 import org.tuntuni.connection.StreamSocket;
 
@@ -30,12 +34,17 @@ public class AudioClient extends StreamSocket {
 
     public static final int MAX_BUFFER = 11_200; // almost 25K
 
-    private byte[] mBuffer;
-    private AudioFrame mAudio;
-    private volatile boolean mAudioNew;
+    public static final int MAX_QUEUE = 2;
+
+    private final byte[] mBuffer;
+    private volatile int mAudioTime;
+    private final ObjectProperty<AudioFrame> mAudio;
+    private final ConcurrentLinkedQueue<AudioFrame> mFrameList;
 
     public AudioClient() {
         mBuffer = new byte[MAX_BUFFER];
+        mAudio = new SimpleObjectProperty<>();
+        mFrameList = new ConcurrentLinkedQueue<>();
     }
 
     @Override
@@ -49,7 +58,9 @@ public class AudioClient extends StreamSocket {
         try {
             DatagramPacket packet = new DatagramPacket(mBuffer, mBuffer.length);
             getSocket().receive(packet);
-            packetReceived(packet);
+            new Thread(() -> {
+                packetReceived(packet);
+            }).start();
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to receive packet. ERROR: {0}", ex);
         }
@@ -69,10 +80,14 @@ public class AudioClient extends StreamSocket {
     }
 
     private void updateAudio(AudioFrame frame) {
-        // replace if no last audio available, or last audio is older
-        if (mAudio == null || mAudio.getTime() < frame.getTime() + 5) {
-            mAudio = frame;
-            mAudioNew = true;
+        // replace if no last au dio available, or last audio is older
+        mFrameList.add(frame);
+        if (mFrameList.size() > MAX_QUEUE) {
+            AudioFrame first = mFrameList.poll();
+            if (first.getTime() > mAudioTime) {
+                mAudioTime = first.getTime();
+                mAudio.set(first);
+            }
         }
     }
 
@@ -83,17 +98,16 @@ public class AudioClient extends StreamSocket {
      * @return
      */
     public AudioFrame getFrame() {
-        mAudioNew = false;
-        return mAudio;
+        return mAudio.get();
     }
 
     /**
-     * Checks whether new audio frame had arrived.
+     * Gets the audio frame property
      *
-     * @return True if audio was updated
+     * @return
      */
-    public boolean isAudioNew() {
-        return mAudioNew;
+    public ObjectProperty<AudioFrame> audioProperty() {
+        return mAudio;
     }
 
     @Override
