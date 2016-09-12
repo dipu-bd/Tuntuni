@@ -30,7 +30,7 @@ public class ImagePlayer implements Runnable {
     // time to wait between to successive display operation
     public static final int WAIT_INTERVAL = 25; // milliseconds
 
-    private ImageClient mClient;
+    private final ImageClient mClient;
     private Thread mPlayerThread;
     private ObjectProperty<Image> mImage;
 
@@ -58,10 +58,18 @@ public class ImagePlayer implements Runnable {
         mClient.close();
         mPlayerThread.interrupt();
     }
+    
+    /**
+     * Checks whether player is active
+     * @return 
+     */
+    public boolean isActive() {
+        return mClient.isOpen();
+    }
 
     @Override
     public void run() {
-        while (mClient.isOpen()) {
+        while (isActive()) {
             try {
                 display();
                 Thread.sleep(WAIT_INTERVAL);

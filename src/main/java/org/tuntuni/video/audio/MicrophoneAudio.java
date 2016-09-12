@@ -32,8 +32,8 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     public int MAX_BUFFER = 100_000; // almost 100KB
 
     private Thread mAudioThread;
-    private final DataLine.Info mTargetInfo;
-    private final TargetDataLine mTargetLine;
+    private DataLine.Info mTargetInfo;
+    private TargetDataLine mTargetLine;
 
     private int mBufferLength;
     private final byte[] mBuffer;
@@ -43,7 +43,6 @@ public class MicrophoneAudio implements AudioSource, Runnable {
         mBuffer = new byte[MAX_BUFFER];
         mTargetInfo = new DataLine.Info(
                 TargetDataLine.class, VideoFormat.getAudioFormat());
-        mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
     }
 
     @Override
@@ -54,9 +53,11 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     @Override
     public void open() {
         try {
-            mTargetLine.open(VideoFormat.getAudioFormat());
+            // start target line
+            mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
+            mTargetLine.open(mTargetInfo.getFormats()[0]);
             mTargetLine.start();
-
+            // start audio thread
             mAudioThread = new Thread(this);
             mAudioThread.setDaemon(true);
             mAudioThread.start();

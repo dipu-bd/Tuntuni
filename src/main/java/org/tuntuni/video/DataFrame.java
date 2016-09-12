@@ -76,6 +76,10 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         return mBuffer;
     }
 
+    public int getBufferLength() {
+        return mBuffer == null ? 0 : mBuffer.length;
+    }
+
     public final void setBuffer(byte[] data) {
         mBuffer = data;
     }
