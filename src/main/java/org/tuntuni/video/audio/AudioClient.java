@@ -28,7 +28,7 @@ import org.tuntuni.connection.StreamSocket;
  */
 public class AudioClient extends StreamSocket {
 
-    public static final int MAX_BUFFER = 17_838; // almost 25K
+    public static final int MAX_BUFFER = 11_200; // almost 25K
 
     private byte[] mBuffer;
     private AudioFrame mAudio;
