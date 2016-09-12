@@ -34,6 +34,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
+import org.tuntuni.video.DialStatus;
 
 /**
  * Controller for video calling. It shows video in background.
@@ -56,6 +57,9 @@ public class VideoCallController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
+        Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
+            dialStatusChanged(n);
+        });
     }
 
     public void setClient(Client client) {
@@ -72,11 +76,9 @@ public class VideoCallController implements Initializable {
         } else {
             userName.setVisible(false);
         }
-        startButton.setVisible(true);
-        stopButton.setVisible(false);
     }
 
-    public void acceptCallDialog(Client client) {
+    public void acceptCallDialog(final Client client) {
         Platform.runLater(() -> {
             // set current client
             setClient(client);
@@ -84,10 +86,10 @@ public class VideoCallController implements Initializable {
 
             // create the custom dialog.
             Dialog<Boolean> dialog = new Dialog<>();
-            dialog.setTitle("Incoming Call!");
+            dialog.setTitle("Incoming Call!!");
             dialog.setHeaderText(userName.getText());
-            dialog.setContentText("<b>" + userName.getText() + "</b> is calling you."
-                    + " Do you want to accept this call?");
+            dialog.setContentText(userName.getText() + " is calling...\n"
+                    + "Do you want to accept this call?");
 
             // set the icon 
             dialog.setGraphic(new ImageView(userPhoto.getImage()));
@@ -105,14 +107,30 @@ public class VideoCallController implements Initializable {
             // return the result
             Optional<Boolean> result = dialog.showAndWait();
             result.ifPresent((consumer) -> {
-                Core.instance().dialer().informAcceptance(consumer.booleanValue());
+                Core.instance().dialer().informAcceptance(consumer);
             });
         });
     }
 
+    public ImageView getViewer() {
+        return videoImage;
+    }
+
+    public void dialStatusChanged(DialStatus status) {
+        // set dial image
+        startButton.setVisible(status == DialStatus.IDLE);
+        stopButton.setVisible(status == DialStatus.BUSY);
+        // set video image
+        if (status == DialStatus.DIALING) {
+            InputStream is = getClass().getResourceAsStream("/img/calling.gif");
+            videoImage.setImage(new Image(is));
+        } else {
+            videoImage.setImage(null);
+        }
+    }
+
     @FXML
     private void startVideoCall(ActionEvent evt) {
-
         Core.instance().dialer().dialClientAsync(mClient, (Exception ex) -> {
             if (ex != null) {
                 Alert alert = new Alert(AlertType.WARNING);
@@ -128,35 +146,7 @@ public class VideoCallController implements Initializable {
 
     @FXML
     private void endVideoCall(ActionEvent evt) {
-
         Core.instance().dialer().endCall();
     }
 
-    public ImageView getViewer() {
-        return videoImage;
-    }
-
-    public void callStarting() {
-        Platform.runLater(() -> {
-            startButton.setVisible(false);
-            stopButton.setVisible(false);
-            // show default image
-            InputStream is = getClass().getResourceAsStream("/img/calling.gif");
-            videoImage.setImage(new Image(is));
-        });
-    }
-
-    public void prepareDisplay() {
-        Platform.runLater(() -> {
-            startButton.setVisible(false);
-            stopButton.setVisible(true);
-        });
-    }
-
-    public void callEnded() {
-        Platform.runLater(() -> {
-            startButton.setVisible(true);
-            stopButton.setVisible(false);
-        });
-    }
 }

@@ -16,7 +16,9 @@
 package org.tuntuni.video;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.util.Callback;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -28,6 +30,8 @@ import org.tuntuni.models.Logs;
  */
 public class Dialer {
 
+    private ObjectProperty<DialStatus> mStatus;
+
     private final BooleanProperty mSlot;
     private volatile int mAcceptance = -1;
 
@@ -36,10 +40,12 @@ public class Dialer {
     private VideoRecorder mRecorder;
 
     public Dialer() {
+        mStatus = new SimpleObjectProperty<>(DialStatus.IDLE);
         mSlot = new SimpleBooleanProperty(false);
     }
 
     public void dialClient(Client client) throws DialerException {
+        mStatus.set(DialStatus.DIALING);
         mClient = client;
         // occupy my slot
         if (!occupySlot()) {
@@ -67,6 +73,7 @@ public class Dialer {
         }
         // start communication
         startComs();
+        mStatus.set(DialStatus.BUSY);
     }
 
     public void endCall() {
@@ -74,6 +81,7 @@ public class Dialer {
             stopComs();
             freeSlot();
             mClient = null;
+            mStatus.set(DialStatus.IDLE);
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
         }
@@ -117,14 +125,12 @@ public class Dialer {
         if (mSlot.get()) {
             return false;
         }
-        mSlot.set(true);
-        Core.instance().videocall().callStarting();
+        mSlot.set(true); 
         return true;
     }
 
     private void freeSlot() {
-        mSlot.set(false);
-        Core.instance().videocall().callEnded();
+        mSlot.set(false); 
     }
 
     public void informAcceptance(boolean result) {
@@ -143,13 +149,18 @@ public class Dialer {
             mRecorder.start();
 
         } catch (Exception ex) {
+            endCall();
             throw new DialerException("Failed to start communication modules");
         }
     }
 
     private void stopComs() {
-        mRecorder.stop();
-        mPlayer.stop();
+        if (mRecorder != null) {
+            mRecorder.stop();
+        }
+        if (mPlayer != null) {
+            mPlayer.stop();
+        }
     }
 
     public VideoPlayer player() {
@@ -158,5 +169,13 @@ public class Dialer {
 
     public VideoRecorder recorder() {
         return mRecorder;
+    }
+
+    public ObjectProperty<DialStatus> statusProperty() {
+        return mStatus;
+    }
+    
+    public DialStatus getStatus() {
+        return mStatus.get();
     }
 }

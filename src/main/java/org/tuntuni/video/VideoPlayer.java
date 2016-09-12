@@ -46,6 +46,7 @@ public class VideoPlayer {
         mAudioClient = new AudioClient();
         mAudioPlayer = new AudioPlayer(mAudioClient);
         mImagePlayer.imageProperty().addListener((ov, o, n) -> {
+            Logs.info(getClass(), "Image arrived! {0}x{0}.", n.getWidth(), n.getHeight());
             Platform.runLater(() -> mViewer.setImage(n));
         });
     }
@@ -92,9 +93,6 @@ public class VideoPlayer {
         return portGetter(() -> {
             return mAudioClient.getPort();
         });
-    }
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //  
+    }                                                                          //  
     
 }
