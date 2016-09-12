@@ -29,7 +29,7 @@ import org.tuntuni.models.UserData;
  * part.
  */
 public class Client extends TCPClient {
- 
+
     // local data from server 
     private final ObjectProperty<UserData> mUserData;
     private final SimpleListProperty<Message> mMessages;
@@ -164,13 +164,23 @@ public class Client extends TCPClient {
     }
 
     /**
-     * Request for stream server Address
+     * Request for stream server port address for image
      *
      * @return
      */
-    public int getStreamPort() {
-        Object result = request(ConnectFor.STREAM_PORT);
+    public int getImagePort() {
+        Object result = request(ConnectFor.IMAGE_PORT);
         return (result instanceof Integer) ? (int) result : -1;
     }
- 
+
+    /**
+     * Request for stream server port address for audio
+     *
+     * @return
+     */
+    public int getAudioPort() {
+        Object result = request(ConnectFor.AUDIO_PORT);
+        return (result instanceof Integer) ? (int) result : -1;
+    }
+
 }

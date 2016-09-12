@@ -51,8 +51,10 @@ public class MainServer extends TCPServer {
                 return Core.instance().user().getState();
             case PROFILE: // send user data
                 return Core.instance().user().getData();
-            case STREAM_PORT:
-                return Core.instance().dialer().getStreamPort();
+            case IMAGE_PORT:
+                return Core.instance().dialer().player().getImagePort();
+            case AUDIO_PORT:
+                return Core.instance().dialer().player().getAudioPort();
             case MESSAGE: // a message arrived
                 return message(getClient(from), data);
             case DIAL:

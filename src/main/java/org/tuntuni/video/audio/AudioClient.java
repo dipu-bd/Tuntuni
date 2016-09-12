@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.StreamSocket;
+import org.tuntuni.connection.StreamSocket;
 
 /**
  *

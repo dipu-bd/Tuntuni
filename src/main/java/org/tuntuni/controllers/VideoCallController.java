@@ -132,7 +132,7 @@ public class VideoCallController implements Initializable {
         Core.instance().dialer().endCall();
     }
 
-    public ImageView getVideoImage() {
+    public ImageView getViewer() {
         return videoImage;
     }
 

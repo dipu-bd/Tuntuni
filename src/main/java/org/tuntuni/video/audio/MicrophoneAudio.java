@@ -39,7 +39,7 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     private final byte[] mBuffer;
     private volatile boolean mBufferNew;
 
-    public MicrophoneAudio() throws LineUnavailableException {
+    public MicrophoneAudio() {
         mBuffer = new byte[MAX_BUFFER];
         mTargetInfo = new DataLine.Info(
                 TargetDataLine.class, VideoFormat.getAudioFormat());

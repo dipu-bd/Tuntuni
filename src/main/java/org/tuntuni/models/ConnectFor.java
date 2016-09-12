@@ -21,22 +21,24 @@ package org.tuntuni.models;
 public enum ConnectFor {
 
     INVALID(0),
+    // to pass the port of main server
+    PORT(1),
     // to pass the state information
-    STATE(1),
+    STATE(2),
     // to pass user profile information
-    PROFILE(2),
+    PROFILE(3),
     // to pass a single message
-    MESSAGE(3),
-    // to pass audio 
-    AUDIO(4),
-    // to pass video 
-    IMAGE(5),
+    MESSAGE(4),
     // to receive a call
-    DIAL(6),
-    // to pass port number 
-    PORT(7),
-    // to pass RTSP request
-    STREAM_PORT(8);
+    DIAL(5),
+    // to pass audio 
+    AUDIO(6),
+    // to pass video 
+    IMAGE(7),
+    // to pass image port 
+    IMAGE_PORT(8),
+    // to pass audio port
+    AUDIO_PORT(9);
 
     private final int mData;
 
