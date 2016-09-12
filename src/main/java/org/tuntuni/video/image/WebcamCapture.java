@@ -25,56 +25,57 @@ import org.tuntuni.models.Logs;
  * @author Sudipto Chandra
  */
 public class WebcamCapture implements ImageSource {
-
+    
     private Webcam mWebcam;
-
+    
     public WebcamCapture() {
     }
-
+    
     @Override
     public String getName() {
         return "WebcamCapture:" + mWebcam.getDevice().getName();
     }
-
+    
     @Override
     public BufferedImage getImage() {
         return mWebcam == null ? null : mWebcam.getImage();
     }
-
+    
     @Override
     public Dimension getSize() {
         return mWebcam == null ? null : mWebcam.getViewSize();
     }
-
+    
     @Override
     public void setSize(Dimension size) {
         if (mWebcam != null) {
             mWebcam.setViewSize(size);
         }
     }
-
+    
     @Override
     public void open() {
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
+            //mWebcam.setViewSize(VideoFormat.getViewSize());
             mWebcam.open();
         } else {
             Logs.warning(getClass(), "Webcam not found");
         }
     }
-
+    
     @Override
     public void close() {
         if (mWebcam != null) {
             mWebcam.close();
         }
     }
-
+    
     @Override
     public boolean isOpen() {
         return mWebcam == null ? false : mWebcam.isOpen();
     }
-
+    
     @Override
     public boolean isImageNew() {
         return mWebcam == null ? false : mWebcam.isImageNew();

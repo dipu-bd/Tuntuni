@@ -36,14 +36,12 @@ public class AudioPlayer implements Runnable {
 
     private final AudioClient mClient;
     private Thread mPlayerThread;
-    
-    private final DataLine.Info mSourceInfo;
+
+    private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
-    
+
     public AudioPlayer(AudioClient client) {
         mClient = client;
-        mSourceInfo = new DataLine.Info(
-                SourceDataLine.class, VideoFormat.getAudioFormat());
     }
 
     /**
@@ -52,6 +50,8 @@ public class AudioPlayer implements Runnable {
     public void start() {
         try {
             // start source line
+            mSourceInfo = new DataLine.Info(
+                    SourceDataLine.class, VideoFormat.getAudioFormat());
             mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
             mSourceLine.open(VideoFormat.getAudioFormat());
             mSourceLine.start();
@@ -88,26 +88,24 @@ public class AudioPlayer implements Runnable {
         }
         return mClient.isOpen() && mSourceLine.isOpen();
     }
-    
+
     @Override
     public void run() {
         while (isActive()) {
             // play audio
             byte[] data = getdata();
-            if (data != null) {
-                Logs.error(getClass(), "Playing audio!!!! {0}", data.length);
-                mSourceLine.write(data, 0, data.length);
-            } else { 
-            }
+
+            Logs.error(getClass(), "Playing audio!!!! {0}", data.length);
+            mSourceLine.write(data, 0, data.length);
         }
     }
-    
+
     private byte[] getdata() {
         // get new audio data
         if (mClient.isAudioNew()) {
             AudioFrame frame = mClient.getFrame();
-            return Arrays.copyOf(frame.getBuffer(), frame.getBufferLength());
-        } 
+            return frame.getBuffer();
+        }
         // return 1800bytes of empty data
         // will play for almost 20 milliseconds
         return new byte[1800];

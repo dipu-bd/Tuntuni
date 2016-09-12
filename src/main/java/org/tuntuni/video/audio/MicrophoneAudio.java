@@ -30,15 +30,13 @@ import org.tuntuni.video.VideoFormat;
 public class MicrophoneAudio implements AudioSource, Runnable {
 
     private Thread mAudioThread;
-    private final DataLine.Info mTargetInfo;
+    private DataLine.Info mTargetInfo;
     private TargetDataLine mTargetLine;
 
     private AudioFrame mFrame;
     private volatile boolean mBufferNew;
 
     public MicrophoneAudio() {
-        mTargetInfo = new DataLine.Info(
-                TargetDataLine.class, VideoFormat.getAudioFormat());
     }
 
     @Override
@@ -50,8 +48,10 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     public void open() {
         try {
             // start target line
+            mTargetInfo = new DataLine.Info(
+                    TargetDataLine.class, VideoFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
-            mTargetLine.open(mTargetInfo.getFormats()[0]);
+            mTargetLine.open(VideoFormat.getAudioFormat());
             mTargetLine.start();
             // start audio thread
             mAudioThread = new Thread(this);
@@ -93,7 +93,7 @@ public class MicrophoneAudio implements AudioSource, Runnable {
             }
             // update buffer
             mFrame = new AudioFrame(buffer, len);
-            mBufferNew = true; 
+            mBufferNew = true;
         }
     }
 

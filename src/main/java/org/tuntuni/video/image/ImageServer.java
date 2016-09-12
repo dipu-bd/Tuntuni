@@ -78,6 +78,7 @@ public class ImageServer extends StreamSocket {
         // get next image 
         BufferedImage image = mSource.getImage();
         if (image == null) {
+            Logs.warning(getClass(), "Null image received");
             return null;
         }
         // make image frame

@@ -18,6 +18,7 @@ package org.tuntuni.video;
 import java.net.SocketException;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.audio.AudioClient;
@@ -45,10 +46,7 @@ public class VideoPlayer {
         mImagePlayer = new ImagePlayer(mImageClient);
         mAudioClient = new AudioClient();
         mAudioPlayer = new AudioPlayer(mAudioClient);
-        mImagePlayer.imageProperty().addListener((ov, o, n) -> {
-            Logs.info(getClass(), "Image arrived! {0}x{0}.", n.getWidth(), n.getHeight());
-            Platform.runLater(() -> mViewer.setImage(n));
-        });
+        mImagePlayer.imageProperty().addListener((ov, o, n) -> displayImage(n));
     }
 
     public void start() throws SocketException {
@@ -63,6 +61,19 @@ public class VideoPlayer {
         mAudioClient.close();
         mImagePlayer.stop();
         mAudioPlayer.stop();
+    }
+
+    private void displayImage(Image img) {
+
+        if (img != null) {
+            Logs.info(getClass(), "Image has arrived! {0}x{0}.", img.getWidth(), img.getHeight());
+        }
+
+        if (img != null && mViewer != null) {
+            Platform.runLater(() -> {
+                mViewer.setImage(img);
+            });
+        }
     }
 
 //                                                                            //
@@ -94,5 +105,5 @@ public class VideoPlayer {
             return mAudioClient.getPort();
         });
     }                                                                          //  
-    
+
 }
