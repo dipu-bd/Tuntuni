@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import org.tuntuni.models.Logs;
-import org.tuntuni.connection.StreamSocket;
-import static org.tuntuni.video.image.ImageServer.WAIT_INTERVAL;
+import org.tuntuni.connection.StreamSocket; 
 
 /**
  *
@@ -50,14 +49,10 @@ public class AudioServer extends StreamSocket {
             DatagramPacket packet = getNextPacket();
             if (packet != null) {
                 getSocket().send(packet);
-            }
-            // wait WAIT_INTERVAL time before next send
-            Thread.sleep(WAIT_INTERVAL);
+            } 
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
-        } catch (InterruptedException ex) {
-            Logs.error(getClass(), "{0}", ex);
-        }
+        }  
     }
 
     // gets the next packet to send
@@ -78,7 +73,7 @@ public class AudioServer extends StreamSocket {
             // write packet
             oos.writeObject(audioFrame);
             // get converted bytes
-            byte[] data = baos.toByteArray();
+            byte[] data = baos.toByteArray(); 
             // create and return datagram packet
             return new DatagramPacket(data, data.length, getRemoteAddress());
         } catch (IOException ex) {

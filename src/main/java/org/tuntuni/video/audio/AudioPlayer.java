@@ -15,9 +15,6 @@
  */
 package org.tuntuni.video.audio;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -30,10 +27,7 @@ import org.tuntuni.video.VideoFormat;
  * @author Sudipto Chandra
  */
 public class AudioPlayer implements Runnable {
-
-    // time to wait between to successive play operation
-    public static final int WAIT_INTERVAL = 25; // milliseconds
-
+    
     private final AudioClient mClient;
     private Thread mPlayerThread;
 
