@@ -16,6 +16,7 @@
 package org.tuntuni.video.image;
 
 import java.net.SocketException;
+import java.util.LinkedList;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
@@ -29,13 +30,17 @@ public class ImagePlayer implements Runnable {
 
     // time to wait between to successive display operation
     public static final int WAIT_INTERVAL = 25; // milliseconds
+    // queue this amount of image before displaying
+    public static final int MAX_BUFFER = 15;
 
     private final ImageClient mClient;
     private Thread mPlayerThread;
     private ObjectProperty<Image> mImage;
-
+    private LinkedList<Image> mImageQueue;
+    
     public ImagePlayer(ImageClient client) {
         mClient = client;
+        mImageQueue = new LinkedList<>();
         mImage = new SimpleObjectProperty<>(null);
     }
 
@@ -44,7 +49,8 @@ public class ImagePlayer implements Runnable {
      *
      * @throws SocketException
      */
-    public void start() throws SocketException { 
+    public void start() throws SocketException {
+        mImageQueue.clear();
         mPlayerThread = new Thread(this);
         mPlayerThread.setDaemon(true);
         mPlayerThread.start();
@@ -53,18 +59,20 @@ public class ImagePlayer implements Runnable {
     /**
      * Stops the player
      */
-    public void stop() { 
+    public void stop() {
+        mImageQueue.clear();
         mPlayerThread.interrupt();
     }
-    
+
     /**
      * Checks whether player is active
-     * @return 
+     *
+     * @return
      */
     public boolean isActive() {
         return mClient.isOpen();
     }
-
+    
     @Override
     public void run() {
         while (isActive()) {
@@ -76,7 +84,7 @@ public class ImagePlayer implements Runnable {
             }
         }
     }
-
+    
     private void display() {
         if (!mClient.isImageNew()) {
             return;
@@ -89,9 +97,12 @@ public class ImagePlayer implements Runnable {
         // update image
         updateImage(frame.getImage());
     }
-
+    
     private void updateImage(Image image) {
-        mImage.set(image);
+        mImageQueue.addLast(image);
+        if (mImageQueue.size() > MAX_BUFFER) {
+            mImage.set(mImageQueue.removeFirst());
+        }
     }
 
     /**
