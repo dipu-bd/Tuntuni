@@ -22,72 +22,65 @@ import java.awt.image.BufferedImage;
  *
  * @author Sudipto Chandra
  */
-public abstract class ImageSource {
-    
+public interface ImageSource {
+
     /**
      * Gets the name of the image source
-     * @return 
+     *
+     * @return
      */
-    public abstract String getName();
-    
+    public String getName();
+
     /**
      * Gets current image from the source
-     * @return 
+     *
+     * @return
      */
-    public abstract BufferedImage getImage(); 
-    
+    public BufferedImage getImage();
+
     /**
      * True if a new image is available that has not yet been pooled
-     * @return 
+     *
+     * @return
      */
-    public abstract boolean isImageNew();    
-    
+    public boolean isImageNew();
+
     /**
      * Gets the view size or dimension of captured images
-     * @return 
+     *
+     * @return
      */
-    public abstract Dimension getSize();
-    
+    public Dimension getSize();
+
     /**
      * Sets the view size or dimension to capture
-     * @param size 
+     *
+     * @param size
      */
-    public abstract void setSize(Dimension size);
-    
+    public void setSize(Dimension size);
+
     /**
      * Open the image source to capture
      */
-    public abstract void open();
-    
+    public void open();
+
     /**
      * Close the image source
      */
-    public abstract void close();
-    
+    public void close();
+
     /**
      * Checks if the source is open
-     * @return 
+     *
+     * @return
      */
-    public abstract boolean isOpen();
-        
+    public boolean isOpen();
+
     /**
-     * Gets the width of image captured by the source
-     * @return 
+     * Gets the name
+     *
+     * @return
      */
-    public double getWidth() {
-        return getSize().getWidth();
-    }
-    
-    /**
-     * Gets the height of image captured by the source
-     * @return 
-     */
-    public double getHeight() {
-        return getSize().getHeight();
-    }
-        
     @Override
-    public String toString() {
-        return getName();
-    }
+    public String toString();
 }

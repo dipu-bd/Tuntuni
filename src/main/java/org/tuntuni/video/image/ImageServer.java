@@ -17,61 +17,52 @@ package org.tuntuni.video.image;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
+import org.tuntuni.video.StreamServer;
+import org.tuntuni.video.StreamSocket;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImageServer implements Runnable {
+public class ImageServer extends StreamSocket {
 
-    private Thread mServerThread;
-    private DatagramSocket mSocket;
     private final ImageCapture mCapture;
 
+    /**
+     * Creates a new Image Server
+     *
+     * @param capture Capture
+     */
     public ImageServer(ImageCapture capture) {
         mCapture = capture;
     }
 
-    public void open() throws SocketException {
-        mSocket = new DatagramSocket();
-        mServerThread = new Thread(this);
-        mServerThread.setDaemon(true);
-        mServerThread.start();
-    }
-
-    public void close() {
-        mSocket.close();
-        mServerThread.interrupt();
-    }
-
-    public int getPort() {
-        return mSocket.getLocalPort();
-    }
-
-    public void connect(InetAddress address, int port) {
-        mSocket.connect(address, port);
+    // send a packet
+    @Override
+    public void doWork() {
+        try {
+            DatagramPacket packet = getNextPacket();
+            if (packet != null) {
+                getSocket().send(packet);
+            }
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
+        }
     }
 
     @Override
-    public void run() {
-        while (!mSocket.isClosed() && mSocket.isBound()) {
-            if (mSocket.isConnected()) {
-                try {
-                    mSocket.send(getNext());
-                } catch (IOException ex) {
-                    Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
-                }
-            }
+    // gets the next packet to send
+    public DatagramPacket getNextPacket() {
+        // get next image frame
+        ImageFrame imageFrame = mCapture.getFrame();
+        if (imageFrame == null) {
+            return null;
         }
-    }
-    
-    private DatagramPacket getNext() {
-        
+        // convert to bytes
+        byte[] data = Commons.toBytes(imageFrame);
+        // create and return datagram packet
+        return new DatagramPacket(data, data.length, getRemoteAddress());
     }
 }

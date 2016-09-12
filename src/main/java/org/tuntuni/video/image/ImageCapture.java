@@ -15,10 +15,27 @@
  */
 package org.tuntuni.video.image;
 
+import java.awt.image.BufferedImage;
+
 /**
  *
  * @author Sudipto Chandra
  */
 public class ImageCapture {
-    
+
+    private final ImageSource mSource;
+
+    public ImageCapture(ImageSource source) {
+        mSource = source;
+    }
+
+    public synchronized ImageFrame getFrame() {
+        BufferedImage image = mSource.getImage();
+        if (image == null) {
+            return null;
+        } else {
+            return new ImageFrame(image);
+        }
+    }
+
 }

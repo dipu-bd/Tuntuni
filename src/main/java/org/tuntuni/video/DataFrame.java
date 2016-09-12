@@ -68,7 +68,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         return mType;
     }
 
-    public long getID() {
+    public long getTime() {
         return mID;
     }
 
@@ -82,7 +82,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
 
     @Override
     public int compareTo(DataFrame t) {
-        return mID == t.getID() ? 0 : (mID < t.getID() ? -1 : 1);
+        return mID == t.getTime() ? 0 : (mID < t.getTime() ? -1 : 1);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DataFrame implements Externalizable, Comparable<DataFrame> {
         if (t == null || !(t instanceof ImageFrame)) {
             return false;
         }
-        return ((ImageFrame) t).getID() == mID;
+        return ((ImageFrame) t).getTime() == mID;
     }
 
     @Override

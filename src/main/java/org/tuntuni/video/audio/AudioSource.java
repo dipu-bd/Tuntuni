@@ -19,6 +19,6 @@ package org.tuntuni.video.audio;
  *
  * @author Sudipto Chandra
  */
-public class AudioSource {
-    
+public interface AudioSource {
+
 }

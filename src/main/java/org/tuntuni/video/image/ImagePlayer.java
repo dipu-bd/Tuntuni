@@ -20,5 +20,9 @@ package org.tuntuni.video.image;
  * @author Sudipto Chandra
  */
 public class ImagePlayer {
+
+    ImageFrame getEmptyFrame() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }
