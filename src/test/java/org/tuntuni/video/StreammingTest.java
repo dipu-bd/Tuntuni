@@ -37,14 +37,19 @@ public class StreammingTest {
     @Before
     public void setUp() throws SocketException, UnknownHostException {
         System.out.println(":: Video Streamming Test ::");
-        System.out.println(">>> setting up");
+        
+        System.out.println(">>> starting player");        
         mPlayer = new VideoPlayer(null);
         mPlayer.start();
+        System.out.println("Image port = " + mPlayer.getImagePort());
+        System.out.println("Audio port = " + mPlayer.getAudioPort());
+        
         System.out.println(">>> starting recorder");
         mRecorder = new VideoRecorder(
                 InetAddress.getLocalHost(),
                 mPlayer.getImagePort(),
                 mPlayer.getAudioPort());
+        mRecorder.start();
     }
 
     @After

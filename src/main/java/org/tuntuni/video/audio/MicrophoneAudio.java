@@ -60,7 +60,8 @@ public class MicrophoneAudio implements AudioSource, Runnable {
             // start audio thread
             mAudioThread = new Thread(this);
             mAudioThread.setDaemon(true);
-            mAudioThread.start();
+            mAudioThread.start();                        
+            Logs.info(getName(), "Recording started!!");
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to open audio line. ERROR: {0}", ex);
         }
@@ -68,9 +69,12 @@ public class MicrophoneAudio implements AudioSource, Runnable {
 
     @Override
     public void close() {
-        mTargetLine.stop();
-        mTargetLine.close();
-        mAudioThread.interrupt();
+        try {
+            mTargetLine.stop();
+            mTargetLine.close();
+            mAudioThread.interrupt();
+        } catch (Exception ex) {
+        }
     }
 
     @Override
@@ -92,14 +96,12 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     @Override
     public void run() {
         // available: 2 5 6 7 9 10 15 25
-        int size = mTargetLine.getBufferSize() / 15;
+        int size = mTargetLine.getBufferSize() / 5;
 
         while (isOpen()) {
-            synchronized (mBuffer) {
-                // read audio
-                mBufferLength = mTargetLine.read(mBuffer, 0, size);
-                mBufferNew = true;
-            }
+            // read audio
+            mBufferLength = mTargetLine.read(mBuffer, 0, size);
+            mBufferNew = true;
         }
     }
 

@@ -24,7 +24,7 @@ import org.tuntuni.connection.StreamSocket;
 import static org.tuntuni.video.image.ImageServer.WAIT_INTERVAL;
 
 /**
- * 
+ *
  * @author Sudipto Chandra
  */
 public class AudioServer extends StreamSocket {
@@ -33,13 +33,13 @@ public class AudioServer extends StreamSocket {
 
     public AudioServer(AudioSource source) {
         mSource = source;
-    } 
+    }
 
     @Override
     public String getName() {
         return "Audio Server";
     }
-    
+
     @Override
     public void doWork() {
         try {
@@ -49,11 +49,11 @@ public class AudioServer extends StreamSocket {
                 getSocket().send(packet);
             }
             // wait WAIT_INTERVAL time before next send
-            Thread.sleep(WAIT_INTERVAL);
+            Thread.sleep(WAIT_INTERVAL);            
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
         } catch (InterruptedException ex) {
-            Logs.error(getClass(), "Thread sleep was interrupted. ERROR: {0}", ex);
+            Logs.error(getClass(), "{0}", ex);
         }
     }
 
@@ -67,7 +67,7 @@ public class AudioServer extends StreamSocket {
         AudioFrame audioFrame = mSource.getFrame();
         if (audioFrame == null) {
             return null;
-        } 
+        }
         // convert to bytes 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos)) {

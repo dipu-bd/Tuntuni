@@ -82,6 +82,8 @@ public abstract class StreamSocket implements Runnable {
         mSocket.connect(address, port);
         if (mSocket.isConnected()) {
             Logs.info(getName(), "Connected @ {0}:{1}", address, port);
+        } else {
+            Logs.warning(getName(), "Failed to connect! @ {0}:{1}", address, port);
         }
     }
 

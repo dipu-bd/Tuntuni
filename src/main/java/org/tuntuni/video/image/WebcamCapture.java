@@ -18,6 +18,7 @@ package org.tuntuni.video.image;
 import com.github.sarxos.webcam.Webcam;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import org.tuntuni.models.Logs;
 
 /**
  *
@@ -57,6 +58,8 @@ public class WebcamCapture implements ImageSource {
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
             mWebcam.open();
+        } else {
+            Logs.warning(getClass(), "Webcam not found");
         }
     }
 

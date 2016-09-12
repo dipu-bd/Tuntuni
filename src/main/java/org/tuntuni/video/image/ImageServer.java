@@ -47,7 +47,7 @@ public class ImageServer extends StreamSocket {
     public String getName() {
         return "Image Server";
     }
-    
+
     // sends a packet
     @Override
     public void doWork() {
@@ -62,7 +62,7 @@ public class ImageServer extends StreamSocket {
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
         } catch (InterruptedException ex) {
-            Logs.error(getClass(), "Thread sleep was interrupted. ERROR: {0}", ex);
+            Logs.error(getClass(), "{0}", ex);
         }
     }
 

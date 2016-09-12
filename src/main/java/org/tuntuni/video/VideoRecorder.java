@@ -43,7 +43,7 @@ public class VideoRecorder {
         mAddress = address;
         mImagePort = imagePort;
         mAudioPort = audioPort;
-
+         
         mImageSource = new WebcamCapture();
         mImageServer = new ImageServer(mImageSource);
 
@@ -52,20 +52,23 @@ public class VideoRecorder {
     }
 
     public void start() throws SocketException {
+        // open servers
         mImageServer.open();
+        mAudioServer.open();         
+        // connect
         mImageServer.connect(mAddress, mImagePort);
-        mImageSource.open();
-
-        mAudioServer.open();
         mAudioServer.connect(mAddress, mAudioPort);
+        // open sources
+        mImageSource.open();
         mAudioSource.open();
     }
 
     public void stop() {
+        // stop sources
         mImageSource.close();
-        mImageServer.close();
-
         mAudioSource.close();
+        // stop servers
+        mImageServer.close();
         mAudioServer.close();
     }
 }

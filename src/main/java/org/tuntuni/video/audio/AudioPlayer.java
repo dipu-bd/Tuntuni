@@ -15,7 +15,6 @@
  */
 package org.tuntuni.video.audio;
 
-import java.net.SocketException;
 import java.util.Arrays;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -36,7 +35,7 @@ public class AudioPlayer implements Runnable {
     private final AudioClient mClient;
     private Thread mPlayerThread;
 
-    private DataLine.Info mSourceInfo;
+    private final DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
 
     public AudioPlayer(AudioClient client) {
