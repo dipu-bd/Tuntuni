@@ -93,9 +93,7 @@ public class AudioPlayer implements Runnable {
     public void run() {
         while (isActive()) {
             // play audio
-            byte[] data = getdata();
-
-            Logs.error(getClass(), "Playing audio!!!! {0}", data.length);
+            byte[] data = getdata(); 
             mSourceLine.write(data, 0, data.length);
         }
     }
@@ -106,8 +104,8 @@ public class AudioPlayer implements Runnable {
             AudioFrame frame = mClient.getFrame();
             return frame.getBuffer();
         }
-        // return 1800bytes of empty data
-        // will play for almost 20 milliseconds
-        return new byte[1800];
+        // return 100bytes of empty data
+        // will play for almost 1 milliseconds
+        return new byte[100];
     }
 }

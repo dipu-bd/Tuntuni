@@ -63,12 +63,7 @@ public class VideoPlayer {
         mAudioPlayer.stop();
     }
 
-    private void displayImage(Image img) {
-
-        if (img != null) {
-            Logs.info(getClass(), "Image has arrived! {0}x{0}.", img.getWidth(), img.getHeight());
-        }
-
+    private void displayImage(Image img) { 
         if (img != null && mViewer != null) {
             Platform.runLater(() -> {
                 mViewer.setImage(img);
