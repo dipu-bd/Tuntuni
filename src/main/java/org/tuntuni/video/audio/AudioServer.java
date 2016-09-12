@@ -36,6 +36,11 @@ public class AudioServer extends StreamSocket {
     } 
 
     @Override
+    public String getName() {
+        return "Audio Server";
+    }
+    
+    @Override
     public void doWork() {
         try {
             // send a packet

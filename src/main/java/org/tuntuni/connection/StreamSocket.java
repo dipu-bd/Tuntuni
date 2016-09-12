@@ -19,6 +19,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import org.tuntuni.models.Logs;
 
 /**
  *
@@ -34,6 +35,13 @@ public abstract class StreamSocket implements Runnable {
      */
     public StreamSocket() {
     }
+
+    /**
+     * Gets the name of the socket
+     *
+     * @return
+     */
+    public abstract String getName();
 
     /**
      * Open the server, and starts listening
@@ -54,10 +62,14 @@ public abstract class StreamSocket implements Runnable {
      * Closes the current server
      */
     public void close() {
-        // close socket
-        mSocket.close();
-        // interrupt server thread
-        mServerThread.interrupt();
+        if (mSocket != null && isOpen()) {
+            // close socket
+            mSocket.close();
+        }
+        if (mServerThread != null && mServerThread.isAlive()) {
+            // interrupt server thread
+            mServerThread.interrupt();
+        }
     }
 
     /**
@@ -68,6 +80,9 @@ public abstract class StreamSocket implements Runnable {
      */
     public void connect(InetAddress address, int port) {
         mSocket.connect(address, port);
+        if (mSocket.isConnected()) {
+            Logs.info(getName(), "Connected @ {0}:{1}", address, port);
+        }
     }
 
     /**
@@ -111,6 +126,7 @@ public abstract class StreamSocket implements Runnable {
     // continuously send data packet
     @Override
     public void run() {
+        Logs.info(getName(), "Opened @ port {0}...", getPort());
         while (isOpen()) {
             if (mSocket.isConnected()) {
                 doWork();

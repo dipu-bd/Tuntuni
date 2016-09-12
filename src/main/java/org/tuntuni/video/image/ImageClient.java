@@ -38,6 +38,11 @@ public class ImageClient extends StreamSocket {
         mBuffer = new byte[MAX_BUFFER];
     }
 
+    @Override
+    public String getName() {
+        return "Image Client";
+    }
+    
     // receive a packet
     @Override
     public void doWork() {

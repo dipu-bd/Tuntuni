@@ -37,6 +37,11 @@ public class AudioClient extends StreamSocket {
     public AudioClient() {
         mBuffer = new byte[MAX_BUFFER];
     }
+    
+    @Override
+    public String getName() {
+        return "Audio Client";
+    }
 
     // receive a packet
     @Override

@@ -16,7 +16,6 @@
 package org.tuntuni.video.image;
 
 import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamException;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
@@ -26,14 +25,9 @@ import java.awt.image.BufferedImage;
  */
 public class WebcamCapture implements ImageSource {
 
-    private final Webcam mWebcam;
+    private Webcam mWebcam;
 
-    public WebcamCapture() throws WebcamException {
-        // get the default webcam
-        mWebcam = Webcam.getDefault();
-        if (mWebcam == null) {
-            throw new WebcamException("Webcam not found!");
-        }
+    public WebcamCapture() {
     }
 
     @Override
@@ -43,36 +37,43 @@ public class WebcamCapture implements ImageSource {
 
     @Override
     public BufferedImage getImage() {
-        return mWebcam.getImage(); 
+        return mWebcam == null ? null : mWebcam.getImage();
     }
 
     @Override
     public Dimension getSize() {
-        return mWebcam.getViewSize();
+        return mWebcam == null ? null : mWebcam.getViewSize();
     }
 
     @Override
     public void setSize(Dimension size) {
-        mWebcam.setViewSize(size);
+        if (mWebcam != null) {
+            mWebcam.setViewSize(size);
+        }
     }
 
     @Override
     public void open() {
-        mWebcam.open();
+        mWebcam = Webcam.getDefault();
+        if (mWebcam != null) {
+            mWebcam.open();
+        }
     }
 
     @Override
     public void close() {
-        mWebcam.close();
+        if (mWebcam != null) {
+            mWebcam.close();
+        }
     }
 
     @Override
     public boolean isOpen() {
-        return mWebcam.isOpen();
+        return mWebcam == null ? false : mWebcam.isOpen();
     }
 
     @Override
     public boolean isImageNew() {
-        return mWebcam.isImageNew();
+        return mWebcam == null ? false : mWebcam.isImageNew();
     }
 }

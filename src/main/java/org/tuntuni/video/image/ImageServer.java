@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
-import java.net.SocketException;
 import org.tuntuni.models.Logs;
 import org.tuntuni.connection.StreamSocket;
 
@@ -43,7 +42,12 @@ public class ImageServer extends StreamSocket {
     public ImageServer(ImageSource source) {
         mSource = source;
     }
-   
+
+    @Override
+    public String getName() {
+        return "Image Server";
+    }
+    
     // sends a packet
     @Override
     public void doWork() {
@@ -89,4 +93,5 @@ public class ImageServer extends StreamSocket {
             return null;
         }
     }
+
 }
