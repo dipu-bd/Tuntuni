@@ -19,8 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.image.Image;
 import org.tuntuni.models.Logs;
 import org.tuntuni.connection.StreamSocket;
+import static org.tuntuni.video.image.ImagePlayer.MAX_BUFFER;
 
 /**
  *
@@ -28,21 +33,25 @@ import org.tuntuni.connection.StreamSocket;
  */
 public class ImageClient extends StreamSocket {
 
+    public static final int QUEUE_SIZE = 15; // almost 60K    
     public static final int MAX_BUFFER = 60_000; // almost 60K
 
-    private byte[] mBuffer;
-    private ImageFrame mImage;
-    private volatile boolean mImageNew;
+    private final byte[] mBuffer;
+    private volatile int mImageTime;
+    private final ObjectProperty<Image> mImage;
+    private final ConcurrentLinkedQueue<ImageFrame> mFrames;
 
     public ImageClient() {
         mBuffer = new byte[MAX_BUFFER];
+        mImage = new SimpleObjectProperty<>(null);
+        mFrames = new ConcurrentLinkedQueue<>();
     }
 
     @Override
     public String getName() {
         return "Image Client";
     }
-    
+
     // receive a packet
     @Override
     public void doWork() {
@@ -55,8 +64,7 @@ public class ImageClient extends StreamSocket {
         }
     }
 
-    private void packetReceived(DatagramPacket packet) { 
-        
+    private void packetReceived(DatagramPacket packet) {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais)) {
 
@@ -69,32 +77,25 @@ public class ImageClient extends StreamSocket {
         }
     }
 
-    private synchronized void updateImage(ImageFrame frame) {
+    private void updateImage(ImageFrame frame) {
         // replace if no last image available, or last image is older
-        if (mImage == null || mImage.getTime() < frame.getTime()) {
-            mImage = frame;
-            mImageNew = true;
+        mFrames.add(frame);
+        if (mFrames.size() > QUEUE_SIZE) {
+            frame = mFrames.poll();
+            if (frame.getTime() > mImageTime) {
+                mImageTime = frame.getTime();
+                mImage.set(frame.getImage());
+            }
         }
     }
-
+ 
     /**
-     * Gets the current image frame. If none available an empty frame is
-     * returned
+     * Gets the image property
      *
      * @return
      */
-    public ImageFrame getFrame() {
-        mImageNew = false;
+    public ObjectProperty<Image> imageProperty() {
         return mImage;
-    }
-
-    /**
-     * Checks whether new image has arrived
-     *
-     * @return True if image is updated
-     */
-    public boolean isImageNew() {
-        return mImageNew;
     }
 
     @Override

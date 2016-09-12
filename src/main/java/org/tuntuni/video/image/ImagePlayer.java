@@ -15,112 +15,38 @@
  */
 package org.tuntuni.video.image;
 
-import java.net.SocketException;
-import java.util.LinkedList;
-import java.util.TreeSet;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
-import org.tuntuni.models.Logs;
+import javafx.scene.image.ImageView;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImagePlayer implements Runnable {
+public class ImagePlayer {
 
     // time to wait between to successive display operation
     public static final int WAIT_INTERVAL = 25; // milliseconds
     // queue this amount of image before displaying
     public static final int MAX_BUFFER = 15;
 
+    private final ImageView mViewer;
     private final ImageClient mClient;
-    private Thread mPlayerThread;
-    private ObjectProperty<Image> mImage;
-    private TreeSet<Image> mImageQueue;
-    
-    public ImagePlayer(ImageClient client) {
+
+    public ImagePlayer(ImageClient client, ImageView viewer) {
         mClient = client;
-        mImageQueue = new TreeSet<>();
-        mImage = new SimpleObjectProperty<>(null);
+        mViewer = viewer;
+        client.imageProperty().addListener((ov, oldImg, newImg) -> {
+            displayImage(newImg);
+        });
     }
 
-    /**
-     * Starts the player
-     *
-     * @throws SocketException
-     */
-    public void start() throws SocketException {
-        mImageQueue.clear();
-        mPlayerThread = new Thread(this);
-        mPlayerThread.setDaemon(true);
-        mPlayerThread.start();
-    }
-
-    /**
-     * Stops the player
-     */
-    public void stop() {
-        mImageQueue.clear();
-        mPlayerThread.interrupt();
-    }
-
-    /**
-     * Checks whether player is active
-     *
-     * @return
-     */
-    public boolean isActive() {
-        return mClient.isOpen();
-    }
-    
-    @Override
-    public void run() {
-        while (isActive()) {
-            try {
-                display();
-                Thread.sleep(WAIT_INTERVAL);
-            } catch (InterruptedException ex) {
-                Logs.error(getClass(), "Thread sleep was interrupted. ERROR: {0}", ex);
-            }
-        }
-    }
-    
-    private void display() {
-        if (!mClient.isImageNew()) {
-            return;
-        }
-        // gets the image frame
-        ImageFrame frame = mClient.getFrame();
-        if (frame == null) {
-            return;
-        }
-        // update image
-        updateImage(frame.getImage());
-    }
-    
-    private void updateImage(Image image) {
-        mImageQueue.add(image);
-        if (mImageQueue.size() > MAX_BUFFER) {
-            mImage.set(mImageQueue.pollFirst());
+    private void displayImage(Image img) {
+        if (img != null && mViewer != null) {
+            Platform.runLater(() -> {
+                mViewer.setImage(img);
+            });
         }
     }
 
-    /**
-     * Gets the image
-     *
-     * @return
-     */
-    public Image getImage() {
-        return mImage.get();
-    }
-
-    /**
-     * Gets the image property
-     *
-     * @return
-     */
-    public ObjectProperty<Image> imageProperty() {
-        return mImage;
-    }
 }

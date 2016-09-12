@@ -33,8 +33,7 @@ import org.tuntuni.connection.StreamSocket;
 public class AudioClient extends StreamSocket {
 
     public static final int MAX_BUFFER = 11_200; // almost 25K
-
-    public static final int MAX_QUEUE = 2;
+    public static final int QUEUE_SIZE = 2;
 
     private final byte[] mBuffer;
     private volatile int mAudioTime;
@@ -82,7 +81,7 @@ public class AudioClient extends StreamSocket {
     private void updateAudio(AudioFrame frame) {
         // replace if no last au dio available, or last audio is older
         mFrameList.add(frame);
-        if (mFrameList.size() > MAX_QUEUE) {
+        if (mFrameList.size() > QUEUE_SIZE) {
             AudioFrame first = mFrameList.poll();
             if (first.getTime() > mAudioTime) {
                 mAudioTime = first.getTime();

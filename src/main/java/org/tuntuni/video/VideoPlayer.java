@@ -32,43 +32,29 @@ import org.tuntuni.video.image.ImagePlayer;
  */
 public class VideoPlayer {
 
-    private ImageView mViewer;
-
     private final ImageClient mImageClient;
     private final ImagePlayer mImagePlayer;
 
     private final AudioClient mAudioClient;
     private final AudioPlayer mAudioPlayer;
 
-    public VideoPlayer(ImageView viewer) {
-        mViewer = viewer;
+    public VideoPlayer(ImageView viewer) { 
         mImageClient = new ImageClient();
-        mImagePlayer = new ImagePlayer(mImageClient);
+        mImagePlayer = new ImagePlayer(mImageClient, viewer);
         mAudioClient = new AudioClient();
-        mAudioPlayer = new AudioPlayer(mAudioClient);
-        mImagePlayer.imageProperty().addListener((ov, o, n) -> displayImage(n));
+        mAudioPlayer = new AudioPlayer(mAudioClient); 
     }
 
     public void start() throws SocketException {
         mImageClient.open();
-        mAudioClient.open();
-        mImagePlayer.start();
+        mAudioClient.open(); 
         mAudioPlayer.start();
     }
 
     public void stop() {
         mImageClient.close();
-        mAudioClient.close();
-        mImagePlayer.stop();
+        mAudioClient.close(); 
         mAudioPlayer.stop();
-    }
-
-    private void displayImage(Image img) { 
-        if (img != null && mViewer != null) {
-            Platform.runLater(() -> {
-                mViewer.setImage(img);
-            });
-        }
     }
 
 //                                                                            //
