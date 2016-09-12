@@ -32,18 +32,21 @@ public interface ImageSource {
     public String getName();
 
     /**
+     * Open the image source to capture
+     */
+    public void open();
+
+    /**
+     * Close the image source
+     */
+    public void close();
+
+    /**
      * Gets current image from the source
      *
      * @return
      */
     public BufferedImage getImage();
-
-    /**
-     * True if a new image is available that has not yet been pooled
-     *
-     * @return
-     */
-    public boolean isImageNew();
 
     /**
      * Gets the view size or dimension of captured images
@@ -60,14 +63,11 @@ public interface ImageSource {
     public void setSize(Dimension size);
 
     /**
-     * Open the image source to capture
+     * True if a new image is available that has not yet been pooled
+     *
+     * @return
      */
-    public void open();
-
-    /**
-     * Close the image source
-     */
-    public void close();
+    public boolean isImageNew();
 
     /**
      * Checks if the source is open
@@ -75,12 +75,4 @@ public interface ImageSource {
      * @return
      */
     public boolean isOpen();
-
-    /**
-     * Gets the name
-     *
-     * @return
-     */
-    @Override
-    public String toString();
 }

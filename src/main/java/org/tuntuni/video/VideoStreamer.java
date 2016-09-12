@@ -21,16 +21,14 @@ import com.github.sarxos.webcam.Webcam;
 import java.awt.image.BufferedImage;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.TargetDataLine;
-import org.tuntuni.connection.StreamServer;
+import javax.sound.sampled.TargetDataLine; 
 import org.tuntuni.models.Logs;
 
 /**
  *
  */
 public final class VideoStreamer {
-
-    private final StreamServer mServer;
+ 
 
     private Thread mAudioThread;
     private Thread mVideoThread;

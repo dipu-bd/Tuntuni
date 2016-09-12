@@ -24,11 +24,11 @@ import java.awt.image.BufferedImage;
  *
  * @author Sudipto Chandra
  */
-public class WebcamImage implements ImageSource {
+public class WebcamCapture implements ImageSource {
 
     private final Webcam mWebcam;
 
-    public WebcamImage() throws WebcamException {
+    public WebcamCapture() throws WebcamException {
         // get the default webcam
         mWebcam = Webcam.getDefault();
         if (mWebcam == null) {
@@ -38,7 +38,7 @@ public class WebcamImage implements ImageSource {
 
     @Override
     public String getName() {
-        return "Webcam : " + mWebcam.getDevice().getName();
+        return "WebcamCapture:" + mWebcam.getDevice().getName();
     }
 
     @Override

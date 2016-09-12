@@ -15,6 +15,8 @@
  */
 package org.tuntuni.video.audio;
 
+import javax.sound.sampled.AudioFormat;
+
 /**
  *
  * @author Sudipto Chandra
