@@ -33,7 +33,7 @@ import org.tuntuni.connection.StreamSocket;
 public class AudioClient extends StreamSocket {
 
     public static final int MAX_BUFFER = 11_200; // almost 25K
-    public static final int QUEUE_SIZE = 2;
+    public static final int QUEUE_SIZE = 0;
 
     private final byte[] mBuffer;
     private volatile int mAudioTime;
