@@ -56,9 +56,6 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
     @Override
     public void start() {
         
-        setMinQueueSize(10);
-        setMaxQueueSize(20);
-        
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
             //mWebcam.setViewSize(VideoFormat.getViewSize());
