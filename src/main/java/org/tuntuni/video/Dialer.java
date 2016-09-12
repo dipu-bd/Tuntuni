@@ -71,7 +71,7 @@ public class Dialer {
         if (!occupySlot()) {
             throw new DialerException("Slot in your pc is unavailable");
         }
-        // start communication
+        // start communication        
         startComs();
         mStatus.set(DialStatus.BUSY);
     }
@@ -137,21 +137,23 @@ public class Dialer {
         mAcceptance = result ? 0 : 1;
     }
 
-    private void startComs() throws DialerException {
-        try {
-            mPlayer = new VideoPlayer(
-                    Core.instance().videocall().getViewer());
-            mPlayer.start();
+    private void startComs() {
+        new Thread(() -> {
+            try {
+                mPlayer = new VideoPlayer(
+                        Core.instance().videocall().getViewer());
+                mPlayer.start();
 
-            mRecorder = new VideoRecorder(
-                    mClient.getAddress().getAddress(),
-                    mClient.getImagePort(), mClient.getAudioPort());
-            mRecorder.start();
+                mRecorder = new VideoRecorder(
+                        mClient.getAddress().getAddress(),
+                        mClient.getImagePort(), mClient.getAudioPort());
+                mRecorder.start();
 
-        } catch (Exception ex) {
-            endCall();
-            throw new DialerException("Failed to start communication modules");
-        }
+            } catch (Exception ex) {
+                endCall();
+                Logs.error(getClass(), "Failed to start communication modules. Error: {0}", ex);
+            }
+        }).start();
     }
 
     private void stopComs() {
