@@ -15,8 +15,6 @@
  */
 package org.tuntuni.video.audio;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -30,7 +28,7 @@ import org.tuntuni.video.VideoFormat;
  * @author Sudipto Chandra
  */
 public class MicrophoneAudio implements AudioSource, Runnable {
-    
+
     public int MAX_BUFFER = 100_000; // almost 100KB
 
     private Thread mAudioThread;
@@ -94,7 +92,7 @@ public class MicrophoneAudio implements AudioSource, Runnable {
     public void run() {
         // available: 2 5 6 7 9 10 15 25
         int size = mTargetLine.getBufferSize() / 15;
-        
+
         while (isOpen()) {
             synchronized (mBuffer) {
                 // read audio
@@ -106,10 +104,8 @@ public class MicrophoneAudio implements AudioSource, Runnable {
 
     @Override
     public AudioFrame getFrame() {
-        synchronized (mBuffer) {
-            mBufferNew = false;
-            return new AudioFrame(mBuffer, mBufferLength);
-        }
+        mBufferNew = false;
+        return new AudioFrame(mBuffer, mBufferLength);
     }
 
 }

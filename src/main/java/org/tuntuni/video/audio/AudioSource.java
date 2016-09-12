@@ -22,17 +22,48 @@ import javax.sound.sampled.AudioFormat;
  */
 public interface AudioSource {
 
+    /**
+     * Gets the name of the source
+     *
+     * @return
+     */
     public String getName();
 
+    /**
+     * Opens the audio source for recording
+     */
     public void open();
 
+    /*
+     * Closes the current source
+     */
     public void close();
 
+    /**
+     * Gets the audio format used by this source
+     *
+     * @return
+     */
     public AudioFormat getFormat();
- 
+
+    /**
+     * Gets currently available audio frame
+     *
+     * @return
+     */
     public AudioFrame getFrame();
 
+    /**
+     * Checks if the current frame is new one
+     *
+     * @return
+     */
     public boolean isAudioNew();
 
+    /**
+     * Checks if the source is open
+     *
+     * @return
+     */
     public boolean isOpen();
 }

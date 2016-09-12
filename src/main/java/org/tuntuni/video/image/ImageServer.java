@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.SocketException;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.Commons;
 import org.tuntuni.video.StreamSocket;
 
 /**
@@ -34,7 +33,7 @@ public class ImageServer extends StreamSocket {
     // time to wait between to successive send operation
     public static final int WAIT_INTERVAL = 25; // milliseconds
 
-    private final ImageSource mSource;
+    private ImageSource mSource;
 
     /**
      * Creates a new Image Server
@@ -92,8 +91,7 @@ public class ImageServer extends StreamSocket {
         }
         // make image frame
         ImageFrame imageFrame = new ImageFrame(image);
-        // convert to bytes
-        Commons.toBytes(imageFrame);
+        // convert to bytes 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             // write packet

@@ -15,10 +15,83 @@
  */
 package org.tuntuni.video.audio;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.SocketException;
+import org.tuntuni.models.Logs;
+import org.tuntuni.video.StreamSocket;
+import static org.tuntuni.video.image.ImageServer.WAIT_INTERVAL;
+
 /**
- *
+ * 
  * @author Sudipto Chandra
  */
-public class AudioServer {
-    
+public class AudioServer extends StreamSocket {
+
+    private AudioSource mSource;
+
+    public AudioServer(AudioSource source) {
+        mSource = source;
+    }
+
+    @Override
+    public void open() throws SocketException {
+        // open the source
+        mSource.open();
+        // open the server
+        super.open();
+    }
+
+    @Override
+    public void close() {
+        // close the source
+        mSource.close();
+        // close the server
+        super.close();
+    }
+
+    @Override
+    public void doWork() {
+        try {
+            // send a packet
+            DatagramPacket packet = getNextPacket();
+            if (packet != null) {
+                getSocket().send(packet);
+            }
+            // wait WAIT_INTERVAL time before next send
+            Thread.sleep(WAIT_INTERVAL);
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
+        } catch (InterruptedException ex) {
+            Logs.error(getClass(), "Thread sleep was interrupted. ERROR: {0}", ex);
+        }
+    }
+
+    // gets the next packet to send
+    private DatagramPacket getNextPacket() {
+        // check if image is available
+        if (!mSource.isAudioNew()) {
+            return null;
+        }
+        // get next image 
+        AudioFrame audioFrame = mSource.getFrame();
+        if (audioFrame == null) {
+            return null;
+        } 
+        // convert to bytes 
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            // write packet
+            oos.writeObject(audioFrame);
+            // get converted bytes
+            byte[] data = baos.toByteArray();
+            // create and return datagram packet
+            return new DatagramPacket(data, data.length, getRemoteAddress());
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to create packet. ERROR: {0}", ex);
+            return null;
+        }
+    }
 }
