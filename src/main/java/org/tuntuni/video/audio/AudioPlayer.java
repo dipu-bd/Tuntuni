@@ -49,9 +49,7 @@ public class AudioPlayer implements Runnable {
      * Starts the player
      */
     public void start() {
-        try {
-            // open client 
-            mClient.open();
+        try { 
             // start source line
             mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
             mSourceLine.open(VideoFormat.getAudioFormat());
@@ -62,17 +60,13 @@ public class AudioPlayer implements Runnable {
             mPlayerThread.start();
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
-        } catch (SocketException ex) {
-            Logs.error(getClass(), "Failed to start the audio client. ERROR: {0}", ex);
-        }
+        } 
     }
 
     /**
      * Stops the player
      */
-    public void stop() {
-        // close client
-        mClient.close();
+    public void stop() { 
         // close player
         mSourceLine.stop();
         mSourceLine.close();

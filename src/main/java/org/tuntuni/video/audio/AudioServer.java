@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
-import java.net.SocketException;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.StreamSocket;
 import static org.tuntuni.video.image.ImageServer.WAIT_INTERVAL;
@@ -34,23 +33,7 @@ public class AudioServer extends StreamSocket {
 
     public AudioServer(AudioSource source) {
         mSource = source;
-    }
-
-    @Override
-    public void open() throws SocketException {
-        // open the source
-        mSource.open();
-        // open the server
-        super.open();
-    }
-
-    @Override
-    public void close() {
-        // close the source
-        mSource.close();
-        // close the server
-        super.close();
-    }
+    } 
 
     @Override
     public void doWork() {

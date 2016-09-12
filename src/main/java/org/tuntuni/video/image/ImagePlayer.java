@@ -44,8 +44,7 @@ public class ImagePlayer implements Runnable {
      *
      * @throws SocketException
      */
-    public void start() throws SocketException {
-        mClient.open();
+    public void start() throws SocketException { 
         mPlayerThread = new Thread(this);
         mPlayerThread.setDaemon(true);
         mPlayerThread.start();
@@ -54,8 +53,7 @@ public class ImagePlayer implements Runnable {
     /**
      * Stops the player
      */
-    public void stop() {
-        mClient.close();
+    public void stop() { 
         mPlayerThread.interrupt();
     }
     

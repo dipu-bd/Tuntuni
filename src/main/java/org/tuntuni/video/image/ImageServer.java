@@ -43,23 +43,7 @@ public class ImageServer extends StreamSocket {
     public ImageServer(ImageSource source) {
         mSource = source;
     }
-
-    @Override
-    public void open() throws SocketException {
-        // open the source
-        mSource.open();
-        // open the server
-        super.open();
-    }
- 
-    @Override
-    public void close() {
-        // close the source
-        mSource.close();
-        // close the server
-        super.close();
-    }
-
+   
     // sends a packet
     @Override
     public void doWork() {
