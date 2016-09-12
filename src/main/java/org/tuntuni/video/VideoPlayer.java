@@ -57,11 +57,30 @@ public class VideoPlayer {
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //  
     public int getImagePort() {
-        return mImagePlayer.getPort();
+        return portGetter(() -> {
+            return mImagePlayer.getPort();
+        });
     }
 
     public int getAudioPort() {
-        return mAudioPlayer.getPort();
-    }                                                                          //  
+        return portGetter(() -> {
+            return mAudioPlayer.getPort();
+        });
+    }
 
+    private int portGetter(Callable<Integer> callable) {
+        try {
+            // wait 1500 milliseconds
+            for (int i = 0; i < 30; ++i) {
+                int port = callable.call();
+                if (port != -1) {
+                    return port;
+                }
+                Thread.sleep(50);
+            }
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Could not get port", ex);
+        }
+        return -1;
+    }
 }
