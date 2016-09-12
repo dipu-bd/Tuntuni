@@ -16,51 +16,86 @@
 package org.tuntuni.connection;
 
 import java.io.IOException;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.io.ObjectInputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import org.tuntuni.models.Logs;
 
 /**
+ * Receives data from client
  *
  * @author dipu
  */
-public abstract class RTSPServer implements Runnable {
+public abstract class RTSPServer {
 
-    private Thread mServerThread;
-    private SocketChannel mClient;
-    private ServerSocketChannel mChannel;
+    ServerSocket mServer;
+    Socket mClient;
+    ObjectInputStream mInput;
 
     public RTSPServer() {
     }
 
-    public void start() {
-        try {
-            mChannel = ServerSocketChannel.open();
-            mChannel.configureBlocking(false);
+    public abstract String getName();
 
-            mServerThread = new Thread(this);
-            mServerThread.setDaemon(true);
-            mServerThread.start();
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to open channel. ERROR: {0}", ex);
+    public void open() throws IOException {
+        mServer = new ServerSocket(0);
+        Logs.info(getName(), "Opened @ {0}", getPort());
+    }
+
+    public void close() {
+        try {
+            if (mServer != null) {
+                mServer.close();
+                mServer = null;
+            }
+            if (mClient != null) {
+                mClient.close();
+                mClient = null;
+            }
+            if (mInput != null) {
+                mInput.close();
+                mInput = null;
+            }
+        } catch (Exception ex) {
+            Logs.error(getName(), "Failed to close. {0}", ex);
         }
+    }
+
+    public int getPort() {
+        return mServer == null ? -1 : mServer.getLocalPort();
+    }
+
+    public DataFrame receive() throws IOException, ClassNotFoundException {
+        if (!isConnected()) {
+            accept();
+        }
+        return (DataFrame) mInput.readObject();
+    }
+
+    private void accept() throws IOException {
+        if (!isOpen()) {
+            throw new IOException("Server not initialized");
+        }
+        mClient = mServer.accept();
+        mInput = new ObjectInputStream(mClient.getInputStream());
+        Logs.info(getName(), "Accepted client {0}", getRemoteAddress());
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return mClient != null ? mClient.getRemoteSocketAddress() : null;
     }
 
     @Override
-    public void run() {
-        try {
-            mClient = mChannel.accept();
-            mClient.register(, 0)
-            
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to accept channel. ERROR: {0}", ex);
-        }
+    public String toString() {
+        return String.format("%s:%d:%s", getName(), getPort(), getRemoteAddress());
     }
 
-    /**
-     * Aquire data to send
-     *
-     * @return
-     */
-    public abstract byte[] aquireData();
+    public boolean isOpen() {
+        return mServer != null && mServer.isBound();
+    }
+
+    public boolean isConnected() {
+        return isOpen() && mClient != null && !mClient.isClosed() && mInput != null;
+    }
 }

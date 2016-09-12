@@ -15,11 +15,153 @@
  */
 package org.tuntuni.connection;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.LinkedList;
+import org.tuntuni.models.Logs;
+
 /**
+ * Sends data to the server
  *
  * @author dipu
  */
-public class RTSPClient {
-    
-    
+public abstract class RTSPClient {
+
+    private Socket mClient;
+    private ObjectOutputStream mOutput;
+    private Thread mClientThread;
+    private InetSocketAddress mAddress;
+    private final LinkedList<DataFrame> mSendQueue;
+    private int maxQueueSize;
+    private int minQueueSize;
+
+    public RTSPClient() {
+        maxQueueSize = 5;
+        minQueueSize = 1;
+        mSendQueue = new LinkedList<>();
+    }
+
+    public abstract String getName();
+
+    public void connect(InetAddress address, int port) {
+        mAddress = new InetSocketAddress(address, port);
+        mClientThread = new Thread(() -> run());
+        mClientThread.setName(getName());
+        mClientThread.setDaemon(true);
+        mClientThread.start();
+    }
+
+    public void close() {
+        try {
+            mClientThread.interrupt();
+            if (mOutput != null) {
+                mOutput.close();
+            }
+            if (mClient != null) {
+                mClient.close();
+            }
+        } catch (Exception ex) {
+            Logs.error(getName(), "Failed to close. {0}", ex);
+        }
+    }
+
+    private void run() {
+        // Connect with the server
+        if (!makeConnection()) {
+            return;
+        }
+
+        Logs.info(getName(), "Connected @ ", mAddress);
+        // Run consecutive IO operations
+        while (true) {
+            // Wait for data to become available
+            DataFrame data = getNext();
+            // Check validity
+            if (data == null) {
+                continue;
+            }
+            // Output to stream
+            try {
+                mOutput.writeObject(data);
+                mOutput.flush();
+            } catch (IOException ex) {
+                Logs.error(getName(), "Write failure!", ex);
+            }
+        }
+    }
+
+    private boolean makeConnection() {
+        try {
+            mClient = new Socket();
+            mClient.connect(mAddress);
+            mOutput = new ObjectOutputStream(mClient.getOutputStream());
+            return true;
+        } catch (IOException ex) {
+            Logs.error(getName(), "Connection failure. {0}", ex);
+            return false;
+        }
+    }
+
+    private DataFrame getNext() {
+        synchronized (mSendQueue) {
+            while (mSendQueue.size() < minQueueSize) {
+                try {
+                    mSendQueue.wait();
+                } catch (InterruptedException ex) {
+                    Logs.error(getName(), "Waiting interrupted. {0}", ex);
+                }
+            }
+            return mSendQueue.remove();
+        }
+    }
+
+    public void send(DataFrame frame) {
+        // check if connected
+        if (!isConnected()) {
+            return;
+        }
+        // Add to queue
+        synchronized (mSendQueue) {
+            mSendQueue.add(frame);
+            if (mSendQueue.size() > maxQueueSize) {
+                mSendQueue.remove();
+            }
+            mSendQueue.notify();
+        }
+    }
+
+    public void send(byte[] data, int size) {
+        send(new DataFrame(data, size));
+    }
+
+    public boolean isConnected() {
+        return mClient != null && mClient.isConnected() && mOutput != null;
+    }
+
+    public InetSocketAddress getAddress() {
+        return mAddress;
+    }
+
+    public int getMaxQueueSize() {
+        return maxQueueSize;
+    }
+
+    public void setMaxQueueSize(int size) {
+        maxQueueSize = size;
+        //maxQueueSize = Math.max(1, size);
+        //minQueueSize = Math.min(maxQueueSize, minQueueSize);
+    }
+
+    public int getMinQueueSize() {
+        return minQueueSize;
+    }
+
+    public void setMinQueueSize(int size) {
+        minQueueSize = size;
+        //minQueueSize = Math.max(1, size);
+        //maxQueueSize = Math.max(maxQueueSize, minQueueSize);
+    }
 }

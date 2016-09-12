@@ -16,54 +16,55 @@
 package org.tuntuni.video.audio;
 
 import javax.sound.sampled.AudioFormat;
+import org.tuntuni.connection.RTSPClient;
 
 /**
  *
  */
-public interface AudioSource {
+public abstract class AudioSource extends RTSPClient {
 
     /**
-     * Gets the name of the source
+     * Gets the name of the source.
      *
      * @return
      */
-    public String getName();
+    @Override
+    public abstract String getName();
 
     /**
-     * Opens the audio source for recording
+     * Opens the audio source for recording.
      */
-    public void open();
+    public abstract void start();
 
     /*
-     * Closes the current source
+     * Closes the current source.
      */
-    public void close();
+    public abstract void stop();
 
     /**
-     * Gets the audio format used by this source
+     * Gets the audio format.
      *
      * @return
      */
-    public AudioFormat getFormat();
+    public abstract AudioFormat getFormat();
 
     /**
-     * Gets currently available audio frame
+     * Gets the audio format.
+     *
+     * @param format
+     */
+    public abstract void setFormat(AudioFormat format);
+
+    /**
+     * Checks whether the source is open
      *
      * @return
      */
-    public AudioFrame getFrame();
+    public abstract boolean isOpen();
 
-    /**
-     * Checks if the current frame is new one
-     *
-     * @return
-     */
-    public boolean isAudioNew();
+    @Override
+    public String toString() {
+        return getName();
+    }
 
-    /**
-     * Checks if the source is open
-     *
-     * @return
-     */
-    public boolean isOpen();
 }

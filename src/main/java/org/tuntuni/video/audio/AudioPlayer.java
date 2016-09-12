@@ -26,25 +26,21 @@ import org.tuntuni.video.VideoFormat;
  *
  * @author Sudipto Chandra
  */
-public class AudioPlayer {
-
-    private final AudioClient mClient;
+public class AudioPlayer extends AudioServer {
 
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
 
-    public AudioPlayer(AudioClient client) {
-        mClient = client;
-        mClient.audioProperty().addListener((ov, oldVal, newVal) -> {
-            playAudio(newVal);
-        });
+    public AudioPlayer() {
     }
 
     /**
      * Starts the player
      */
+    @Override
     public void start() {
         try {
+            super.start();
             // start source line
             mSourceInfo = new DataLine.Info(
                     SourceDataLine.class, VideoFormat.getAudioFormat());
@@ -59,8 +55,10 @@ public class AudioPlayer {
     /**
      * Stops the player
      */
+    @Override
     public void stop() {
         try {
+            super.stop();
             // close player
             mSourceLine.stop();
             mSourceLine.close();
@@ -68,21 +66,10 @@ public class AudioPlayer {
         }
     }
 
-    /**
-     * Checks whether player is active
-     *
-     * @return
-     */
-    public boolean isActive() {
-        if (mClient == null || mSourceLine == null) {
-            return false;
-        }
-        return mClient.isOpen() && mSourceLine.isOpen();
-    }
-
-    private void playAudio(AudioFrame frame) {
-        // play new audio data
-        byte[] data = frame.getBuffer();
+    @Override
+    public void playAudio(byte[] data) {
+        // play the audio data  
         mSourceLine.write(data, 0, data.length);
     }
+
 }

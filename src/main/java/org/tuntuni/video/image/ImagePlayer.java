@@ -23,30 +23,22 @@ import javafx.scene.image.ImageView;
  *
  * @author Sudipto Chandra
  */
-public class ImagePlayer {
-
-    // time to wait between to successive display operation
-    public static final int WAIT_INTERVAL = 25; // milliseconds
-    // queue this amount of image before displaying
-    public static final int MAX_BUFFER = 15;
+public class ImagePlayer extends ImageServer {
 
     private final ImageView mViewer;
-    private final ImageClient mClient;
 
-    public ImagePlayer(ImageClient client, ImageView viewer) {
-        mClient = client;
+    public ImagePlayer(ImageView viewer) {
         mViewer = viewer;
-        client.imageProperty().addListener((ov, oldImg, newImg) -> {
-            displayImage(newImg);
-        });
     }
 
-    private void displayImage(Image img) {
-        if (img != null && mViewer != null) {
+    @Override
+    public void displayImage(Image image) {
+        if (image != null && mViewer != null) {
             Platform.runLater(() -> {
-                mViewer.setImage(img);
+                mViewer.setImage(image);
             });
         }
     }
+ 
 
 }

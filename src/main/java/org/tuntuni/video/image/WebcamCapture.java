@@ -16,68 +16,82 @@
 package org.tuntuni.video.image;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamEvent;
+import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import org.tuntuni.models.Logs;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class WebcamCapture implements ImageSource {
-    
+public class WebcamCapture extends ImageSource implements WebcamListener {
+
     private Webcam mWebcam;
-    
+
     public WebcamCapture() {
     }
-    
+
     @Override
     public String getName() {
-        return "WebcamCapture:" + mWebcam.getDevice().getName();
+        String name = "WebCamCapture";
+        if (mWebcam != null) {
+            name += mWebcam.getDevice().getName();
+        }
+        return name;
     }
-    
-    @Override
-    public BufferedImage getImage() {
-        return mWebcam == null ? null : mWebcam.getImage();
-    }
-    
+
     @Override
     public Dimension getSize() {
         return mWebcam == null ? null : mWebcam.getViewSize();
     }
-    
+
     @Override
     public void setSize(Dimension size) {
         if (mWebcam != null) {
             mWebcam.setViewSize(size);
         }
     }
-    
+
     @Override
-    public void open() {
+    public void start() {
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
             //mWebcam.setViewSize(VideoFormat.getViewSize());
-            mWebcam.open();
+            mWebcam.open(true);
+            mWebcam.addWebcamListener(this);
         } else {
             Logs.warning(getClass(), "Webcam not found");
         }
     }
-    
+
     @Override
-    public void close() {
+    public void stop() {
         if (mWebcam != null) {
+            mWebcam.removeWebcamListener(this);
             mWebcam.close();
         }
     }
-    
+
+    @Override
+    public void webcamImageObtained(WebcamEvent we) {
+        send(new ImageFrame(we.getImage()));
+    }
+
+    @Override
+    public void webcamOpen(WebcamEvent we) {
+    }
+
+    @Override
+    public void webcamClosed(WebcamEvent we) {
+    }
+
+    @Override
+    public void webcamDisposed(WebcamEvent we) {
+    }
+
     @Override
     public boolean isOpen() {
         return mWebcam == null ? false : mWebcam.isOpen();
-    }
-    
-    @Override
-    public boolean isImageNew() {
-        return mWebcam == null ? false : mWebcam.isImageNew();
     }
 }

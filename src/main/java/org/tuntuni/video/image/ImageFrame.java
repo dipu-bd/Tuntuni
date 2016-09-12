@@ -20,7 +20,7 @@ import java.util.Arrays;
 import javafx.scene.image.Image;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.util.Commons;
-import org.tuntuni.video.DataFrame;
+import org.tuntuni.connection.DataFrame;
 
 /**
  * Image data frame. Holds image information.
@@ -28,24 +28,17 @@ import org.tuntuni.video.DataFrame;
 public class ImageFrame extends DataFrame {
 
     public ImageFrame() {
-        super(ConnectFor.IMAGE);
     }
 
     public ImageFrame(byte[] data) {
-        this();
-        setBuffer(Arrays.copyOf(data, data.length));
+        super(data, data.length);
     }
 
     public ImageFrame(BufferedImage image) {
-        this();
-        setBuffer(Commons.imageToBytes(image));
+        this(Commons.imageToBytes(image));
     }
 
     public Image getImage() {
         return Commons.bytesToImage(getBuffer());
-    }
-
-    public ImageFrame copy() {
-        return new ImageFrame(getBuffer());
     }
 }

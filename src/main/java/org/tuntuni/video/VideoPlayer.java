@@ -15,15 +15,12 @@
  */
 package org.tuntuni.video;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.concurrent.Callable;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.audio.AudioClient;
 import org.tuntuni.video.audio.AudioPlayer;
-import org.tuntuni.video.image.ImageClient;
 import org.tuntuni.video.image.ImagePlayer;
 
 /**
@@ -32,59 +29,39 @@ import org.tuntuni.video.image.ImagePlayer;
  */
 public class VideoPlayer {
 
-    private final ImageClient mImageClient;
     private final ImagePlayer mImagePlayer;
-
-    private final AudioClient mAudioClient;
     private final AudioPlayer mAudioPlayer;
 
-    public VideoPlayer(ImageView viewer) { 
-        mImageClient = new ImageClient();
-        mImagePlayer = new ImagePlayer(mImageClient, viewer);
-        mAudioClient = new AudioClient();
-        mAudioPlayer = new AudioPlayer(mAudioClient); 
+    public VideoPlayer(ImageView viewer) {
+        mImagePlayer = new ImagePlayer(viewer);
+        mAudioPlayer = new AudioPlayer();
     }
 
-    public void start() throws SocketException {
-        mImageClient.open();
-        mAudioClient.open(); 
+    public void start() throws SocketException, IOException {
+        mImagePlayer.open();
+        mImagePlayer.start();
+
+        mAudioPlayer.open();
         mAudioPlayer.start();
     }
 
     public void stop() {
-        mImageClient.close();
-        mAudioClient.close(); 
+        mImagePlayer.close();
+        mImagePlayer.stop();
+
+        mAudioPlayer.close();
         mAudioPlayer.stop();
     }
 
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //  
-    private int portGetter(Callable<Integer> callable) {
-        try {
-            for (int i = 0; i < 30; ++i) {
-                int port = callable.call();
-                if (port != -1) {
-                    return port;
-                }
-                Thread.sleep(100);
-            }
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Could not get port", ex);
-        }
-        return -1;
-    }
-
     public int getImagePort() {
-        return portGetter(() -> {
-            return mImageClient.getPort();
-        });
+        return mImagePlayer.getPort();
     }
 
     public int getAudioPort() {
-        return portGetter(() -> {
-            return mAudioClient.getPort();
-        });
+        return mAudioPlayer.getPort();
     }                                                                          //  
 
 }

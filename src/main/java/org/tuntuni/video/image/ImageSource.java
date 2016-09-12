@@ -17,62 +17,57 @@ package org.tuntuni.video.image;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import org.tuntuni.connection.RTSPClient;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public interface ImageSource {
+public abstract class ImageSource extends RTSPClient {
 
     /**
      * Gets the name of the image source
      *
      * @return
      */
-    public String getName();
+    @Override
+    public String getName() {
+        return "ImageSource";
+    }
 
     /**
      * Open the image source to capture
      */
-    public void open();
+    public abstract void start();
 
     /**
      * Close the image source
      */
-    public void close();
-
-    /**
-     * Gets current image from the source
-     *
-     * @return
-     */
-    public BufferedImage getImage();
-
+    public abstract void stop();
+ 
     /**
      * Gets the view size or dimension of captured images
      *
      * @return
      */
-    public Dimension getSize();
+    public abstract Dimension getSize();
 
     /**
      * Sets the view size or dimension to capture
      *
      * @param size
      */
-    public void setSize(Dimension size);
-
-    /**
-     * True if a new image is available that has not yet been pooled
-     *
-     * @return
-     */
-    public boolean isImageNew();
-
+    public abstract void setSize(Dimension size); 
+    
     /**
      * Checks if the source is open
      *
      * @return
      */
-    public boolean isOpen();
+    public abstract boolean isOpen();
+    
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -35,7 +36,7 @@ public class StreammingTest {
     }
 
     @Before
-    public void setUp() throws SocketException, UnknownHostException {
+    public void setUp() throws SocketException, UnknownHostException, IOException {
         System.out.println(":: Video Streamming Test ::");
         
         System.out.println(">>> starting player");        

@@ -15,87 +15,48 @@
  */
 package org.tuntuni.video.image;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
+import javafx.scene.image.Image;
+import org.tuntuni.connection.RTSPServer;
 import org.tuntuni.models.Logs;
-import org.tuntuni.connection.StreamSocket;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImageServer extends StreamSocket {
+public abstract class ImageServer extends RTSPServer {
 
-    // time to wait between to successive send operation
-    public static final int WAIT_INTERVAL = 25; // milliseconds
+    public Thread mServerThread;
 
-    private ImageSource mSource;
-
-    /**
-     * Creates a new Image Server
-     *
-     * @param source
-     */
-    public ImageServer(ImageSource source) {
-        mSource = source;
+    public ImageServer() {
     }
 
     @Override
     public String getName() {
-        return "Image Server";
+        return "ImageServer";
+    }
+ 
+    public void start() {
+        mServerThread = new Thread(() -> run());
+        mServerThread.setDaemon(true);
+        mServerThread.start();
+
     }
 
-    // sends a packet
-    @Override
-    public void doWork() {
-        if (!isConnected()) {
-            return;
-        }
-        try {
-            // send a packet
-            DatagramPacket packet = getNextPacket();
-            if (packet != null) {
-                getSocket().send(packet);
+    public void stop() {
+        mServerThread.interrupt();
+    }
+
+    public void run() {
+        while (isOpen()) {
+            try {
+                ImageFrame frame = (ImageFrame) receive();
+                displayImage(frame.getImage());
+            } catch (IOException | ClassNotFoundException ex) {
+                Logs.error(getName(), "Receive failure. {0}", ex);
             }
-            // wait WAIT_INTERVAL time before next send
-            Thread.sleep(WAIT_INTERVAL);
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
-        } catch (InterruptedException ex) {
-            Logs.error(getClass(), "{0}", ex);
         }
     }
 
-    // gets the next packet to send
-    private DatagramPacket getNextPacket() {
-        // check if image is available
-        if (!mSource.isImageNew()) {
-            return null;
-        }
-        // get next image 
-        BufferedImage image = mSource.getImage();
-        if (image == null) {
-            Logs.warning(getClass(), "Null image received");
-            return null;
-        }
-        // make image frame
-        ImageFrame imageFrame = new ImageFrame(image);
-        // convert to bytes 
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-            // write packet
-            oos.writeObject(imageFrame);
-            // get converted bytes
-            byte[] data = baos.toByteArray();
-            // create and return datagram packet
-            return new DatagramPacket(data, data.length, getRemoteAddress());
-        } catch (IOException ex) {
-            Logs.error(getClass(), "Failed to create packet. ERROR: {0}", ex);
-            return null;
-        }
-    }
-
+    public abstract void displayImage(Image image);
 }

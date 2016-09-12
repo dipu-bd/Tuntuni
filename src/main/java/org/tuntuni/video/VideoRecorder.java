@@ -15,9 +15,9 @@
  */
 package org.tuntuni.video;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
-import org.tuntuni.video.audio.AudioServer;
 import org.tuntuni.video.audio.AudioSource;
 import org.tuntuni.video.audio.MicrophoneAudio;
 import org.tuntuni.video.image.ImageServer;
@@ -34,41 +34,31 @@ public class VideoRecorder {
     private final InetAddress mAddress;
 
     private final ImageSource mImageSource;
-    private final ImageServer mImageServer;
-
     private final AudioSource mAudioSource;
-    private final AudioServer mAudioServer;
 
     public VideoRecorder(InetAddress address, int imagePort, int audioPort) {
         mAddress = address;
-        mImagePort = imagePort;
-        mAudioPort = audioPort;
-         
-        mImageSource = new WebcamCapture();
-        mImageServer = new ImageServer(mImageSource);
 
+        mImagePort = imagePort;
+        mImageSource = new WebcamCapture();
+
+        mAudioPort = audioPort;
         mAudioSource = new MicrophoneAudio();
-        mAudioServer = new AudioServer(mAudioSource);
     }
 
-    public void start() throws SocketException {
-        // open servers
-        mImageServer.open();
-        mAudioServer.open();         
-        // connect
-        mImageServer.connect(mAddress, mImagePort);
-        mAudioServer.connect(mAddress, mAudioPort);
-        // open sources
-        mImageSource.open();
-        mAudioSource.open();
+    public void start() throws SocketException, IOException {
+        mAudioSource.connect(mAddress, mAudioPort);
+        mAudioSource.start();
+
+        mImageSource.connect(mAddress, mImagePort);
+        mImageSource.start();
     }
 
     public void stop() {
-        // stop sources
+        mImageSource.stop();
         mImageSource.close();
+
+        mAudioSource.stop();
         mAudioSource.close();
-        // stop servers
-        mImageServer.close();
-        mAudioServer.close();
     }
 }
