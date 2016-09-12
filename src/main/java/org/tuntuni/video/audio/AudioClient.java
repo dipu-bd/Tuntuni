@@ -15,10 +15,86 @@
  */
 package org.tuntuni.video.audio;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.DatagramPacket;
+import org.tuntuni.models.Logs;
+import org.tuntuni.video.StreamSocket;
+
 /**
  *
  * @author Sudipto Chandra
  */
-public class AudioClient {
-    
+public class AudioClient extends StreamSocket {
+
+    public static final int MAX_BUFFER = 60_000; // almost 60K
+
+    private byte[] mBuffer;
+    private AudioFrame mAudio;
+    private volatile boolean mAudioNew;
+
+    public AudioClient() {
+        mBuffer = new byte[MAX_BUFFER];
+    }
+
+    // receive a packet
+    @Override
+    public void doWork() {
+        try {
+            DatagramPacket packet = new DatagramPacket(mBuffer, mBuffer.length);
+            getSocket().receive(packet);
+            packetReceived(packet);
+        } catch (IOException ex) {
+            Logs.error(getClass(), "Failed to receive packet. ERROR: {0}", ex);
+        }
+    }
+
+    private void packetReceived(DatagramPacket packet) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
+                ObjectInputStream ois = new ObjectInputStream(bais)) {
+
+            Object data = ois.readObject();
+            if (data instanceof AudioFrame) {
+                updateAudio((AudioFrame) data);
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            Logs.error(getClass(), "Failed to read received data. Error: {0}", ex);
+        }
+    }
+
+    private synchronized void updateAudio(AudioFrame frame) {
+        // replace if no last audio available, or last audio is older
+        if (mAudio == null || mAudio.getTime() < frame.getTime()) {
+            mAudio = frame;
+            mAudioNew = true;
+        }
+    }
+
+    /**
+     * Gets the current audio frame. If none available an empty frame is
+     * returned
+     *
+     * @return
+     */
+    public AudioFrame getFrame() {
+        mAudioNew = false;
+        return mAudio;
+    }
+
+    /**
+     * Checks whether new audio frame had arrived.
+     *
+     * @return True if audio was updated
+     */
+    public boolean isAudioNew() {
+        return mAudioNew;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s:%d:%s", getClass().getSimpleName(),
+                getPort(), getRemoteAddress().toString());
+    }
+
 }
