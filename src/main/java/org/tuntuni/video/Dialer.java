@@ -77,11 +77,11 @@ public class Dialer {
     }
 
     public void endCall() {
+        mStatus.set(DialStatus.IDLE);
         try {
             stopComs();
             freeSlot();
             mClient = null;
-            mStatus.set(DialStatus.IDLE);
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
         }
@@ -125,12 +125,12 @@ public class Dialer {
         if (mSlot.get()) {
             return false;
         }
-        mSlot.set(true); 
+        mSlot.set(true);
         return true;
     }
 
     private void freeSlot() {
-        mSlot.set(false); 
+        mSlot.set(false);
     }
 
     public void informAcceptance(boolean result) {
@@ -174,7 +174,7 @@ public class Dialer {
     public ObjectProperty<DialStatus> statusProperty() {
         return mStatus;
     }
-    
+
     public DialStatus getStatus() {
         return mStatus.get();
     }

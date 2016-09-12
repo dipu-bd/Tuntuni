@@ -118,16 +118,18 @@ public class VideoCallController implements Initializable {
     }
 
     public void dialStatusChanged(DialStatus status) {
-        // set dial image
-        startButton.setVisible(status == DialStatus.IDLE);
-        stopButton.setVisible(status == DialStatus.BUSY);
-        // set video image
-        if (status == DialStatus.DIALING) {
-            InputStream is = getClass().getResourceAsStream("/img/calling.gif");
-            videoImage.setImage(new Image(is));
-        } else {
-            videoImage.setImage(null);
-        }
+        Platform.runLater(() -> {
+            // set dial image
+            startButton.setVisible(status == DialStatus.IDLE);
+            stopButton.setVisible(status == DialStatus.BUSY);
+            // set video image
+            if (status == DialStatus.DIALING) {
+                InputStream is = getClass().getResourceAsStream("/img/calling.gif");
+                videoImage.setImage(new Image(is));
+            } else {
+                videoImage.setImage(null);
+            }
+        });
     }
 
     @FXML
