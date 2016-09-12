@@ -16,6 +16,8 @@
 package org.tuntuni.video.audio;
 
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -34,10 +36,10 @@ public class AudioPlayer implements Runnable {
 
     private final AudioClient mClient;
     private Thread mPlayerThread;
-
+    
     private final DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
-
+    
     public AudioPlayer(AudioClient client) {
         mClient = client;
         mSourceInfo = new DataLine.Info(
@@ -48,7 +50,7 @@ public class AudioPlayer implements Runnable {
      * Starts the player
      */
     public void start() {
-        try { 
+        try {
             // start source line
             mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
             mSourceLine.open(VideoFormat.getAudioFormat());
@@ -59,17 +61,20 @@ public class AudioPlayer implements Runnable {
             mPlayerThread.start();
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
-        } 
+        }
     }
 
     /**
      * Stops the player
      */
-    public void stop() { 
-        // close player
-        mSourceLine.stop();
-        mSourceLine.close();
-        mPlayerThread.interrupt();
+    public void stop() {
+        try {
+            // close player
+            mSourceLine.stop();
+            mSourceLine.close();
+            mPlayerThread.interrupt();
+        } catch (Exception ex) {
+        }
     }
 
     /**
@@ -78,24 +83,31 @@ public class AudioPlayer implements Runnable {
      * @return
      */
     public boolean isActive() {
+        if (mClient == null || mSourceLine == null) {
+            return false;
+        }
         return mClient.isOpen() && mSourceLine.isOpen();
     }
-
+    
     @Override
     public void run() {
         while (isActive()) {
             // play audio
             byte[] data = getdata();
-            mSourceLine.write(data, 0, data.length);
+            if (data != null) {
+                Logs.error(getClass(), "Playing audio!!!! {0}", data.length);
+                mSourceLine.write(data, 0, data.length);
+            } else { 
+            }
         }
     }
-
+    
     private byte[] getdata() {
         // get new audio data
         if (mClient.isAudioNew()) {
             AudioFrame frame = mClient.getFrame();
             return Arrays.copyOf(frame.getBuffer(), frame.getBufferLength());
-        }
+        } 
         // return 1800bytes of empty data
         // will play for almost 20 milliseconds
         return new byte[1800];

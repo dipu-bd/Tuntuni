@@ -29,18 +29,14 @@ import org.tuntuni.video.VideoFormat;
  */
 public class MicrophoneAudio implements AudioSource, Runnable {
 
-    public int MAX_BUFFER = 100_000; // almost 100KB
-
     private Thread mAudioThread;
-    private DataLine.Info mTargetInfo;
+    private final DataLine.Info mTargetInfo;
     private TargetDataLine mTargetLine;
 
-    private int mBufferLength;
-    private final byte[] mBuffer;
+    private AudioFrame mFrame;
     private volatile boolean mBufferNew;
 
     public MicrophoneAudio() {
-        mBuffer = new byte[MAX_BUFFER];
         mTargetInfo = new DataLine.Info(
                 TargetDataLine.class, VideoFormat.getAudioFormat());
     }
@@ -60,8 +56,7 @@ public class MicrophoneAudio implements AudioSource, Runnable {
             // start audio thread
             mAudioThread = new Thread(this);
             mAudioThread.setDaemon(true);
-            mAudioThread.start();                        
-            Logs.info(getName(), "Recording started!!");
+            mAudioThread.start();
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to open audio line. ERROR: {0}", ex);
         }
@@ -82,6 +77,32 @@ public class MicrophoneAudio implements AudioSource, Runnable {
         return mTargetLine.getFormat();
     }
 
+    // run audio thread task
+    @Override
+    public void run() {
+        // available: 2 5 6 7 9 10 15 25
+        int size = mTargetLine.getBufferSize() / 2;
+        byte[] buffer = new byte[size];
+
+        Logs.info(getName(), "Line opened. Buffer size = {0}\n", size);
+        while (isOpen()) {
+            // read audio
+            int len = mTargetLine.read(buffer, 0, size);
+            if (len == -1) {
+                return;
+            }
+            // update buffer
+            mFrame = new AudioFrame(buffer, len);
+            mBufferNew = true; 
+        }
+    }
+
+    @Override
+    public AudioFrame getFrame() {
+        mBufferNew = false;
+        return mFrame;
+    }
+
     @Override
     public boolean isAudioNew() {
         return mBufferNew;
@@ -89,26 +110,6 @@ public class MicrophoneAudio implements AudioSource, Runnable {
 
     @Override
     public boolean isOpen() {
-        return mTargetLine.isOpen() && mTargetLine.isActive();
+        return mTargetLine.isOpen();
     }
-
-    // run audio thread task
-    @Override
-    public void run() {
-        // available: 2 5 6 7 9 10 15 25
-        int size = mTargetLine.getBufferSize() / 5;
-
-        while (isOpen()) {
-            // read audio
-            mBufferLength = mTargetLine.read(mBuffer, 0, size);
-            mBufferNew = true;
-        }
-    }
-
-    @Override
-    public AudioFrame getFrame() {
-        mBufferNew = false;
-        return new AudioFrame(mBuffer, mBufferLength);
-    }
-
 }

@@ -125,14 +125,21 @@ public abstract class StreamSocket implements Runnable {
         return !mSocket.isClosed() && mSocket.isBound();
     }
 
+    /**
+     * True only if connected with the remote client
+     *
+     * @return
+     */
+    public boolean isConnected() {
+        return mSocket.isConnected();
+    }
+
     // continuously send data packet
     @Override
     public void run() {
         Logs.info(getName(), "Opened @ port {0}...", getPort());
         while (isOpen()) {
-            if (mSocket.isConnected()) {
-                doWork();
-            }
+            doWork();
         }
     }
 

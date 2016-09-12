@@ -28,7 +28,7 @@ import org.tuntuni.connection.StreamSocket;
  */
 public class AudioClient extends StreamSocket {
 
-    public static final int MAX_BUFFER = 10_000; // almost 10K
+    public static final int MAX_BUFFER = 50_000; // almost 25K
 
     private byte[] mBuffer;
     private AudioFrame mAudio;
@@ -37,7 +37,7 @@ public class AudioClient extends StreamSocket {
     public AudioClient() {
         mBuffer = new byte[MAX_BUFFER];
     }
-    
+
     @Override
     public String getName() {
         return "Audio Client";
@@ -68,7 +68,7 @@ public class AudioClient extends StreamSocket {
         }
     }
 
-    private synchronized void updateAudio(AudioFrame frame) {
+    private void updateAudio(AudioFrame frame) {
         // replace if no last audio available, or last audio is older
         if (mAudio == null || mAudio.getTime() < frame.getTime()) {
             mAudio = frame;

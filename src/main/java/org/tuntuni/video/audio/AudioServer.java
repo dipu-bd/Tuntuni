@@ -42,6 +42,9 @@ public class AudioServer extends StreamSocket {
 
     @Override
     public void doWork() {
+        if (!isConnected()) {
+            return;
+        }
         try {
             // send a packet
             DatagramPacket packet = getNextPacket();
@@ -49,7 +52,7 @@ public class AudioServer extends StreamSocket {
                 getSocket().send(packet);
             }
             // wait WAIT_INTERVAL time before next send
-            Thread.sleep(WAIT_INTERVAL);            
+            Thread.sleep(WAIT_INTERVAL);
         } catch (IOException ex) {
             Logs.error(getClass(), "Failed to send packet. ERROR: {0}", ex);
         } catch (InterruptedException ex) {
@@ -66,6 +69,7 @@ public class AudioServer extends StreamSocket {
         // get next image 
         AudioFrame audioFrame = mSource.getFrame();
         if (audioFrame == null) {
+            Logs.warning(getName(), "Null frame received!");
             return null;
         }
         // convert to bytes 

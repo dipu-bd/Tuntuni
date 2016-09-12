@@ -51,6 +51,9 @@ public class ImageServer extends StreamSocket {
     // sends a packet
     @Override
     public void doWork() {
+        if (!isConnected()) {
+            return;
+        }
         try {
             // send a packet
             DatagramPacket packet = getNextPacket();

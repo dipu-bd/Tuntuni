@@ -27,7 +27,7 @@ public class AudioFrame extends DataFrame {
     public AudioFrame() {
         super(ConnectFor.AUDIO);
     }
-
+ 
     public AudioFrame(byte[] data, int length) {
         this();
         setBuffer(Arrays.copyOf(data, length));

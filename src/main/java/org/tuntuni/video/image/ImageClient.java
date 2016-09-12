@@ -56,6 +56,9 @@ public class ImageClient extends StreamSocket {
     }
 
     private void packetReceived(DatagramPacket packet) {
+
+        Logs.info(getName(), "Packet received");
+        
         try (ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais)) {
 
