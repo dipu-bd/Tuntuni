@@ -20,7 +20,9 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.LinkedList; 
+import java.net.SocketException;
+import java.util.LinkedList;
+import jdk.jfr.events.SocketWriteEvent;
 import org.tuntuni.models.Logs;
 
 /**
@@ -28,7 +30,7 @@ import org.tuntuni.models.Logs;
  *
  * @author dipu
  */
-public abstract class RTSPClient {
+public abstract class StreamClient {
 
     private Socket mClient;
     private ObjectOutputStream mOutput;
@@ -37,7 +39,7 @@ public abstract class RTSPClient {
     private final LinkedList<Object> mSendQueue;
     private int maxQueueSize;
 
-    public RTSPClient(int maxQueue) {
+    public StreamClient(int maxQueue) {
         maxQueueSize = maxQueue;
         mSendQueue = new LinkedList<>();
     }
@@ -55,15 +57,28 @@ public abstract class RTSPClient {
     public void close() {
         try {
             mClientThread.interrupt();
-            if (mOutput != null) {
-                mOutput.close();
-            }
-            if (mClient != null) {
+            if (mClient != null) { 
                 mClient.close();
             }
-            mClientThread.interrupt();
         } catch (Exception ex) {
             Logs.error(getName(), "Failed to close. {0}", ex);
+        } finally {
+            mClient = null;
+            mOutput = null;
+            mSendQueue.clear();
+        }
+    }
+
+    private boolean makeConnection() {
+        try {
+            mClient = new Socket();
+            mClient.connect(mAddress);
+            mOutput = new ObjectOutputStream(mClient.getOutputStream());
+            Logs.info(getName(), "Connected to {0}", mAddress);
+            return true;
+        } catch (IOException ex) {
+            Logs.error(getName(), "Connection failure. {0}", ex);
+            return false;
         }
     }
 
@@ -72,10 +87,8 @@ public abstract class RTSPClient {
         if (!makeConnection()) {
             return;
         }
-
-        Logs.info(getName(), "Connected @ {0}", mAddress);
         // Run consecutive IO operations
-        while (true) {
+        while (isConnected()) {
             // Wait for data to become available
             Object data = getNext();
             // Check validity
@@ -86,43 +99,35 @@ public abstract class RTSPClient {
             try {
                 mOutput.writeObject(data);
                 mOutput.flush();
+            } catch (SocketException ex) {
+                Logs.error(getName(), "Connection failure! {0}", ex);
+                return;
             } catch (IOException ex) {
                 Logs.error(getName(), "Write failure! {0}", ex);
             }
         }
     }
 
-    private boolean makeConnection() {
-        try {
-            mClient = new Socket();
-            mClient.connect(mAddress);
-            mOutput = new ObjectOutputStream(mClient.getOutputStream());
-            return true;
-        } catch (IOException ex) {
-            Logs.error(getName(), "Connection failure. {0}", ex);
-            return false;
-        }
-    }
-
     private Object getNext() {
         synchronized (mSendQueue) {
-            while (mSendQueue.isEmpty()) {
+            if (mSendQueue.isEmpty()) {
                 try {
-                    mSendQueue.wait();
+                    mSendQueue.wait(1000);
                 } catch (InterruptedException ex) {
                     Logs.error(getName(), "Waiting interrupted. {0}", ex);
+                    return null;
                 }
             }
-            return mSendQueue.remove();
+            return mSendQueue.poll();
         }
     }
 
-    public void send(Object frame) {
+    public void send(Object frame) throws SocketException {
         // check if connected
         if (!isConnected()) {
-            return;
+            throw new SocketException();
         }
-        // Add to queue
+        // Add to queue 
         synchronized (mSendQueue) {
             mSendQueue.add(frame);
             if (mSendQueue.size() > maxQueueSize) {
@@ -132,12 +137,16 @@ public abstract class RTSPClient {
         }
     }
 
-    public void send(byte[] data, int size) {
+    public void send(byte[] data, int size) throws SocketException {
         send(new DataFrame(data, size));
     }
 
     public boolean isConnected() {
-        return mClient != null && mClient.isConnected() && mOutput != null;
+        return mClient != null
+                && mOutput != null
+                && !mClient.isClosed()
+                && mClient.isConnected()
+                && mClientThread.isAlive();
     }
 
     public InetSocketAddress getAddress() {

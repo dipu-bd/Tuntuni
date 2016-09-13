@@ -17,14 +17,15 @@ package org.tuntuni.video.image;
 
 import java.io.EOFException;
 import java.io.IOException;
-import org.tuntuni.connection.RTSPServer;
+import java.net.SocketException;
+import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public abstract class ImageServer extends RTSPServer {
+public abstract class ImageServer extends StreamServer {
 
     public Thread mServerThread;
 
@@ -39,23 +40,26 @@ public abstract class ImageServer extends RTSPServer {
     public void start() {
         mServerThread = new Thread(() -> run());
         mServerThread.setDaemon(true);
-        mServerThread.start(); 
+        mServerThread.start();
     }
 
     public void stop() {
         mServerThread.interrupt();
     }
 
-    public void run() { 
-            while (isOpen()) {
-                try {
-                    displayImage((ImageFrame) receive());
-                } catch (IOException | ClassNotFoundException ex) {
-                    if (!(ex instanceof EOFException)) {
-                        Logs.error(getName(), "Receive failure. {0}", ex);
-                    }
+    public void run() {
+        while (isOpen()) {
+            try {
+                displayImage((ImageFrame) receive());
+            } catch (SocketException ex) {
+                Logs.error(getName(), "Connection failure! {0}", ex);
+                break;
+            } catch (IOException | ClassNotFoundException ex) {
+                if (!(ex instanceof EOFException)) {
+                    Logs.error(getName(), "Receive failure. {0}", ex);
                 }
-            } 
+            }
+        }
     }
 
     public abstract void displayImage(ImageFrame frame);

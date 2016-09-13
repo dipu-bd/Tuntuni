@@ -15,6 +15,9 @@
  */
 package org.tuntuni.video.audio;
 
+import java.net.SocketException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -56,18 +59,18 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
             mAudioThread.setDaemon(true);
             mAudioThread.start();
         } catch (LineUnavailableException ex) {
-            Logs.error(getName(), "Failed to open. {0}", ex);
+            Logs.error(getClass(), "Failed to open. {0}", ex);
         }
     }
 
     @Override
     public void stop() {
-        try {
-            mAudioThread.interrupt();
+        try { 
             mTargetLine.stop();
             mTargetLine.close();
+            mAudioThread.interrupt();
         } catch (Exception ex) {
-            Logs.error(getName(), "Failed to close. {0}", ex);
+            Logs.error(getClass(), "Failed to close. {0}", ex);
         }
     }
 
@@ -87,7 +90,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
         // available: 1 2 5 6 7 9 10 15 25 441 882
         int size = mTargetLine.getBufferSize() / 5;
         byte[] buffer = new byte[size];
-        Logs.info(getName(), "Line opened with buffer size = {0}\n", size);
+        Logs.info(getClass(), "Line opened with buffer size = {0}\n", size);
 
         while (isOpen()) {
             // read audio
@@ -95,11 +98,10 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
             if (len == -1) {
                 return;
             }
-            // update buffer  
-            if (isConnected()) {
+            try {
+                // update buffer
                 send(buffer, size);
-            } else {
-                stop();
+            } catch (SocketException ex) {  
                 return;
             }
         }

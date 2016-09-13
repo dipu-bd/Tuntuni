@@ -17,8 +17,9 @@ package org.tuntuni.video.audio;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.SocketException;
 import org.tuntuni.connection.DataFrame;
-import org.tuntuni.connection.RTSPServer;
+import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
 
 /**
@@ -26,7 +27,7 @@ import org.tuntuni.models.Logs;
  *
  * @author Sudipto Chandra
  */
-public abstract class AudioServer extends RTSPServer {
+public abstract class AudioServer extends StreamServer {
 
     public Thread mServerThread;
 
@@ -49,17 +50,20 @@ public abstract class AudioServer extends RTSPServer {
         mServerThread.interrupt();
     }
 
-    public void run() { 
-            while (isOpen()) {
-                try {
-                    DataFrame frame = (DataFrame) receive();
-                    playAudio(frame.getBuffer());
-                } catch (IOException | ClassNotFoundException ex) {
-                    if (!(ex instanceof EOFException)) {
-                        Logs.error(getName(), "Receive failure. {0}", ex);
-                    }
+    public void run() {
+        while (isOpen()) {
+            try {
+                DataFrame frame = (DataFrame) receive();
+                playAudio(frame.getBuffer());
+            } catch (SocketException ex) {
+                Logs.error(getName(), "Connection failure! {0}", ex);
+                break;
+            } catch (IOException | ClassNotFoundException ex) {
+                if (!(ex instanceof EOFException)) {
+                    Logs.error(getName(), "Receive failure. {0}", ex);
                 }
-            } 
+            }
+        }
     }
 
     public abstract void playAudio(byte[] data);

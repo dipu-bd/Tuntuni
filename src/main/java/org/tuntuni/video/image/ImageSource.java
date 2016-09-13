@@ -16,13 +16,13 @@
 package org.tuntuni.video.image;
 
 import java.awt.Dimension;
-import org.tuntuni.connection.RTSPClient;
+import org.tuntuni.connection.StreamClient;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public abstract class ImageSource extends RTSPClient {
+public abstract class ImageSource extends StreamClient {
 
     public ImageSource() {
         super(5);

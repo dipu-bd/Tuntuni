@@ -16,12 +16,12 @@
 package org.tuntuni.video.audio;
 
 import javax.sound.sampled.AudioFormat;
-import org.tuntuni.connection.RTSPClient;
+import org.tuntuni.connection.StreamClient;
 
 /**
  *
  */
-public abstract class AudioSource extends RTSPClient {
+public abstract class AudioSource extends StreamClient {
     
     public AudioSource() {
         super(1);

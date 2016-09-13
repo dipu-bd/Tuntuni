@@ -71,8 +71,7 @@ public class StreammingTest extends Application {
     }
 
     @Test
-    public void test() throws InterruptedException, Exception { 
-        stop();
+    public void test() throws InterruptedException, Exception {  
     }
 
     @Override

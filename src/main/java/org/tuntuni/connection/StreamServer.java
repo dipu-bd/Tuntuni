@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import org.tuntuni.models.Logs;
 
 /**
@@ -27,17 +28,17 @@ import org.tuntuni.models.Logs;
  *
  * @author dipu
  */
-public abstract class RTSPServer {
+public abstract class StreamServer {
 
     private ServerSocket mServer;
     private Socket mClient;
-    private ObjectInputStream mInput; 
+    private ObjectInputStream mInput;
 
-    public RTSPServer() {
+    public StreamServer() {
     }
 
     public abstract String getName();
- 
+
     public void open() throws IOException {
         mServer = new ServerSocket(0);
         Logs.info(getName(), "Opened @ {0}", getPort());
@@ -66,7 +67,7 @@ public abstract class RTSPServer {
         return mServer == null ? -1 : mServer.getLocalPort();
     }
 
-    public Object receive() throws IOException, ClassNotFoundException {
+    public Object receive() throws SocketException, IOException, ClassNotFoundException {
         if (!isConnected()) {
             accept();
         }
@@ -86,16 +87,20 @@ public abstract class RTSPServer {
         return mClient != null ? mClient.getRemoteSocketAddress() : null;
     }
 
+    public boolean isOpen() {
+        return mServer != null && !mServer.isClosed();
+    }
+
+    public boolean isConnected() {
+        return isOpen()
+                && mInput != null
+                && mClient != null
+                && !mClient.isClosed();
+    }
+    
     @Override
     public String toString() {
         return String.format("%s:%d:%s", getName(), getPort(), getRemoteAddress());
     }
 
-    public boolean isOpen() {
-        return mServer != null && mServer.isBound();
-    }
-
-    public boolean isConnected() {
-        return isOpen() && mClient != null && !mClient.isClosed() && mInput != null;
-    }
 }
