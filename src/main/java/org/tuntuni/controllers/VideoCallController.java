@@ -80,7 +80,7 @@ public class VideoCallController implements Initializable {
         }
     }
 
-    public void acceptCallDialog(final Client client, final Thread wakeMe) {
+    public void acceptCallDialog(final Client client) {
         Platform.runLater(() -> {
             // set current client
             setClient(client);
@@ -110,7 +110,6 @@ public class VideoCallController implements Initializable {
             Optional<Boolean> result = dialog.showAndWait();
             result.ifPresent((consumer) -> {
                 Core.instance().dialer().informAcceptance(consumer);
-                wakeMe.notify();
             });
         });
     }

@@ -104,11 +104,17 @@ public class Dialer implements StreamListener {
         endCall(false);
     }
 
-    public void acceptCallRequest() throws DialerException {
+     public void acceptCallRequest() throws DialerException {
         try {
             mAcceptance = -1;
-            Core.instance().videocall().acceptCallDialog(mClient, Thread.currentThread());
-            Thread.currentThread().wait();
+            Core.instance().videocall().acceptCallDialog(mClient);
+            // wait 30 sec to accept the call
+            for (int i = 0; i < 300; ++i) {
+                if (mAcceptance != -1) {
+                    break;
+                }
+                Thread.sleep(100);
+            }
         } catch (InterruptedException ex) {
             throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
         }
@@ -116,6 +122,7 @@ public class Dialer implements StreamListener {
             throw new DialerException("The call was rejected by the user.");
         }
     }
+
 
     public void dialClientAsync(final Client client, Callback<Exception, Void> callback) {
         Thread t = new Thread(() -> {
