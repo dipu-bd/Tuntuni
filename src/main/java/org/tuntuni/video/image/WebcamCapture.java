@@ -19,7 +19,6 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
-import javafx.application.Platform;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.VideoFormat;
 
@@ -82,8 +81,12 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
     }
 
     @Override
-    public void webcamImageObtained(WebcamEvent we) { 
-            send(new ImageFrame(we.getImage())); 
+    public void webcamImageObtained(WebcamEvent we) {
+        if (isConnected()) {
+            send(new ImageFrame(we.getImage()));
+        } else {
+            stop();
+        }
     }
 
     @Override

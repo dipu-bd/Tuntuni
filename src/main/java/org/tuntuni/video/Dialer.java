@@ -85,14 +85,12 @@ public class Dialer {
         mStatus.set(DialStatus.BUSY);
     }
 
-    private void endCall(boolean recursive) {
+    public void endCall() {
         mStatus.set(DialStatus.IDLE);
         try {
             stopComs();
             freeSlot();
-            if (recursive) {
-                mClient.endCall();
-            }
+            mClient.endCall();
             mClient = null;
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
@@ -103,14 +101,10 @@ public class Dialer {
         if (client != null && mClient != null
                 && client.getHostString().equals(mClient.getHostString())) {
 
-            endCall(false);
+            endCall();
             return true;
         }
         return false;
-    }
-
-    public void terminate() {
-        endCall(false);
     }
 
     private void waitForAcceptance() throws DialerException {
@@ -184,7 +178,7 @@ public class Dialer {
                 mRecorder.start();
 
             } catch (Exception ex) {
-                endCall(true);
+                endCall();
                 Logs.error(getClass(), "Failed to start communication modules. Error: {0}", ex);
             }
         }).start();

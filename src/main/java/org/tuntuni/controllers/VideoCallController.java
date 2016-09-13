@@ -156,7 +156,7 @@ public class VideoCallController implements Initializable {
 
     @FXML
     private void endVideoCall(ActionEvent evt) {
-        Core.instance().dialer().endCall(mClient);
+        Core.instance().dialer().endCall();
     }
 
 }

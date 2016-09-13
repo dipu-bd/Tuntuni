@@ -15,7 +15,6 @@
  */
 package org.tuntuni.video.audio;
 
-import javafx.application.Platform;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -64,9 +63,9 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     @Override
     public void stop() {
         try {
+            mAudioThread.interrupt();
             mTargetLine.stop();
             mTargetLine.close();
-            mAudioThread.interrupt();
         } catch (Exception ex) {
             Logs.error(getName(), "Failed to close. {0}", ex);
         }
@@ -84,21 +83,26 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
 
     // run audio thread task
     @Override
-    public void run() { 
-            // available: 2 5 6 7 9 10 15 25 
-            int size = mTargetLine.getBufferSize() / 5;
-            byte[] buffer = new byte[size];
-            Logs.info(getName(), "Line opened with buffer size = {0}\n", size);
+    public void run() {
+        // available: 2 5 6 7 9 10 15 25 
+        int size = mTargetLine.getBufferSize() / 5;
+        byte[] buffer = new byte[size];
+        Logs.info(getName(), "Line opened with buffer size = {0}\n", size);
 
-            while (isOpen()) {
-                // read audio
-                int len = mTargetLine.read(buffer, 0, size);
-                if (len == -1) {
-                    return;
-                }
-                // update buffer  
+        while (isOpen()) {
+            // read audio
+            int len = mTargetLine.read(buffer, 0, size);
+            if (len == -1) {
+                return;
+            }
+            // update buffer  
+            if (isConnected()) {
                 send(buffer, size);
-            } 
+            } else {
+                stop();
+                return;
+            }
+        }
     }
 
     @Override
