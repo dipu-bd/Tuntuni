@@ -26,18 +26,18 @@ import javax.sound.sampled.AudioFormat;
 public abstract class VideoFormat {
 
     // frame width
-    public static final int WIDTH = 640;
+    public static final int WIDTH = 176;
     // frame height
-    public static final int HEIGHT = 480;
+    public static final int HEIGHT = 144;
     // image type
     public static final int TYPE = BufferedImage.TYPE_INT_ARGB;
 
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;
     //sampleSizeInBits - the number of bits in each sample
-    public static final int SAMPLE_SIZE = 16;
+    public static final int SAMPLE_SIZE = 8;
     //channels - the number of channels (1 for mono, 2 for stereo, and so on)
-    public static final int CHANNEL = 2;
+    public static final int CHANNEL = 1;
     //signed - indicates whether the data is signed or unsigned
     public static final boolean SIGNED = true;
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
