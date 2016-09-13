@@ -126,9 +126,9 @@ public class Commons {
     }
 
     public static byte[] imageToBytes(BufferedImage img) {
-        try (ByteArrayOutputStream byteOutput = new ByteArrayOutputStream()) {
-            ImageIO.write(img, "png", byteOutput);
-            return byteOutput.toByteArray();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ImageIO.write(img, "png", baos);
+            return baos.toByteArray();
         } catch (IOException ex) {
             return null;
         }
@@ -139,8 +139,16 @@ public class Commons {
     }
 
     public static Image bytesToImage(byte[] data) {
-        try (ByteArrayInputStream byteInput = new ByteArrayInputStream(data)) {
-            return new Image(byteInput);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+            return new Image(bais);
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+
+    public static BufferedImage bytesToBufferedImage(byte[] data) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+            return ImageIO.read(bais);
         } catch (IOException ex) {
             return null;
         }

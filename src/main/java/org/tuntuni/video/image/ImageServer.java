@@ -18,7 +18,6 @@ package org.tuntuni.video.image;
 import org.tuntuni.image.ImageFrame;
 import java.io.EOFException;
 import java.io.IOException;
-import javafx.scene.image.Image;
 import org.tuntuni.connection.RTSPServer;
 import org.tuntuni.models.Logs;
 
@@ -51,11 +50,12 @@ public abstract class ImageServer extends RTSPServer {
 
     public void run() {
         while (isOpen()) {
-            try {
-                displayImage((ImageFrame) receive());
+            try { 
+                displayImage((ImageFrame) receive()); 
             } catch (IOException | ClassNotFoundException ex) {
                 if (!(ex instanceof EOFException)) {
                     Logs.error(getName(), "Receive failure. {0}", ex);
+                    ex.printStackTrace();
                 }
             }
         }

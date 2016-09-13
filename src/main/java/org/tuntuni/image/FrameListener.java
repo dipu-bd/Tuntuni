@@ -15,7 +15,7 @@
  */
 package org.tuntuni.image;
 
-import javafx.scene.image.Image;
+import javafx.scene.image.Image; 
 
 /**
  *

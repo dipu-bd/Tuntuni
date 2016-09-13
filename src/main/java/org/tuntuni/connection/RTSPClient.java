@@ -36,11 +36,9 @@ public abstract class RTSPClient {
     private InetSocketAddress mAddress;
     private final LinkedList<Object> mSendQueue;
     private int maxQueueSize;
-    private int minQueueSize;
 
     public RTSPClient() {
         maxQueueSize = 5;
-        minQueueSize = 1;
         mSendQueue = new LinkedList<>();
     }
 
@@ -107,7 +105,7 @@ public abstract class RTSPClient {
 
     private Object getNext() {
         synchronized (mSendQueue) {
-            while (mSendQueue.size() < minQueueSize) {
+            while (mSendQueue.isEmpty()) {
                 try {
                     mSendQueue.wait();
                 } catch (InterruptedException ex) {
@@ -150,18 +148,6 @@ public abstract class RTSPClient {
     }
 
     public void setMaxQueueSize(int size) {
-        maxQueueSize = size;
-        //maxQueueSize = Math.max(1, size);
-        //minQueueSize = Math.min(maxQueueSize, minQueueSize);
-    }
-
-    public int getMinQueueSize() {
-        return minQueueSize;
-    }
-
-    public void setMinQueueSize(int size) {
-        minQueueSize = size;
-        //minQueueSize = Math.max(1, size);
-        //maxQueueSize = Math.max(maxQueueSize, minQueueSize);
+        maxQueueSize = Math.max(1, size);
     }
 }

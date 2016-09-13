@@ -16,37 +16,69 @@
 package org.tuntuni.image;
 
 import java.awt.image.BufferedImage;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
-import org.tuntuni.connection.DataFrame;
+import org.tuntuni.util.Commons;
 
 /**
- * Image data frame. Holds image information.
+ *
+ * @author dipu
  */
-public class ImageFrame extends DataFrame {
+public class ImageFrame implements Externalizable {
 
-    short frameNumber;
+    private int mX;
+    private int mY;
+    private byte[] mBuffer;
 
-    public ImageFrame() {
-    }
-
-    public ImageFrame(int frame, byte[] data) {
-        frameNumber = (short) frame;
-        setBuffer(Arrays.copyOf(data, data.length));
+    public ImageFrame(int posX, int posY, BufferedImage image) {
+        mX = posX;
+        mY = posY;
+        mBuffer = Commons.imageToBytes(image);
     }
 
     @Override
     public void writeExternal(ObjectOutput oo) throws IOException {
-        oo.writeShort(frameNumber);
-        super.writeExternal(oo);
+        oo.writeInt(mX);
+        oo.writeInt(mY);
+        oo.writeInt(mBuffer.length);
     }
 
     @Override
     public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-        frameNumber = oi.readShort();
-        super.readExternal(oi);
+        mX = oi.readInt();
+        mY = oi.readInt();
+        int length = oi.readInt();
+        mBuffer = new byte[length];
+        oi.readFully(mBuffer);
     }
 
+    public BufferedImage getImage() {
+        return Commons.bytesToBufferedImage(mBuffer);
+    }
+
+    public void setBuffer(byte[] data) {
+        mBuffer = data;
+    }
+
+    public byte[] getBuffer() {
+        return mBuffer;
+    }
+
+    public int getX() {
+        return mX;
+    }
+
+    public void setX(int x) {
+        mX = x;
+    }
+
+    public int getY() {
+        return mY;
+    }
+
+    public void setY(int y) {
+        mY = y;
+    }
 }

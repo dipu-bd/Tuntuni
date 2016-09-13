@@ -19,32 +19,46 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import org.junit.After;
-import org.junit.Before;
+import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  *
  * @author dipu
  */
-public class StreammingTest {
+public class StreammingTest extends Application {
 
+    ImageView mViewer;
     private VideoPlayer mPlayer;
     private VideoRecorder mRecorder;
 
     public StreammingTest() {
+        mViewer = new ImageView();
     }
 
-    @Before
+    @BeforeClass
+    public static void start() {
+        launch(new String[]{});
+    }
+
     public void setUp() throws SocketException, UnknownHostException, IOException {
         System.out.println(":: Video Streamming Test ::");
-        
-        System.out.println(">>> starting player");        
-        mPlayer = new VideoPlayer(null);
+
+        System.out.println(">>> starting player");
+        mPlayer = new VideoPlayer(mViewer);
         mPlayer.start();
         System.out.println("Image port = " + mPlayer.getImagePort());
         System.out.println("Audio port = " + mPlayer.getAudioPort());
-        
+
         System.out.println(">>> starting recorder");
         mRecorder = new VideoRecorder(
                 InetAddress.getLocalHost(),
@@ -53,20 +67,34 @@ public class StreammingTest {
         mRecorder.start();
     }
 
-    @After
     public void tearDown() {
         System.out.println(">>> stopping");
         mPlayer.stop();
         mRecorder.stop();
     }
 
-    /**
-     * Test of start method, of class VideoStreamer.
-     */
     @Test
-    public void testStart() throws Exception {
-        // take 10 sec rest
-        Thread.sleep(20_000);
+    public void test() throws InterruptedException, Exception { 
+        stop();
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        mViewer.setFitHeight(480);
+        mViewer.setFitWidth(640);
+        BorderPane root = new BorderPane();
+        root.setCenter(mViewer);
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+        
+        primaryStage.show();
+
+        primaryStage.setOnCloseRequest((WindowEvent event) -> {
+            tearDown();
+        });
+        
+        setUp();
+
     }
 
 }

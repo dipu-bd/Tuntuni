@@ -16,9 +16,9 @@
 package org.tuntuni.image;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import org.tuntuni.models.Logs;
 import org.tuntuni.video.VideoFormat;
 
 /**
@@ -26,11 +26,6 @@ import org.tuntuni.video.VideoFormat;
  * @author dipu
  */
 public class FrameBuilder {
-
-    // original masks
-    static final int RED_MASK = 0x00FF0000;
-    static final int GREEN_MASK = 0x0000FF00;
-    static final int BLUE_MASK = 0x000000FF;
 
     int skipIndex = 0;
 
@@ -41,7 +36,7 @@ public class FrameBuilder {
     final int mTileX;
     final int mTileY;
     BufferedImage mImage;
-    ArrayList<FrameListener> mListener;
+    FrameListener mListener;
 
     public FrameBuilder() {
         mWidth = VideoFormat.FRAME_WIDTH;
@@ -50,8 +45,6 @@ public class FrameBuilder {
         mImageHeight = VideoFormat.HEIGHT;
         mTileX = mImageWidth / mWidth;
         mTileY = mImageHeight / mHeight;
-
-        mListener = new ArrayList<>();
         mImage = new BufferedImage(mImageWidth, mImageHeight, BufferedImage.TYPE_INT_RGB);
     }
 
@@ -62,108 +55,82 @@ public class FrameBuilder {
     public int maxFrameRate() {
         return mTileX * mTileY * 2;
     }
-
-    public int getFrameSize() {
-        return mWidth * mHeight;
+ 
+    public void setListener(FrameListener listener) {
+        mListener = listener;
     }
 
-    public void addListener(FrameListener listener) {
-        mListener.add(listener);
-    }
-
-    public void removeListener(FrameListener listener) {
-        mListener.remove(listener);
+    public void removeListener() {
+        mListener = null;
     }
 
     public void putImage(BufferedImage image) {
-        processImage(image);
+        try {
+            processImage(image);
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Failed to process image. {0}", ex);
+        }
     }
 
     public void putFrame(ImageFrame frame) {
-        processFrame(frame);
+        try {
+            processFrame(frame);
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Failed to process frame. {0}", ex);
+        }
     }
 
     private void raiseFrameUpdateEvent(ImageFrame frame) {
-        mListener.forEach((listener) -> {
-            listener.frameUpdated(frame);
-        });
+        if (mListener != null) {
+            mListener.frameUpdated(frame);
+        }
     }
 
     private void raiseImageUpdateEvent(Image image) {
-        mListener.forEach((listener) -> {
-            listener.imageUpdated(image);
-        });
+        if (mListener != null) {
+            mListener.imageUpdated(image);
+        }
     }
 
     private void processImage(BufferedImage image) {
-        // allocate
-        int x, y, fn;
-        int i, j, k, l, off = 0;
-        int rgb, r, g, b, b1, b2;
-        byte[] data = new byte[2 * mWidth * mHeight];
+        // allocate 
+        int i, j, x, y, fn;
+        byte[] data = new byte[3 * mWidth * mHeight];
         // change skip index
         skipIndex = (skipIndex + 1) & 3;
-        // for each tile...
-        for (i = 0; i < mTileX; i++) {
+        // for each tile... 
+        for (i = 0; i < mTileX; ++i) {
             for (j = 0; j < mTileY; ++j) {
                 // should skip?
                 x = i * mWidth;
                 y = j * mHeight;
                 fn = y * mImageWidth + x;
-                if ((fn & 3) != skipIndex) {
+                if ((fn & 3) == skipIndex) {
                     continue;
                 }
-                // send the tile
-                for (k = 0; k < mWidth; ++k, ++x) {
-                    for (l = 0; l < mHeight; ++l, ++y) {
-                        rgb = image.getRGB(x, y);
-                        r = (rgb & RED_MASK) >> 16;
-                        g = (rgb & GREEN_MASK) >> 8;
-                        b = (rgb & BLUE_MASK);
-                        // r=5,g=6,b=5 color model
-                        b1 = (r & 0xF8) | (g >> 5);
-                        b2 = (b & 0xF8) | ((g >> 2) & 0x7);
-                        data[off++] = (byte) b1;
-                        data[off++] = (byte) b2;
-                    }
-                }
-                raiseFrameUpdateEvent(new ImageFrame(fn, data));
+                // send the tile 
+                BufferedImage sub = image.getSubimage(x, y, mWidth, mHeight);
+                raiseFrameUpdateEvent(new ImageFrame(x, y, sub));
             }
         }
     }
 
     private void processFrame(ImageFrame frame) {
-        int i, b1, b2;
-        int x, y, ix, iy, fn;
-        int r, g, b, rgb, or, og, ob;
-        byte[] data = frame.getBuffer();
-
-        fn = frame.frameNumber;
-        ix = fn % mImageWidth;
-        iy = fn / mImageWidth;
-        for (i = 1; i < data.length; i += 2) {
-            x = ix + (i >> 1) % mWidth;
-            y = iy + (i >> 1) / mWidth;
-
-            b1 = data[i - 1];
-            b2 = data[i];
-            r = (b1 & 0xF8);
-            b = (b2 & 0xF8);
-            g = (b1 & 0x7) | (b2 & 0x7);
-
-            rgb = mImage.getRGB(x, y);
-            or = (rgb & RED_MASK) >> 16;
-            og = (rgb & GREEN_MASK) >> 8;
-            ob = rgb & BLUE_MASK;
-
-            r = (or + r) >> 1;
-            g = (og + g) >> 1;
-            b = (ob + b) >> 1;
-            rgb = (r << 16) | (b << 8) | g;
-
-            mImage.setRGB(x, y, rgb);
+        BufferedImage image = frame.getImage();
+        int x = frame.getX();
+        int y = frame.getY();
+        int p = 1, q = 3, s = p + q;
+        for (int i = 0; i < mWidth; ++i) {
+            for (int j = 0; j < mHeight; ++j) {
+                int rgb1 = image.getRGB(i + x, j + y);
+                int rgb2 = mImage.getRGB(i + x, j + y);
+                int r = p * ((rgb1 >> 16) & 0xFF) + q * ((rgb2 >> 16) & 0xFF);
+                int g = p * ((rgb1 >> 8) & 0xFF) + q * ((rgb2 >> 8) & 0xFF);
+                int b = p * ((rgb1) & 0xFF) + q * ((rgb2) & 0xFF);
+                int rgb3 = ((r / s) << 16) | ((g / s) << 8) | (b / s);
+                mImage.setRGB(x, y, rgb3);
+            }
         }
-
         raiseImageUpdateEvent(SwingFXUtils.toFXImage(mImage, null));
     }
 }

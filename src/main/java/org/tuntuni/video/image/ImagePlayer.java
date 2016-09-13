@@ -16,6 +16,7 @@
 package org.tuntuni.video.image;
 
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.image.FrameBuilder;
@@ -34,21 +35,22 @@ public class ImagePlayer extends ImageServer implements FrameListener {
     public ImagePlayer(ImageView viewer) {
         mViewer = viewer;
         mFramer = new FrameBuilder();
-        mFramer.addListener(this);
+        mFramer.setListener(this);
     }
 
     @Override
     public void displayImage(ImageFrame image) {
-        if (image != null && mViewer != null) {
-            mFramer.putFrame(image);
-        }
+        //mFramer.putFrame(image);
+        imageUpdated(SwingFXUtils.toFXImage(image.getImage(), null));
     }
 
     @Override
     public void imageUpdated(Image image) {
-        Platform.runLater(() -> {
-            mViewer.setImage(image);
-        });
+        if (mViewer != null && image != null) {
+            Platform.runLater(() -> {
+                mViewer.setImage(image);
+            });
+        }
     }
 
     @Override

@@ -29,9 +29,9 @@ import org.tuntuni.models.Logs;
  */
 public abstract class RTSPServer {
 
-    ServerSocket mServer;
-    Socket mClient;
-    ObjectInputStream mInput;
+    private ServerSocket mServer;
+    private Socket mClient;
+    private ObjectInputStream mInput;
 
     public RTSPServer() {
     }
