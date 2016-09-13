@@ -25,6 +25,10 @@ public class DialerException extends Exception {
         super(msg);
     }
 
+    public DialerException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
     public DialerException() {
 
     }

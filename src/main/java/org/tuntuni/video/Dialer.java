@@ -15,9 +15,7 @@
  */
 package org.tuntuni.video;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -46,11 +44,11 @@ public class Dialer {
             mClient = client;
             // occupy my slot
             if (mStatus.get() != DialStatus.IDLE) {
-                throw new DialerException("Your are already in a call");
+                throw new Exception("Your are already in a call");
             }
             // occupy a slot in client 
             mStatus.set(DialStatus.DIALING);
-            DialerException ex = (DialerException) client.requestSlot();
+            Exception ex = client.requestSlot();
             if (ex != null) {
                 throw ex;
             }
@@ -58,7 +56,7 @@ public class Dialer {
             startComs();
         } catch (Exception ex) {
             stopComs();
-            throw ex;
+            throw new DialerException(ex.getMessage(), ex.getCause());
         }
     }
 
@@ -67,19 +65,19 @@ public class Dialer {
             mClient = client;
             // check if my slot is available
             if (mStatus.get() != DialStatus.IDLE) {
-                throw new DialerException("Your are already in a call");
+                throw new Exception("Your are already in a call");
             }
             // request user to accept the call 
             mStatus.set(DialStatus.DIALING);
             boolean res = Core.instance().videocall().acceptCallDialog(mClient);
             if (!res) {
-                throw new DialerException("Call was rejected");
+                throw new Exception("Call was rejected");
             }
             // start communication        
             startComs();
         } catch (Exception ex) {
             stopComs();
-            throw ex;
+            throw new DialerException(ex.getMessage(), ex.getCause());
         }
     }
 

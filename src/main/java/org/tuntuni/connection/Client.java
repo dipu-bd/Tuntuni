@@ -156,8 +156,8 @@ public class Client extends TCPClient {
      *
      * @return
      */
-    public Object requestSlot() {
-        return request(ConnectFor.DIAL);
+    public Exception requestSlot() {
+        return (Exception) request(ConnectFor.DIAL);
     }
 
     /**
