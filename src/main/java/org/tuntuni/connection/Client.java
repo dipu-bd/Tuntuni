@@ -21,7 +21,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.models.Message;
-import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.UserData;
 
 /**
@@ -181,6 +180,13 @@ public class Client extends TCPClient {
     public int getAudioPort() {
         Object result = request(ConnectFor.AUDIO_PORT);
         return (result instanceof Integer) ? (int) result : -1;
+    }
+
+    /**
+     * Request client to end an ongoing call
+     */
+    public void endCall() {
+        request(ConnectFor.END_CALL);
     }
 
 }

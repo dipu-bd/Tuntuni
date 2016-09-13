@@ -15,6 +15,7 @@
  */
 package org.tuntuni.video.audio;
 
+import javafx.application.Platform;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -68,8 +69,14 @@ public class AudioPlayer extends AudioServer {
 
     @Override
     public void playAudio(byte[] data) {
-        // play the audio data  
-        mSourceLine.write(data, 0, data.length);
+        try {
+            // play the audio data  
+            mSourceLine.write(data, 0, data.length);
+        } catch (Exception ex) {
+            if (getListener() != null) {
+                Platform.runLater(() -> getListener().errorOccured(ex));
+            }
+        }
     }
 
 }

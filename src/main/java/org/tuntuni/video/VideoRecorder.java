@@ -60,4 +60,9 @@ public class VideoRecorder {
         mAudioSource.stop();
         mAudioSource.close();
     }
+
+    public void setListener(StreamListener listener) {
+        mImageSource.setListener(listener);
+        mAudioSource.setListener(listener);
+    }
 }

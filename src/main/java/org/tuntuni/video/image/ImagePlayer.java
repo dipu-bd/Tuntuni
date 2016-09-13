@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
@@ -27,20 +28,21 @@ import javafx.scene.image.ImageView;
  */
 public class ImagePlayer extends ImageServer {
 
-    private final ImageView mViewer; 
+    private final ImageView mViewer;
     private BufferedImage mImage;
 
     public ImagePlayer(ImageView viewer) {
         mViewer = viewer;
-        mViewer.setSmooth(true); 
+        mViewer.setSmooth(true);
     }
 
     @Override
     public void displayImage(ImageFrame image) {
         if (mViewer != null && image != null) {
             applyImage(image.getBufferedImage());
+            final Image fximg = SwingFXUtils.toFXImage(mImage, null);
             Platform.runLater(() -> {
-                mViewer.setImage(SwingFXUtils.toFXImage(mImage, null));
+                mViewer.setImage(fximg);
             });
         }
     }

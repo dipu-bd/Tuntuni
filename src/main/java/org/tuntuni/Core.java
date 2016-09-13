@@ -32,8 +32,8 @@ import org.tuntuni.video.Dialer;
  * be access by {@linkplain Core.instance()}.
  * <p>
  * The server and subnet objects are created with constructor. But they are not
- * yet started. Don't forget to call the {@code start()} of MainServer and Subnet
- instances, after the initialization phase is done.</p>
+ * yet started. Don't forget to call the {@code start()} of MainServer and
+ * Subnet instances, after the initialization phase is done.</p>
  * <p>
  * Note that, the controllers must be set after they are initialized. e.g: To
  * set MainController call {@code Core.instance().main(this)} in the
@@ -48,7 +48,8 @@ public final class Core {
 
     // instance of context
     private static class CoreHolder {
-        public static final Core INSTANCE = new Core(); 
+
+        public static final Core INSTANCE = new Core();
     }
 
     /**
@@ -109,7 +110,7 @@ public final class Core {
         mSubnet.stop();
         mSubnetServer.stop();
         mServer.stop();
-        mDialer.endCall();
+        mDialer.terminate();
     }
 
     ///
@@ -146,12 +147,13 @@ public final class Core {
 
     /**
      * Gets the dialer class for video calling
-     * @return 
+     *
+     * @return
      */
     public Dialer dialer() {
         return mDialer;
     }
-    
+
     /**
      * Sets the primary stage of the application.
      *

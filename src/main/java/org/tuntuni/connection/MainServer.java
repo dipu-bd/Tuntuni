@@ -15,9 +15,9 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
+import javafx.util.Callback;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
@@ -59,6 +59,8 @@ public class MainServer extends TCPServer {
                 return message(getClient(from), data);
             case DIAL:
                 return dial(getClient(from));
+            case END_CALL:
+             return Core.instance().dialer().endCall(getClient(from)); 
         }
         return null;
     }
@@ -87,13 +89,18 @@ public class MainServer extends TCPServer {
         }
         return false;
     }
-
+  
     public Object dial(Client client) {
         if (client == null) {
             return false;
         }
         try {
-            Core.instance().dialer().receiveCall(client);
+            Core.instance().dialer().receiveCallAsync(client, (ex) -> {
+                if (ex != null) {
+                    client.endCall();
+                }
+                return null;
+            });
             return true;
         } catch (Exception ex) {
             // response failure

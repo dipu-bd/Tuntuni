@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 package org.tuntuni.video.image;
- 
+
 import java.io.EOFException;
 import java.io.IOException;
+import javafx.application.Platform;
 import org.tuntuni.connection.RTSPServer;
 import org.tuntuni.models.Logs;
+import org.tuntuni.video.StreamListener;
 
 /**
  *
@@ -39,8 +41,7 @@ public abstract class ImageServer extends RTSPServer {
     public void start() {
         mServerThread = new Thread(() -> run());
         mServerThread.setDaemon(true);
-        mServerThread.start();
-
+        mServerThread.start(); 
     }
 
     public void stop() {
@@ -48,16 +49,23 @@ public abstract class ImageServer extends RTSPServer {
     }
 
     public void run() {
-        while (isOpen()) {
-            try {
-                displayImage((ImageFrame) receive());
-            } catch (IOException | ClassNotFoundException ex) {
-                if (!(ex instanceof EOFException)) {
-                    Logs.error(getName(), "Receive failure. {0}", ex);
+        try {
+            while (isOpen()) {
+                try {
+                    displayImage((ImageFrame) receive());
+                } catch (IOException | ClassNotFoundException ex) {
+                    if (!(ex instanceof EOFException)) {
+                        Logs.error(getName(), "Receive failure. {0}", ex);
+                    }
                 }
+            }
+        } catch (Exception ex) {
+            if (getListener() != null) {
+                Platform.runLater(() -> getListener().errorOccured(ex));
             }
         }
     }
 
     public abstract void displayImage(ImageFrame frame);
+
 }

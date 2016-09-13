@@ -28,7 +28,7 @@ import org.tuntuni.models.Logs;
  *
  * @author dipu
  */
-public class Dialer {
+public class Dialer implements StreamListener {
 
     private ObjectProperty<DialStatus> mStatus;
 
@@ -76,28 +76,39 @@ public class Dialer {
         mStatus.set(DialStatus.BUSY);
     }
 
-    public void endCall() {
+    private void endCall(boolean recursive) {
         mStatus.set(DialStatus.IDLE);
         try {
             stopComs();
             freeSlot();
+            if (recursive) {
+                mClient.endCall();
+            }
             mClient = null;
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
         }
     }
 
+    public boolean endCall(Client client) {
+        if (client != null && mClient != null
+                && client.getHostString().equals(mClient.getHostString())) {
+
+            endCall(false);
+            return true;
+        }
+        return false;
+    }
+
+    public void terminate() {
+        endCall(false);
+    }
+
     public void acceptCallRequest() throws DialerException {
         try {
             mAcceptance = -1;
-            Core.instance().videocall().acceptCallDialog(mClient);
-            // wait 30 sec to accept the call
-            for (int i = 0; i < 300; ++i) {
-                if (mAcceptance != -1) {
-                    break;
-                }
-                Thread.sleep(100);
-            }
+            Core.instance().videocall().acceptCallDialog(mClient, Thread.currentThread());
+            Thread.currentThread().wait();
         } catch (InterruptedException ex) {
             throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
         }
@@ -110,6 +121,19 @@ public class Dialer {
         Thread t = new Thread(() -> {
             try {
                 dialClient(client);
+                callback.call(null);
+            } catch (Exception ex) {
+                callback.call(ex);
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+    }
+
+    public void receiveCallAsync(final Client client, Callback<Exception, Void> callback) {
+        Thread t = new Thread(() -> {
+            try {
+                receiveCall(client);
                 callback.call(null);
             } catch (Exception ex) {
                 callback.call(ex);
@@ -142,15 +166,17 @@ public class Dialer {
             try {
                 mPlayer = new VideoPlayer(
                         Core.instance().videocall().getViewer());
+                mPlayer.setListener(this);
                 mPlayer.start();
 
                 mRecorder = new VideoRecorder(
                         mClient.getAddress().getAddress(),
                         mClient.getImagePort(), mClient.getAudioPort());
+                mRecorder.setListener(this);
                 mRecorder.start();
 
             } catch (Exception ex) {
-                endCall();
+                endCall(true);
                 Logs.error(getClass(), "Failed to start communication modules. Error: {0}", ex);
             }
         }).start();
@@ -179,5 +205,12 @@ public class Dialer {
 
     public DialStatus getStatus() {
         return mStatus.get();
+    }
+
+    @Override
+    public void errorOccured(Exception ex) {
+        if (!mStatus.equals(DialStatus.IDLE)) {
+            endCall(true);
+        }
     }
 }

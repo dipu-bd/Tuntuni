@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.models;
+package org.tuntuni.connection;
 
 /**
  * Defined a few types of connection status client and server.
@@ -38,7 +38,9 @@ public enum ConnectFor {
     // to pass image port 
     IMAGE_PORT(8),
     // to pass audio port
-    AUDIO_PORT(9);
+    AUDIO_PORT(9),
+    // to end an ongoing call
+    END_CALL(10);
 
     private final int mData;
 
