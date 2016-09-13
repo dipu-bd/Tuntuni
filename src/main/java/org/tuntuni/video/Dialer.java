@@ -52,9 +52,13 @@ public class Dialer {
             throw new DialerException("Slot in your pc is unavailable");
         }
         // occupy a slot in client
-        if (!client.requestSlot()) {
+        mAcceptance = -1;
+        client.requestSlot();
+        waitForAcceptance();
+        if (mAcceptance != 0) {
             throw new DialerException("Slot in client pc is unavailable");
         }
+
         // start communication
         startComs();
     }
@@ -66,7 +70,12 @@ public class Dialer {
             throw new DialerException("Slot is already occupied");
         }
         // request user to accept the call
-        acceptCallRequest();
+        mAcceptance = -1;
+        Core.instance().videocall().acceptCallDialog(mClient);
+        waitForAcceptance();
+        if (mAcceptance != 0) {
+            throw new DialerException("The call was rejected by the user.");
+        }
         // occupy my slot
         if (!occupySlot()) {
             throw new DialerException("Slot in your pc is unavailable");
@@ -104,10 +113,8 @@ public class Dialer {
         endCall(false);
     }
 
-     public void acceptCallRequest() throws DialerException {
+    private void waitForAcceptance() throws DialerException {
         try {
-            mAcceptance = -1;
-            Core.instance().videocall().acceptCallDialog(mClient);
             // wait 30 sec to accept the call
             for (int i = 0; i < 300; ++i) {
                 if (mAcceptance != -1) {
@@ -118,11 +125,7 @@ public class Dialer {
         } catch (InterruptedException ex) {
             throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
         }
-        if (mAcceptance != 0) {
-            throw new DialerException("The call was rejected by the user.");
-        }
     }
-
 
     public void dialClientAsync(final Client client, Callback<Exception, Void> callback) {
         Thread t = new Thread(() -> {
@@ -172,12 +175,12 @@ public class Dialer {
         new Thread(() -> {
             try {
                 mPlayer = new VideoPlayer(
-                        Core.instance().videocall().getViewer()); 
+                        Core.instance().videocall().getViewer());
                 mPlayer.start();
 
                 mRecorder = new VideoRecorder(
                         mClient.getAddress().getAddress(),
-                        mClient.getImagePort(), mClient.getAudioPort()); 
+                        mClient.getImagePort(), mClient.getAudioPort());
                 mRecorder.start();
 
             } catch (Exception ex) {
@@ -211,5 +214,5 @@ public class Dialer {
     public DialStatus getStatus() {
         return mStatus.get();
     }
- 
+
 }

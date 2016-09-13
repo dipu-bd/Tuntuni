@@ -43,6 +43,8 @@ import org.tuntuni.video.DialStatus;
 public class VideoCallController implements Initializable {
 
     private Client mClient;
+    BufferedImage mBlackImage;
+     
 
     @FXML
     private Button startButton;
@@ -58,10 +60,13 @@ public class VideoCallController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
+        
+        mBlackImage = new BufferedImage(640, 480, 1); 
+        
+        dialStatusChanged(DialStatus.IDLE);
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             dialStatusChanged(n);
         });
-        dialStatusChanged(DialStatus.IDLE);
     }
 
     public void setClient(Client client) {
@@ -88,7 +93,7 @@ public class VideoCallController implements Initializable {
 
             // create the custom dialog.
             Dialog<Boolean> dialog = new Dialog<>();
-            dialog.setTitle("Incoming Call!!");
+            dialog.setTitle("Incoming Call!");
             dialog.setHeaderText(userName.getText());
             dialog.setContentText(userName.getText() + " is calling...\n"
                     + "Do you want to accept this call?");

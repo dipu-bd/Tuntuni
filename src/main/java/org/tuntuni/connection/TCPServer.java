@@ -201,8 +201,14 @@ public abstract class TCPServer {
                 data[i] = ois.readObject();
             }
 
-            // send response
-            Object result = getResponse(status, socket, data);
+            // send response  
+            Object result = null;
+            try {
+                result = getResponse(status, socket, data);
+            } catch (Exception e) {
+                // failed to get response
+                Logs.warning(getClass(), "{0}", e);
+            }
             if (result != null) {
                 oos.writeObject(result);
                 oos.flush();
