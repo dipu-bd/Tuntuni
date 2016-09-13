@@ -20,9 +20,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import javafx.application.Platform;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.StreamListener;
 
 /**
  * Receives data from client
@@ -33,22 +31,13 @@ public abstract class RTSPServer {
 
     private ServerSocket mServer;
     private Socket mClient;
-    private ObjectInputStream mInput;
-    private StreamListener mListener;
+    private ObjectInputStream mInput; 
 
     public RTSPServer() {
     }
 
     public abstract String getName();
-
-    public void setListener(StreamListener listener) {
-        mListener = listener;
-    }
-
-    public StreamListener getListener() {
-        return mListener;
-    }
-
+ 
     public void open() throws IOException {
         mServer = new ServerSocket(0);
         Logs.info(getName(), "Opened @ {0}", getPort());

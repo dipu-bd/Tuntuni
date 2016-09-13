@@ -68,15 +68,9 @@ public class AudioPlayer extends AudioServer {
     }
 
     @Override
-    public void playAudio(byte[] data) {
-        try {
+    public void playAudio(byte[] data) { 
             // play the audio data  
-            mSourceLine.write(data, 0, data.length);
-        } catch (Exception ex) {
-            if (getListener() != null) {
-                Platform.runLater(() -> getListener().errorOccured(ex));
-            }
-        }
+            mSourceLine.write(data, 0, data.length); 
     }
 
 }

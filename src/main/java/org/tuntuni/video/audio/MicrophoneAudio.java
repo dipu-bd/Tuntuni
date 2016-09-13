@@ -84,8 +84,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
 
     // run audio thread task
     @Override
-    public void run() {
-        try {
+    public void run() { 
             // available: 2 5 6 7 9 10 15 25 
             int size = mTargetLine.getBufferSize() / 5;
             byte[] buffer = new byte[size];
@@ -99,12 +98,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
                 }
                 // update buffer  
                 send(buffer, size);
-            }
-        } catch (Exception ex) {
-            if (getListener() != null) {
-                Platform.runLater(() -> getListener().errorOccured(ex));
-            }
-        }
+            } 
     }
 
     @Override

@@ -83,12 +83,5 @@ public class VideoPlayer {
         }
         return -1;
     }
-
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //  
-    public void setListener(StreamListener listener) {
-        mImagePlayer.setListener(listener);
-        mAudioPlayer.setListener(listener);
-    }
+ 
 }

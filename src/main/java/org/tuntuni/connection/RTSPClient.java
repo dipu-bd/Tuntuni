@@ -23,7 +23,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 import javafx.application.Platform;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.StreamListener;
 
 /**
  * Sends data to the server
@@ -38,7 +37,6 @@ public abstract class RTSPClient {
     private InetSocketAddress mAddress;
     private final LinkedList<Object> mSendQueue;
     private int maxQueueSize;
-    private StreamListener mListener;
 
     public RTSPClient() {
         maxQueueSize = 5;
@@ -46,14 +44,6 @@ public abstract class RTSPClient {
     }
 
     public abstract String getName();
-
-    public void setListener(StreamListener listener) {
-        mListener = listener;
-    }
-
-    public StreamListener getListener() {
-        return mListener;
-    }
 
     public void connect(InetAddress address, int port) {
         mAddress = new InetSocketAddress(address, port);
@@ -79,32 +69,26 @@ public abstract class RTSPClient {
     }
 
     private void run() {
-        try {
-            // Connect with the server
-            if (!makeConnection()) {
-                return;
-            }
+        // Connect with the server
+        if (!makeConnection()) {
+            return;
+        }
 
-            Logs.info(getName(), "Connected @ {0}", mAddress);
-            // Run consecutive IO operations
-            while (true) {
-                // Wait for data to become available
-                Object data = getNext();
-                // Check validity
-                if (data == null) {
-                    continue;
-                }
-                // Output to stream
-                try {
-                    mOutput.writeObject(data);
-                    mOutput.flush();
-                } catch (IOException ex) {
-                    Logs.error(getName(), "Write failure! {0}", ex);
-                }
+        Logs.info(getName(), "Connected @ {0}", mAddress);
+        // Run consecutive IO operations
+        while (true) {
+            // Wait for data to become available
+            Object data = getNext();
+            // Check validity
+            if (data == null) {
+                continue;
             }
-        } catch (Exception ex) {
-            if (getListener() != null) {
-                Platform.runLater(() -> getListener().errorOccured(ex));
+            // Output to stream
+            try {
+                mOutput.writeObject(data);
+                mOutput.flush();
+            } catch (IOException ex) {
+                Logs.error(getName(), "Write failure! {0}", ex);
             }
         }
     }

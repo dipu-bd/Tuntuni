@@ -50,8 +50,7 @@ public abstract class AudioServer extends RTSPServer {
         mServerThread.interrupt();
     }
 
-    public void run() {
-        try {
+    public void run() { 
             while (isOpen()) {
                 try {
                     DataFrame frame = (DataFrame) receive();
@@ -61,12 +60,7 @@ public abstract class AudioServer extends RTSPServer {
                         Logs.error(getName(), "Receive failure. {0}", ex);
                     }
                 }
-            }
-        } catch (Exception ex) {
-            if (getListener() != null) {
-                Platform.runLater(() -> getListener().errorOccured(ex));
-            }
-        }
+            } 
     }
 
     public abstract void playAudio(byte[] data);

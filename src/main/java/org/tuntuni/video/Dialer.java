@@ -28,7 +28,7 @@ import org.tuntuni.models.Logs;
  *
  * @author dipu
  */
-public class Dialer implements StreamListener {
+public class Dialer {
 
     private ObjectProperty<DialStatus> mStatus;
 
@@ -172,14 +172,12 @@ public class Dialer implements StreamListener {
         new Thread(() -> {
             try {
                 mPlayer = new VideoPlayer(
-                        Core.instance().videocall().getViewer());
-                mPlayer.setListener(this);
+                        Core.instance().videocall().getViewer()); 
                 mPlayer.start();
 
                 mRecorder = new VideoRecorder(
                         mClient.getAddress().getAddress(),
-                        mClient.getImagePort(), mClient.getAudioPort());
-                mRecorder.setListener(this);
+                        mClient.getImagePort(), mClient.getAudioPort()); 
                 mRecorder.start();
 
             } catch (Exception ex) {
@@ -213,11 +211,5 @@ public class Dialer implements StreamListener {
     public DialStatus getStatus() {
         return mStatus.get();
     }
-
-    @Override
-    public void errorOccured(Exception ex) {
-        if (!mStatus.equals(DialStatus.IDLE)) {
-            endCall(true);
-        }
-    }
+ 
 }
