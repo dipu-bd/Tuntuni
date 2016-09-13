@@ -26,30 +26,23 @@ import org.tuntuni.video.image.WebcamCapture;
 /**
  *
  */
-public class VideoRecorder {
-
-    private final int mAudioPort;
-    private final int mImagePort;
-    private final InetAddress mAddress;
-
+public class VideoRecorder { 
+    
+    private final InetAddress mAddress; 
     private final ImageSource mImageSource;
     private final AudioSource mAudioSource;
 
-    public VideoRecorder(InetAddress address, int imagePort, int audioPort) {
-        mAddress = address;
-
-        mImagePort = imagePort;
-        mImageSource = new WebcamCapture();
-
-        mAudioPort = audioPort;
+    public VideoRecorder(InetAddress address) {
+        mAddress = address; 
+        mImageSource = new WebcamCapture(); 
         mAudioSource = new MicrophoneAudio();
     }
 
     public void start() throws SocketException, IOException {
-        mAudioSource.connect(mAddress, mAudioPort);
+        mAudioSource.connect(mAddress, Dialer.AUDIO_PORT);
         mAudioSource.start();
 
-        mImageSource.connect(mAddress, mImagePort);
+        mImageSource.connect(mAddress, Dialer.IMAGE_PORT);
         mImageSource.start();
     }
 

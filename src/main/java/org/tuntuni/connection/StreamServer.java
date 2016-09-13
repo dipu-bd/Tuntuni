@@ -30,17 +30,19 @@ import org.tuntuni.models.Logs;
  */
 public abstract class StreamServer {
 
+    private final int mPort;
     private ServerSocket mServer;
     private Socket mClient;
     private ObjectInputStream mInput;
 
-    public StreamServer() {
+    public StreamServer(int port) {
+        mPort = port;
     }
 
     public abstract String getName();
 
     public void open() throws IOException {
-        mServer = new ServerSocket(0);
+        mServer = new ServerSocket(mPort);
         Logs.info(getName(), "Opened @ {0}", getPort());
     }
 
@@ -97,7 +99,7 @@ public abstract class StreamServer {
                 && mClient != null
                 && !mClient.isClosed();
     }
-    
+
     @Override
     public String toString() {
         return String.format("%s:%d:%s", getName(), getPort(), getRemoteAddress());

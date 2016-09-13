@@ -15,6 +15,7 @@
  */
 package org.tuntuni.controllers;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,10 +43,10 @@ import org.tuntuni.video.DialStatus;
  * Controller for video calling. It shows video in background.
  */
 public class VideoCallController implements Initializable {
-    
+
     private Client mClient;
     BufferedImage mBlackImage;
-    
+
     @FXML
     private Button startButton;
     @FXML
@@ -56,24 +57,29 @@ public class VideoCallController implements Initializable {
     private Label userName;
     @FXML
     private ImageView videoImage;
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
-        
-        mBlackImage = new BufferedImage(640, 480, 1);        
-        
+
+        mBlackImage = new BufferedImage(640, 480, 1);
+        for (int i = 0; i < mBlackImage.getWidth(); ++i) {
+            for (int j = 0; j < mBlackImage.getHeight(); ++j) {
+                mBlackImage.setRGB(i, j, Color.black.getRGB());
+            }
+        }
+
         dialStatusChanged(DialStatus.IDLE);
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             dialStatusChanged(n);
         });
     }
-    
+
     public void setClient(Client client) {
         mClient = client;
         loadAll();
     }
-    
+
     private void loadAll() {
         if (mClient != null && mClient.getUserData() != null) {
             userName.setVisible(true);
@@ -84,80 +90,81 @@ public class VideoCallController implements Initializable {
             userName.setVisible(false);
         }
     }
-    
-    public void acceptCallDialog(final Client client) {
-        Platform.runLater(() -> {
-            // set current client
-            setClient(client);
-            Core.instance().main().selectVideoCall();
 
-            // create the custom dialog.
-            Dialog<Boolean> dialog = new Dialog<>();
-            dialog.setTitle("Incoming Call!");
-            dialog.setHeaderText(userName.getText());
-            dialog.setContentText(userName.getText() + " is calling...\n"
-                    + "Do you want to accept this call?");
+    public boolean acceptCallDialog(final Client client) {
+        // set current client
+        setClient(client);
+        Core.instance().main().selectVideoCall();
 
-            // set the icon 
-            dialog.setGraphic(new ImageView(userPhoto.getImage()));
+        // create the custom dialog.
+        Dialog<Boolean> dialog = new Dialog<>();
+        dialog.setTitle("Incoming Call!");
+        dialog.setHeaderText(userName.getText());
+        dialog.setContentText(userName.getText() + " is calling...\n"
+                + "Do you want to accept this call?");
 
-            // set the button types.
-            ButtonType acceptButton = new ButtonType("Accept", ButtonData.OK_DONE);
-            ButtonType declineButton = new ButtonType("Decline", ButtonData.CANCEL_CLOSE);
-            dialog.getDialogPane().getButtonTypes().addAll(acceptButton, declineButton);
+        // set the icon 
+        dialog.setGraphic(new ImageView(userPhoto.getImage()));
 
-            // define result converter 
-            dialog.setResultConverter(dialogButton -> {
-                return dialogButton == acceptButton;
-            });
+        // set the button types.
+        ButtonType acceptButton = new ButtonType("Accept", ButtonData.OK_DONE);
+        ButtonType declineButton = new ButtonType("Decline", ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(acceptButton, declineButton);
 
-            // return the result
-            Optional<Boolean> result = dialog.showAndWait();
-            result.ifPresent((consumer) -> {
-                Core.instance().dialer().informAcceptance(consumer);
-            });
+        // define result converter 
+        dialog.setResultConverter(dialogButton -> {
+            return dialogButton == acceptButton;
         });
+
+        // return the result
+        Optional<Boolean> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return false;
     }
-    
+
     public ImageView getViewer() {
         return videoImage;
     }
-    
+
     public void dialStatusChanged(DialStatus status) {
         Platform.runLater(() -> {
-            // set dial image
-            startButton.setVisible(status == DialStatus.IDLE);
-            stopButton.setVisible(status != DialStatus.IDLE);
-            // set video image
-            if (status == DialStatus.DIALING) {
-                InputStream is = getClass().getResourceAsStream("/img/calling.gif");
-                videoImage.setImage(new Image(is));
-            } else {
-                videoImage.setImage(SwingFXUtils.toFXImage(mBlackImage, null));
-                videoImage.setImage(null);
+            try {
+                // set dial image
+                startButton.setVisible(status == DialStatus.IDLE);
+                stopButton.setVisible(status != DialStatus.IDLE);
+                // set video image
+                if (status == DialStatus.DIALING) {
+                    InputStream is = getClass().getResourceAsStream("/img/calling.gif");
+                    videoImage.setImage(new Image(is));
+                } else {
+                    videoImage.setImage(SwingFXUtils.toFXImage(mBlackImage, null));
+                    videoImage.setImage(null);
+                }
+            } catch (Exception ex) {
             }
         });
     }
-    
+
     @FXML
     private void startVideoCall(ActionEvent evt) {
-        Core.instance().dialer().dialClientAsync(mClient, (Exception ex) -> {
-            if (ex != null) {
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Call failed!");
-                    alert.setHeaderText("Call failed!");
-                    alert.setContentText("ERROR: " + ex.getMessage());
-                    alert.showAndWait();
-                });
-            }
-            return null;
-        });
+        try {
+            Core.instance().dialer().dial(mClient);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Call failed!");
+                alert.setHeaderText("Something went wrong...");
+                alert.setContentText("ERROR: " + ex.getMessage());
+                alert.showAndWait();
+            });
+        }
     }
-    
+
     @FXML
     private void endVideoCall(ActionEvent evt) {
-        Core.instance().dialer().endCall(true);
+        Core.instance().dialer().endCall();
     }
-    
+
 }

@@ -94,9 +94,8 @@ public class Client extends TCPClient {
      * @param toSent Message to be sent
      * @return True if success, false otherwise.
      */
-    public boolean sendMessage(Message toSent) {
-        Object result = request(ConnectFor.MESSAGE, toSent);
-        return (result instanceof Boolean) ? (boolean) result : false;
+    public Exception sendMessage(Message toSent) {
+        return (Exception) request(ConnectFor.MESSAGE, toSent);
     }
 
     //////////////////////////////////////////////////////////////////////////// 
@@ -157,38 +156,15 @@ public class Client extends TCPClient {
      *
      * @return
      */
-    public boolean requestSlot() {
-        Object result = request(ConnectFor.DIAL);
-        return (result instanceof Boolean) ? (boolean) result : false;
-    }
-
-    /**
-     * Request for stream server port address for image
-     *
-     * @return
-     */
-    public int getImagePort() {
-        Object result = request(ConnectFor.IMAGE_PORT);
-        return (result instanceof Integer) ? (int) result : -1;
-    }
-
-    /**
-     * Request for stream server port address for audio
-     *
-     * @return
-     */
-    public int getAudioPort() {
-        Object result = request(ConnectFor.AUDIO_PORT);
-        return (result instanceof Integer) ? (int) result : -1;
+    public Object requestSlot() {
+        return request(ConnectFor.DIAL);
     }
 
     /**
      * Request client to end an ongoing call
      */
     public void endCall() {
-        new Thread(() -> {
-            request(ConnectFor.END_CALL);
-        }).start();
+        request(ConnectFor.END_CALL);
     }
 
 }

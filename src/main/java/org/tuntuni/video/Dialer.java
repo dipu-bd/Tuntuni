@@ -19,7 +19,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.util.Callback;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Logs;
@@ -30,154 +29,91 @@ import org.tuntuni.models.Logs;
  */
 public class Dialer {
 
-    private ObjectProperty<DialStatus> mStatus;
+    public static final int IMAGE_PORT = 44731;
+    public static final int AUDIO_PORT = 44732;
 
-    private final BooleanProperty mSlot;
-    private volatile int mAcceptance = -1;
-
+    private final ObjectProperty<DialStatus> mStatus;
     private Client mClient;
     private VideoPlayer mPlayer;
     private VideoRecorder mRecorder;
 
     public Dialer() {
         mStatus = new SimpleObjectProperty<>(DialStatus.IDLE);
-        mSlot = new SimpleBooleanProperty(false);
     }
 
-    public void dialClient(Client client) throws DialerException {
-        mStatus.set(DialStatus.DIALING);
-        mClient = client;
-        // occupy my slot
-        if (!occupySlot()) {
-            throw new DialerException("Your are already in a call");
-        }
-        // occupy a slot in client
-        mAcceptance = -1;
-        client.requestSlot();
-        waitForAcceptance();
-        if (mAcceptance != 0) {
-            throw new DialerException("The call was rejected");
-        }
-        // start communication
-        startComs();
-    }
-
-    public void receiveCall(Client client) throws DialerException {
-        mClient = client;
-        // check if my slot is available
-        if (mSlot.get()) {
-            throw new DialerException("Already in a call");
-        }
-        // request user to accept the call
-        mAcceptance = -1;
-        Core.instance().videocall().acceptCallDialog(mClient);
-        waitForAcceptance();
-        if (mAcceptance != 0) {
-            throw new DialerException("Call was rejected");
-        }
-        // occupy my slot
-        if (!occupySlot()) {
-            throw new DialerException("Could not occupy call slot");
-        }
-        // start communication        
-        startComs();
-    }
-
-    public void endCall(boolean recursive) {
-        mStatus.set(DialStatus.IDLE);
+    public void dial(Client client) throws DialerException {
         try {
-            stopComs();
-            freeSlot();
-            if (!recursive) {
-                mClient.endCall();
+            mClient = client;
+            // occupy my slot
+            if (mStatus.get() != DialStatus.IDLE) {
+                throw new DialerException("Your are already in a call");
             }
-            mClient = null;
+            // occupy a slot in client 
+            mStatus.set(DialStatus.DIALING);
+            DialerException ex = (DialerException) client.requestSlot();
+            if (ex != null) {
+                throw ex;
+            }
+            // start communication
+            startComs();
         } catch (Exception ex) {
-            Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
+            stopComs();
+            throw ex;
+        }
+    }
+
+    public void receive(Client client) throws DialerException {
+        try {
+            mClient = client;
+            // check if my slot is available
+            if (mStatus.get() != DialStatus.IDLE) {
+                throw new DialerException("Your are already in a call");
+            }
+            // request user to accept the call 
+            mStatus.set(DialStatus.DIALING);
+            boolean res = Core.instance().videocall().acceptCallDialog(mClient);
+            if (!res) {
+                throw new DialerException("Call was rejected");
+            }
+            // start communication        
+            startComs();
+        } catch (Exception ex) {
+            stopComs();
+            throw ex;
+        }
+    }
+
+    public void stop() {
+        stopComs();
+        mClient = null;
+        mStatus.set(DialStatus.IDLE);
+    }
+
+    public void endCall() {
+        if (mClient != null && mStatus.get() != DialStatus.IDLE) {
+            stop();
+            new Thread(() -> mClient.endCall()).start();
         }
     }
 
     public boolean endCall(Client client) {
         if (client != null && mClient != null
                 && client.getHostString().equals(mClient.getHostString())) {
-
-            endCall(false);
+            stop();
             return true;
         }
         return false;
     }
 
-    private void waitForAcceptance() throws DialerException {
-        try {
-            // wait 30 sec to accept the call
-            for (int i = 0; i < 300; ++i) {
-                if (mAcceptance != -1) {
-                    break;
-                }
-                Thread.sleep(100);
-            }
-        } catch (InterruptedException ex) {
-            throw new DialerException("Call request Failure. ERROR: " + ex.getMessage());
-        }
-    }
-
-    public void dialClientAsync(final Client client, Callback<Exception, Void> callback) {
-        Thread t = new Thread(() -> {
-            try {
-                dialClient(client);
-                callback.call(null);
-            } catch (Exception ex) {
-                callback.call(ex);
-            }
-        });
-        t.setDaemon(true);
-        t.start();
-    }
-
-    public void receiveCallAsync(final Client client, Callback<Exception, Void> callback) {
-        Thread t = new Thread(() -> {
-            try {
-                receiveCall(client);
-                callback.call(null);
-            } catch (Exception ex) {
-                callback.call(ex);
-            }
-        });
-        t.setDaemon(true);
-        t.start();
-    }
-
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-    private boolean occupySlot() {
-        if (mSlot.get()) {
-            return false;
-        }
-        mSlot.set(true);
-        return true;
-    }
-
-    private void freeSlot() {
-        mSlot.set(false);
-    }
-
-    public void informAcceptance(boolean result) {
-        mAcceptance = result ? 0 : 1;
-    }
-
     private void startComs() throws DialerException {
         try {
-            mPlayer = new VideoPlayer(
-                    Core.instance().videocall().getViewer());
+            mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
             mPlayer.start();
 
-            mRecorder = new VideoRecorder(
-                    mClient.getAddress().getAddress(),
-                    mClient.getImagePort(), mClient.getAudioPort());
+            mRecorder = new VideoRecorder(mClient.getAddress().getAddress());
             mRecorder.start();
-
-            mStatus.set(DialStatus.BUSY);
-
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to start coms. {0}", ex);
             throw new DialerException("Failed to start communication.");

@@ -29,7 +29,8 @@ public abstract class ImageServer extends StreamServer {
 
     public Thread mServerThread;
 
-    public ImageServer() {
+    public ImageServer(int port) {
+        super(port);
     }
 
     @Override

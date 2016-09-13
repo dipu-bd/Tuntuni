@@ -17,9 +17,7 @@ package org.tuntuni.video;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.concurrent.Callable;
 import javafx.scene.image.ImageView;
-import org.tuntuni.models.Logs;
 import org.tuntuni.video.audio.AudioPlayer;
 import org.tuntuni.video.image.ImagePlayer;
 
@@ -33,8 +31,8 @@ public class VideoPlayer {
     private final AudioPlayer mAudioPlayer;
 
     public VideoPlayer(ImageView viewer) {
-        mImagePlayer = new ImagePlayer(viewer);
-        mAudioPlayer = new AudioPlayer();
+        mImagePlayer = new ImagePlayer(Dialer.IMAGE_PORT, viewer);
+        mAudioPlayer = new AudioPlayer(Dialer.AUDIO_PORT);
     }
 
     public void start() throws SocketException, IOException {
@@ -57,31 +55,11 @@ public class VideoPlayer {
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //  
     public int getImagePort() {
-        return portGetter(() -> {
-            return mImagePlayer.getPort();
-        });
+        return mImagePlayer.getPort();
     }
 
     public int getAudioPort() {
-        return portGetter(() -> {
-            return mAudioPlayer.getPort();
-        });
+        return mAudioPlayer.getPort();
     }
 
-    private int portGetter(Callable<Integer> callable) {
-        try {
-            // wait 1500 milliseconds
-            for (int i = 0; i < 30; ++i) {
-                int port = callable.call();
-                if (port != -1) {
-                    return port;
-                }
-                Thread.sleep(50);
-            }
-        } catch (Exception ex) {
-            Logs.error(getClass(), "Could not get port", ex);
-        }
-        return -1;
-    }
- 
 }

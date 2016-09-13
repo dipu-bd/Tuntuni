@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.LinkedList;
-import jdk.jfr.events.SocketWriteEvent;
 import org.tuntuni.models.Logs;
 
 /**
@@ -46,18 +45,30 @@ public abstract class StreamClient {
 
     public abstract String getName();
 
-    public void connect(InetAddress address, int port) {
+    public void connect(InetAddress address, int port) throws IOException {
         mAddress = new InetSocketAddress(address, port);
+
+        try {
+            mClient = new Socket();
+            mClient.connect(mAddress);
+            mOutput = new ObjectOutputStream(mClient.getOutputStream());
+            Logs.info(getName(), "Connected to {0}", mAddress);
+        } catch (IOException ex) {
+            Logs.error(getName(), "Connection failure. {0}", ex);
+            throw ex;
+        }
+
         mClientThread = new Thread(() -> run());
         mClientThread.setName(getName());
         mClientThread.setDaemon(true);
         mClientThread.start();
+
     }
 
     public void close() {
         try {
             mClientThread.interrupt();
-            if (mClient != null) { 
+            if (mClient != null) {
                 mClient.close();
             }
         } catch (Exception ex) {
@@ -68,25 +79,8 @@ public abstract class StreamClient {
             mSendQueue.clear();
         }
     }
-
-    private boolean makeConnection() {
-        try {
-            mClient = new Socket();
-            mClient.connect(mAddress);
-            mOutput = new ObjectOutputStream(mClient.getOutputStream());
-            Logs.info(getName(), "Connected to {0}", mAddress);
-            return true;
-        } catch (IOException ex) {
-            Logs.error(getName(), "Connection failure. {0}", ex);
-            return false;
-        }
-    }
-
-    private void run() {
-        // Connect with the server
-        if (!makeConnection()) {
-            return;
-        }
+    
+    private void run() { 
         // Run consecutive IO operations
         while (isConnected()) {
             // Wait for data to become available

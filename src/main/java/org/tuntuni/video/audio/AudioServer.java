@@ -31,7 +31,8 @@ public abstract class AudioServer extends StreamServer {
 
     public Thread mServerThread;
 
-    public AudioServer() {
+    public AudioServer(int port) {
+        super(port);
     }
 
     @Override

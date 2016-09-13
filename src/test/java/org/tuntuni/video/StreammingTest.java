@@ -53,14 +53,12 @@ public class StreammingTest extends Application {
         System.out.println(">>> starting player");
         mPlayer = new VideoPlayer(mViewer);
         mPlayer.start();
-        System.out.println("Image port = " + mPlayer.getImagePort());
-        System.out.println("Audio port = " + mPlayer.getAudioPort());
+
+        System.out.println("Image port = " + mPlayer.getImagePort() + "{" + Dialer.IMAGE_PORT + "}");
+        System.out.println("Audio port = " + mPlayer.getAudioPort() + "{" + Dialer.AUDIO_PORT + "}");
 
         System.out.println(">>> starting recorder");
-        mRecorder = new VideoRecorder(
-                InetAddress.getLocalHost(),
-                mPlayer.getImagePort(),
-                mPlayer.getAudioPort());
+        mRecorder = new VideoRecorder(InetAddress.getLocalHost());
         mRecorder.start();
     }
 
@@ -71,7 +69,7 @@ public class StreammingTest extends Application {
     }
 
     @Test
-    public void test() throws InterruptedException, Exception {  
+    public void test() throws InterruptedException, Exception {
     }
 
     @Override
@@ -82,15 +80,14 @@ public class StreammingTest extends Application {
         root.setCenter(mViewer);
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        
+
         primaryStage.show();
 
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             tearDown();
         });
-        
-        setUp();
 
+        setUp();
     }
 
 }

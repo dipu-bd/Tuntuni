@@ -21,7 +21,6 @@ package org.tuntuni.video;
  */
 public enum DialStatus {
     IDLE,
-    DIALING,
-    BUSY,    
-    ACCEPTING;
+    BUSY,
+    DIALING;     
 }

@@ -31,7 +31,8 @@ public class AudioPlayer extends AudioServer {
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
 
-    public AudioPlayer() {
+    public AudioPlayer(int port) {
+        super(port);
     }
 
     /**
@@ -48,7 +49,7 @@ public class AudioPlayer extends AudioServer {
             mSourceLine.open(VideoFormat.getAudioFormat());
             mSourceLine.start();
         } catch (LineUnavailableException ex) {
-            Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
+            Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex); 
         }
     }
 

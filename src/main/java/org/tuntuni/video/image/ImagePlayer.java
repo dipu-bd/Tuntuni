@@ -34,7 +34,8 @@ public class ImagePlayer extends ImageServer {
     private BufferedImage mImage;
     private ConcurrentLinkedQueue<Image> mQueue;
 
-    public ImagePlayer(ImageView viewer) {
+    public ImagePlayer(int port, ImageView viewer) {
+        super(port);
         mViewer = viewer;
         mViewer.setSmooth(true);
         mQueue = new ConcurrentLinkedQueue<>();

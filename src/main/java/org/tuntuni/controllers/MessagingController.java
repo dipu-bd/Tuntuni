@@ -56,7 +56,6 @@ public class MessagingController implements Initializable {
     @FXML
     private ImageView userPhoto;
 
-
     private final double MINIMUM_HEIGHT = 70D;
     private final double MAXIMUM_HEIGHT = 150D;
 
@@ -76,9 +75,9 @@ public class MessagingController implements Initializable {
     private void loadAll() {
         errorLabel.setText("");
         messageText.clear();
-        
+
         // load user name and avatar 
-        if(mClient != null && mClient.getUserData() != null) {
+        if (mClient != null && mClient.getUserData() != null) {
             userName.setVisible(true);
             userName.setText(mClient.getUserData().getUserName());
             userPhoto.setImage(mClient.getUserData().getAvatar(
@@ -142,14 +141,19 @@ public class MessagingController implements Initializable {
 
         Message message = new Message();
         message.setText(text);
-        if (!mClient.sendMessage(message)) {
-            errorLabel.setText("Could not send message.");
-            return;
+        Exception ex = null;
+        try {
+            ex = mClient.sendMessage(message);
+        } catch (Exception e) {
+            ex = e;
         }
-
-        mClient.addMessage(message);
-        message.setClient(mClient);
-        messageText.clear();
+        if (ex != null) {
+            errorLabel.setText("Could not send message. Error: " + ex.getMessage());
+        } else {
+            mClient.addMessage(message);
+            message.setClient(mClient);
+            messageText.clear();
+        }
     }
 
     private void setTextAreaHeight() {

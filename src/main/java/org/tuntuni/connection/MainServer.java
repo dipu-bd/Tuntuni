@@ -20,6 +20,7 @@ import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
+import org.tuntuni.video.DialerException;
 
 /**
  * Extended by MainServer. It provides functions to deal with a request arrived
@@ -50,18 +51,12 @@ public class MainServer extends TCPServer {
                 return Core.instance().user().getState();
             case PROFILE: // send user data
                 return Core.instance().user().getData();
-            case IMAGE_PORT:
-                return Core.instance().dialer().player().getImagePort();
-            case AUDIO_PORT:
-                return Core.instance().dialer().player().getAudioPort();
             case MESSAGE: // a message arrived
                 return message(getClient(from), data);
             case DIAL:
                 return dial(getClient(from));
             case END_CALL:
                 return Core.instance().dialer().endCall(getClient(from));
-            case CALL_ACCEPTED:
-                Core.instance().dialer().informAcceptance((boolean) data[0]);
         }
         return null;
     }
@@ -74,31 +69,31 @@ public class MainServer extends TCPServer {
     public Object message(Client client, Object[] data) {
         // get client 
         if (client == null) {
-            return false;
+            return new Exception("The sender could not be recognized");
         }
         try {
             // get message
-            Message message = Message.class.cast(data[0]);
+            Message message = (Message) data[0];
             // add this message
             message.setReceiver(true);
             message.setClient(client);
             message.setTime(new Date());
             client.addMessage(message);
-            return true;
         } catch (Exception ex) {
-            // response failure
+            return ex;
         }
-        return false;
+        return null;
     }
 
     public Object dial(Client client) {
         if (client == null) {
-            return false;
+            return new DialerException("Could not recognize the caller");
         }
-        Core.instance().dialer().receiveCallAsync(client, (ex) -> {
-            client.request(ConnectFor.CALL_ACCEPTED, ex == null);
-            return null;
-        });
+        try {
+            Core.instance().dialer().receive(client);
+        } catch (Exception ex) {
+            return ex;
+        }
         return null;
     }
 }

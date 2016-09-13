@@ -20,8 +20,6 @@ import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.VideoFormat;
 
