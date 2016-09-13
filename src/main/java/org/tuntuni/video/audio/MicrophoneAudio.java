@@ -45,6 +45,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     @Override
     public void start() {
         try {
+            setMaxQueueSize(1);
             // start target line
             mTargetInfo = new DataLine.Info(
                     TargetDataLine.class, VideoFormat.getAudioFormat());

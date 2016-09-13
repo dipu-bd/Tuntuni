@@ -17,7 +17,6 @@ package org.tuntuni.video.audio;
 
 import java.io.EOFException;
 import java.io.IOException;
-import javafx.application.Platform;
 import org.tuntuni.connection.DataFrame;
 import org.tuntuni.connection.RTSPServer;
 import org.tuntuni.models.Logs;

@@ -24,6 +24,10 @@ import org.tuntuni.connection.RTSPClient;
  */
 public abstract class ImageSource extends RTSPClient {
 
+    public ImageSource() {
+        super(5);
+    }
+
     /**
      * Gets the name of the image source
      *
@@ -43,7 +47,7 @@ public abstract class ImageSource extends RTSPClient {
      * Close the image source
      */
     public abstract void stop();
- 
+
     /**
      * Gets the view size or dimension of captured images
      *
@@ -56,15 +60,15 @@ public abstract class ImageSource extends RTSPClient {
      *
      * @param size
      */
-    public abstract void setSize(Dimension size); 
-    
+    public abstract void setSize(Dimension size);
+
     /**
      * Checks if the source is open
      *
      * @return
      */
     public abstract boolean isOpen();
-    
+
     @Override
     public String toString() {
         return getName();

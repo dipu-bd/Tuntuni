@@ -20,8 +20,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.LinkedList;
-import javafx.application.Platform;
+import java.util.LinkedList; 
 import org.tuntuni.models.Logs;
 
 /**
@@ -38,8 +37,8 @@ public abstract class RTSPClient {
     private final LinkedList<Object> mSendQueue;
     private int maxQueueSize;
 
-    public RTSPClient() {
-        maxQueueSize = 5;
+    public RTSPClient(int maxQueue) {
+        maxQueueSize = maxQueue;
         mSendQueue = new LinkedList<>();
     }
 

@@ -17,8 +17,8 @@ package org.tuntuni.video.image;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -28,21 +28,24 @@ import javafx.scene.image.ImageView;
  */
 public class ImagePlayer extends ImageServer {
 
+    static final int QUEUE_SIZE = 7;
+
     private final ImageView mViewer;
     private BufferedImage mImage;
+    private ConcurrentLinkedQueue<Image> mQueue;
 
     public ImagePlayer(ImageView viewer) {
         mViewer = viewer;
         mViewer.setSmooth(true);
+        mQueue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
-    public void displayImage(ImageFrame image) {
-        if (mViewer != null && image != null) {
-            applyImage(image.getBufferedImage());
-            final Image fximg = SwingFXUtils.toFXImage(mImage, null);
+    public void displayImage(ImageFrame frame) {
+        mQueue.add(frame.getImage());
+        if (mViewer != null && mQueue.size() > QUEUE_SIZE) {
             Platform.runLater(() -> {
-                mViewer.setImage(fximg);
+                mViewer.setImage(mQueue.remove());
             });
         }
     }

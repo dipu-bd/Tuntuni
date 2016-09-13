@@ -32,9 +32,9 @@ public abstract class VideoFormat {
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;
     //sampleSizeInBits - the number of bits in each sample
-    public static final int SAMPLE_SIZE = 8;
+    public static final int SAMPLE_SIZE = 16;
     //channels - the number of channels (1 for mono, 2 for stereo, and so on)
-    public static final int CHANNEL = 1;
+    public static final int CHANNEL = 2;
     //signed - indicates whether the data is signed or unsigned
     public static final boolean SIGNED = true;
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order

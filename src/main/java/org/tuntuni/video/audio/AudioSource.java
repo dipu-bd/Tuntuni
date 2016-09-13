@@ -22,7 +22,11 @@ import org.tuntuni.connection.RTSPClient;
  *
  */
 public abstract class AudioSource extends RTSPClient {
-
+    
+    public AudioSource() {
+        super(1);
+    }
+     
     /**
      * Gets the name of the source.
      *
