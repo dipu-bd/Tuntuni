@@ -30,6 +30,7 @@
 
 /* HIDE Tab pane header */
 .tab-pane {
+    -fx-tab-min-height: 0; 
     -fx-tab-max-height: 0; 
 } 
 .tab-pane .tab-header-area {

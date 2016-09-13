@@ -15,6 +15,7 @@
  */
 package org.tuntuni.controllers;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
@@ -122,7 +123,7 @@ public class VideoCallController implements Initializable {
         Platform.runLater(() -> {
             // set dial image
             startButton.setVisible(status == DialStatus.IDLE);
-            stopButton.setVisible(status == DialStatus.BUSY);
+            stopButton.setVisible(status != DialStatus.IDLE);
             // set video image
             if (status == DialStatus.DIALING) {
                 InputStream is = getClass().getResourceAsStream("/img/calling.gif");
