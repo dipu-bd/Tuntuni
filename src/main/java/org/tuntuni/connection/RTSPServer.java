@@ -66,11 +66,11 @@ public abstract class RTSPServer {
         return mServer == null ? -1 : mServer.getLocalPort();
     }
 
-    public DataFrame receive() throws IOException, ClassNotFoundException {
+    public Object receive() throws IOException, ClassNotFoundException {
         if (!isConnected()) {
             accept();
         }
-        return (DataFrame) mInput.readObject();
+        return mInput.readObject();
     }
 
     private void accept() throws IOException {

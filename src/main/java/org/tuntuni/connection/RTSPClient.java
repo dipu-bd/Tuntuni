@@ -34,7 +34,7 @@ public abstract class RTSPClient {
     private ObjectOutputStream mOutput;
     private Thread mClientThread;
     private InetSocketAddress mAddress;
-    private final LinkedList<DataFrame> mSendQueue;
+    private final LinkedList<Object> mSendQueue;
     private int maxQueueSize;
     private int minQueueSize;
 
@@ -74,11 +74,11 @@ public abstract class RTSPClient {
             return;
         }
 
-        Logs.info(getName(), "Connected @ ", mAddress);
+        Logs.info(getName(), "Connected @ {0}", mAddress);
         // Run consecutive IO operations
         while (true) {
             // Wait for data to become available
-            DataFrame data = getNext();
+            Object data = getNext();
             // Check validity
             if (data == null) {
                 continue;
@@ -88,7 +88,7 @@ public abstract class RTSPClient {
                 mOutput.writeObject(data);
                 mOutput.flush();
             } catch (IOException ex) {
-                Logs.error(getName(), "Write failure!", ex);
+                Logs.error(getName(), "Write failure! {0}", ex);
             }
         }
     }
@@ -105,7 +105,7 @@ public abstract class RTSPClient {
         }
     }
 
-    private DataFrame getNext() {
+    private Object getNext() {
         synchronized (mSendQueue) {
             while (mSendQueue.size() < minQueueSize) {
                 try {
@@ -118,7 +118,7 @@ public abstract class RTSPClient {
         }
     }
 
-    public void send(DataFrame frame) {
+    public void send(Object frame) {
         // check if connected
         if (!isConnected()) {
             return;

@@ -25,12 +25,14 @@ import javax.sound.sampled.AudioFormat;
  */
 public abstract class VideoFormat {
 
-    // frame width
-    public static final int WIDTH = 176;
+    // capture width
+    public static final int WIDTH = 320;
+    // capture height
+    public static final int HEIGHT = 240;
+    // frame width 
+    public static final int FRAME_WIDTH = 80;
     // frame height
-    public static final int HEIGHT = 144;
-    // image type
-    public static final int TYPE = BufferedImage.TYPE_INT_ARGB;
+    public static final int FRAME_HEIGHT = 80;
 
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;
