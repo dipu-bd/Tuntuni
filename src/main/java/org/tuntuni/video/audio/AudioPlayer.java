@@ -67,9 +67,9 @@ public class AudioPlayer extends AudioServer {
     }
 
     @Override
-    public void playAudio(byte[] data) { 
-            // play the audio data  
-            mSourceLine.write(data, 0, data.length); 
+    public void playAudio(byte[] data) {
+        // play the audio data   
+        mSourceLine.write(data, 0, data.length); 
     }
 
 }

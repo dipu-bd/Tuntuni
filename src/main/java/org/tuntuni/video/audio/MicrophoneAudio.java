@@ -45,7 +45,6 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     @Override
     public void start() {
         try {
-            setMaxQueueSize(1);
             // start target line
             mTargetInfo = new DataLine.Info(
                     TargetDataLine.class, VideoFormat.getAudioFormat());
@@ -85,7 +84,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     // run audio thread task
     @Override
     public void run() {
-        // available: 2 5 6 7 9 10 15 25 
+        // available: 1 2 5 6 7 9 10 15 25 441 882
         int size = mTargetLine.getBufferSize() / 5;
         byte[] buffer = new byte[size];
         Logs.info(getName(), "Line opened with buffer size = {0}\n", size);

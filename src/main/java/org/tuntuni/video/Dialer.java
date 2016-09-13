@@ -49,16 +49,15 @@ public class Dialer {
         mClient = client;
         // occupy my slot
         if (!occupySlot()) {
-            throw new DialerException("Slot in your pc is unavailable");
+            throw new DialerException("Your are already in a call");
         }
         // occupy a slot in client
         mAcceptance = -1;
         client.requestSlot();
         waitForAcceptance();
         if (mAcceptance != 0) {
-            throw new DialerException("Slot in client pc is unavailable");
+            throw new DialerException("The call was rejected");
         }
-
         // start communication
         startComs();
     }
@@ -67,30 +66,31 @@ public class Dialer {
         mClient = client;
         // check if my slot is available
         if (mSlot.get()) {
-            throw new DialerException("Slot is already occupied");
+            throw new DialerException("Already in a call");
         }
         // request user to accept the call
         mAcceptance = -1;
         Core.instance().videocall().acceptCallDialog(mClient);
         waitForAcceptance();
         if (mAcceptance != 0) {
-            throw new DialerException("The call was rejected by the user.");
+            throw new DialerException("Call was rejected");
         }
         // occupy my slot
         if (!occupySlot()) {
-            throw new DialerException("Slot in your pc is unavailable");
+            throw new DialerException("Could not occupy call slot");
         }
         // start communication        
         startComs();
-        mStatus.set(DialStatus.BUSY);
     }
 
-    public void endCall() {
+    public void endCall(boolean recursive) {
         mStatus.set(DialStatus.IDLE);
         try {
             stopComs();
             freeSlot();
-            mClient.endCall();
+            if (!recursive) {
+                mClient.endCall();
+            }
             mClient = null;
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to end call. Error: {0}", ex);
@@ -101,7 +101,7 @@ public class Dialer {
         if (client != null && mClient != null
                 && client.getHostString().equals(mClient.getHostString())) {
 
-            endCall();
+            endCall(false);
             return true;
         }
         return false;
@@ -165,23 +165,23 @@ public class Dialer {
         mAcceptance = result ? 0 : 1;
     }
 
-    private void startComs() {
-        new Thread(() -> {
-            try {
-                mPlayer = new VideoPlayer(
-                        Core.instance().videocall().getViewer());
-                mPlayer.start();
+    private void startComs() throws DialerException {
+        try {
+            mPlayer = new VideoPlayer(
+                    Core.instance().videocall().getViewer());
+            mPlayer.start();
 
-                mRecorder = new VideoRecorder(
-                        mClient.getAddress().getAddress(),
-                        mClient.getImagePort(), mClient.getAudioPort());
-                mRecorder.start();
+            mRecorder = new VideoRecorder(
+                    mClient.getAddress().getAddress(),
+                    mClient.getImagePort(), mClient.getAudioPort());
+            mRecorder.start();
 
-            } catch (Exception ex) {
-                endCall();
-                Logs.error(getClass(), "Failed to start communication modules. Error: {0}", ex);
-            }
-        }).start();
+            mStatus.set(DialStatus.BUSY);
+
+        } catch (Exception ex) {
+            Logs.error(getClass(), "Failed to start coms. {0}", ex);
+            throw new DialerException("Failed to start communication.");
+        }
     }
 
     private void stopComs() {

@@ -186,7 +186,9 @@ public class Client extends TCPClient {
      * Request client to end an ongoing call
      */
     public void endCall() {
-        request(ConnectFor.END_CALL);
+        new Thread(() -> {
+            request(ConnectFor.END_CALL);
+        }).start();
     }
 
 }

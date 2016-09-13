@@ -23,5 +23,5 @@ public enum DialStatus {
     IDLE,
     DIALING,
     BUSY,    
-    ON_HOLD;
+    ACCEPTING;
 }

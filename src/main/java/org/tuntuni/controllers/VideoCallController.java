@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -41,11 +42,10 @@ import org.tuntuni.video.DialStatus;
  * Controller for video calling. It shows video in background.
  */
 public class VideoCallController implements Initializable {
-
+    
     private Client mClient;
     BufferedImage mBlackImage;
-     
-
+    
     @FXML
     private Button startButton;
     @FXML
@@ -56,24 +56,24 @@ public class VideoCallController implements Initializable {
     private Label userName;
     @FXML
     private ImageView videoImage;
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().videocall(this);
         
-        mBlackImage = new BufferedImage(640, 480, 1); 
+        mBlackImage = new BufferedImage(640, 480, 1);        
         
         dialStatusChanged(DialStatus.IDLE);
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             dialStatusChanged(n);
         });
     }
-
+    
     public void setClient(Client client) {
         mClient = client;
         loadAll();
     }
-
+    
     private void loadAll() {
         if (mClient != null && mClient.getUserData() != null) {
             userName.setVisible(true);
@@ -84,7 +84,7 @@ public class VideoCallController implements Initializable {
             userName.setVisible(false);
         }
     }
-
+    
     public void acceptCallDialog(final Client client) {
         Platform.runLater(() -> {
             // set current client
@@ -118,11 +118,11 @@ public class VideoCallController implements Initializable {
             });
         });
     }
-
+    
     public ImageView getViewer() {
         return videoImage;
     }
-
+    
     public void dialStatusChanged(DialStatus status) {
         Platform.runLater(() -> {
             // set dial image
@@ -133,11 +133,12 @@ public class VideoCallController implements Initializable {
                 InputStream is = getClass().getResourceAsStream("/img/calling.gif");
                 videoImage.setImage(new Image(is));
             } else {
+                videoImage.setImage(SwingFXUtils.toFXImage(mBlackImage, null));
                 videoImage.setImage(null);
             }
         });
     }
-
+    
     @FXML
     private void startVideoCall(ActionEvent evt) {
         Core.instance().dialer().dialClientAsync(mClient, (Exception ex) -> {
@@ -153,10 +154,10 @@ public class VideoCallController implements Initializable {
             return null;
         });
     }
-
+    
     @FXML
     private void endVideoCall(ActionEvent evt) {
-        Core.instance().dialer().endCall();
+        Core.instance().dialer().endCall(true);
     }
-
+    
 }
