@@ -16,7 +16,6 @@
 package org.tuntuni.video.image;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import org.tuntuni.connection.RTSPClient;
 
 /**

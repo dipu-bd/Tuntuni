@@ -20,6 +20,7 @@ import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
 import org.tuntuni.models.Logs;
+import org.tuntuni.video.VideoFormat;
 
 /**
  *
@@ -55,12 +56,12 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public void start() {
-        
+
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
-            //mWebcam.setViewSize(VideoFormat.getViewSize());
-            mWebcam.open(true);
+            mWebcam.setViewSize(VideoFormat.getViewSize());
             mWebcam.addWebcamListener(this);
+            mWebcam.open(true);
         } else {
             Logs.warning(getClass(), "Webcam not found");
         }
