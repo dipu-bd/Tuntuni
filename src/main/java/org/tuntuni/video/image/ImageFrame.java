@@ -13,17 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.image;
+package org.tuntuni.video.image;
 
-import javafx.scene.image.Image; 
+import java.awt.image.BufferedImage;
+import javafx.scene.image.Image;
+import org.tuntuni.connection.DataFrame;
+import org.tuntuni.util.Commons;
 
 /**
  *
  * @author dipu
  */
-public interface FrameListener {
+public class ImageFrame extends DataFrame {
 
-    public void frameUpdated(ImageFrame frame);
+    public ImageFrame() {
+        setBuffer(new byte[0]);
+    }
 
-    public void imageUpdated(Image image);
+    public ImageFrame(BufferedImage image) {
+        setBuffer(Commons.imageToBytes(image));
+    }
+
+    public Image getImage() {
+        return Commons.bytesToImage(getBuffer());
+    }
+
+    public BufferedImage getBufferedImage() {
+        return Commons.bytesToBufferedImage(getBuffer());
+    }
 }

@@ -15,46 +15,55 @@
  */
 package org.tuntuni.video.image;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.tuntuni.image.FrameBuilder;
-import org.tuntuni.image.FrameListener;
-import org.tuntuni.image.ImageFrame;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImagePlayer extends ImageServer implements FrameListener {
+public class ImagePlayer extends ImageServer {
 
-    private final ImageView mViewer;
-    private final FrameBuilder mFramer;
+    private final ImageView mViewer; 
+    private BufferedImage mImage;
 
     public ImagePlayer(ImageView viewer) {
         mViewer = viewer;
-        mFramer = new FrameBuilder();
-        mFramer.setListener(this);
+        mViewer.setSmooth(true); 
     }
 
     @Override
     public void displayImage(ImageFrame image) {
-        //mFramer.putFrame(image);
-        imageUpdated(SwingFXUtils.toFXImage(image.getImage(), null));
-    }
-
-    @Override
-    public void imageUpdated(Image image) {
         if (mViewer != null && image != null) {
+            applyImage(image.getBufferedImage());
             Platform.runLater(() -> {
-                mViewer.setImage(image);
+                mViewer.setImage(SwingFXUtils.toFXImage(mImage, null));
             });
         }
     }
 
-    @Override
-    public void frameUpdated(ImageFrame frame) {
+    private void applyImage(BufferedImage image) {
+        if (mImage == null
+                || mImage.getWidth() != image.getWidth()
+                || mImage.getHeight() != image.getHeight()) {
+            mImage = image;
+            return;
+        }
+        int p = 2, q = 1, s = p + q;
+        for (int x = 0; x < image.getWidth(); ++x) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                Color color1 = new Color(image.getRGB(x, y));
+                Color color2 = new Color(mImage.getRGB(x, y));
+                int r = (p * color1.getRed() + q * color2.getRed()) / s;
+                int g = (p * color1.getGreen() + q * color2.getGreen()) / s;
+                int b = (p * color1.getBlue() + q * color2.getBlue()) / s;
+                Color color3 = new Color(r, g, b);
+                mImage.setRGB(x, y, color3.getRGB());
+            }
+        }
     }
 
 }

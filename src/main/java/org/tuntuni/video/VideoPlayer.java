@@ -46,11 +46,11 @@ public class VideoPlayer {
     }
 
     public void stop() {
-        mImagePlayer.close();
         mImagePlayer.stop();
+        mImagePlayer.close();
 
-        mAudioPlayer.close();
         mAudioPlayer.stop();
+        mAudioPlayer.close();
     }
 
 //                                                                            //

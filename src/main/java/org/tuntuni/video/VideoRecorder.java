@@ -20,7 +20,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import org.tuntuni.video.audio.AudioSource;
 import org.tuntuni.video.audio.MicrophoneAudio;
-import org.tuntuni.video.image.ImageServer;
 import org.tuntuni.video.image.ImageSource;
 import org.tuntuni.video.image.WebcamCapture;
 

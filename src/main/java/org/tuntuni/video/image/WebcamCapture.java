@@ -19,10 +19,6 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
-import javafx.scene.image.Image;
-import org.tuntuni.image.FrameListener;
-import org.tuntuni.image.FrameBuilder;
-import org.tuntuni.image.ImageFrame;
 import org.tuntuni.models.Logs;
 import org.tuntuni.video.VideoFormat;
 
@@ -30,13 +26,11 @@ import org.tuntuni.video.VideoFormat;
  *
  * @author Sudipto Chandra
  */
-public class WebcamCapture extends ImageSource implements WebcamListener, FrameListener {
+public class WebcamCapture extends ImageSource implements WebcamListener {
 
     private Webcam mWebcam;
-    private FrameBuilder mFraming;
 
     public WebcamCapture() {
-
     }
 
     @Override
@@ -62,9 +56,6 @@ public class WebcamCapture extends ImageSource implements WebcamListener, FrameL
 
     @Override
     public void start() {
-        // start framing
-        mFraming = new FrameBuilder();
-        mFraming.setListener(this); 
         // start webcam
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
@@ -90,18 +81,8 @@ public class WebcamCapture extends ImageSource implements WebcamListener, FrameL
     }
 
     @Override
-    public void frameUpdated(ImageFrame frame) {
-        send(frame);
-    }
-
-    @Override
     public void webcamImageObtained(WebcamEvent we) {
-        send(new ImageFrame(0, 0, we.getImage()));
-        //mFraming.putImage(we.getImage());
-    }
-
-    @Override
-    public void imageUpdated(Image image) {
+        send(new ImageFrame(we.getImage()));
     }
 
     @Override

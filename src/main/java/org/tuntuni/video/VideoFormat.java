@@ -16,7 +16,6 @@
 package org.tuntuni.video;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import javax.sound.sampled.AudioFormat;
 
 /**
@@ -26,13 +25,9 @@ import javax.sound.sampled.AudioFormat;
 public abstract class VideoFormat {
 
     // capture width
-    public static final int WIDTH = 320;
+    public static final int WIDTH = 176;
     // capture height
-    public static final int HEIGHT = 240;
-    // frame width 
-    public static final int FRAME_WIDTH = 80;
-    // frame height
-    public static final int FRAME_HEIGHT = 80;
+    public static final int HEIGHT = 144;
 
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;
