@@ -45,7 +45,8 @@ import org.tuntuni.video.DialStatus;
 public class VideoCallController implements Initializable {
 
     private Client mClient;
-    BufferedImage mBlackImage;
+    Image mBlackImage;
+    Image mCallImage;
 
     @FXML
     private Button startButton;
@@ -60,19 +61,26 @@ public class VideoCallController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        buildImage();
         Core.instance().videocall(this);
-
-        mBlackImage = new BufferedImage(640, 480, 1);
-        for (int i = 0; i < mBlackImage.getWidth(); ++i) {
-            for (int j = 0; j < mBlackImage.getHeight(); ++j) {
-                mBlackImage.setRGB(i, j, Color.black.getRGB());
-            }
-        }
-
         dialStatusChanged(DialStatus.IDLE);
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             dialStatusChanged(n);
         });
+    }
+
+    private void buildImage() {
+        try {
+            BufferedImage image = new BufferedImage(640, 480, 1);
+            for (int i = 0; i < image.getWidth(); ++i) {
+                for (int j = 0; j < image.getHeight(); ++j) {
+                    image.setRGB(i, j, Color.black.getRGB());
+                }
+            }
+            mBlackImage = SwingFXUtils.toFXImage(image, null);
+            mCallImage = new Image(getClass().getResourceAsStream("/img/calling.gif"));
+        } catch (Exception ex) {
+        }
     }
 
     public void setClient(Client client) {
@@ -132,19 +140,23 @@ public class VideoCallController implements Initializable {
 
     public void dialStatusChanged(DialStatus status) {
         Platform.runLater(() -> {
-            try {
-                // set dial image
-                startButton.setVisible(status == DialStatus.IDLE);
-                stopButton.setVisible(status != DialStatus.IDLE);
-                // set video image
-                if (status == DialStatus.DIALING) {
-                    InputStream is = getClass().getResourceAsStream("/img/calling.gif");
-                    videoImage.setImage(new Image(is));
-                } else {
-                    videoImage.setImage(SwingFXUtils.toFXImage(mBlackImage, null));
-                    videoImage.setImage(null);
-                }
-            } catch (Exception ex) {
+            switch (status) {
+                case IDLE:
+                    videoImage.setImage(mBlackImage);
+                    startButton.setDisable(false);
+                    startButton.setMinWidth(150);
+                    stopButton.setMaxWidth(0);
+
+                case DIALING:
+                    videoImage.setImage(mCallImage);
+                    startButton.setDisable(true);
+                    startButton.setMinWidth(150);                    
+                    stopButton.setMaxWidth(0);
+
+                case BUSY:
+                    startButton.setMaxWidth(0);
+                    stopButton.setMinWidth(150);
+                    videoImage.setImage(mBlackImage);
             }
         });
     }

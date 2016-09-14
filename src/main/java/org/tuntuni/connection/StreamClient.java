@@ -50,7 +50,7 @@ public abstract class StreamClient {
 
         try {
             mClient = new Socket();
-            mClient.connect(mAddress);
+            mClient.connect(mAddress, 10_000);
             mOutput = new ObjectOutputStream(mClient.getOutputStream());
             Logs.info(getName(), "Connected to {0}", mAddress);
         } catch (IOException ex) {

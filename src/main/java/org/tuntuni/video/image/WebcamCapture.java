@@ -70,8 +70,7 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public void stop() {
-        if (mWebcam != null) {
-            mWebcam.removeWebcamListener(this);
+        if (mWebcam != null) { 
             mWebcam.close();
         }
     }
