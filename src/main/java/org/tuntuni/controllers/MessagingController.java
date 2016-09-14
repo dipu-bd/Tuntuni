@@ -133,7 +133,9 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     }
 
     public void notifyIncoming(Message message) {
-        if (message == null || message.getClient() == getClient()) {
+        if (message == null
+                || (message.getClient() == getClient()
+                && Core.instance().main().isMessaging())) {
             return;
         }
         Platform.runLater(() -> {
@@ -156,9 +158,9 @@ public class MessagingController implements Initializable, ListChangeListener<Me
 
     @FXML
     private void messageKeyPressed(KeyEvent evt) {
-        
+
         setTextAreaHeight();
-        
+
         if (evt.getCode() == KeyCode.ENTER) {
             evt.consume();
             if (evt.isShiftDown()) {

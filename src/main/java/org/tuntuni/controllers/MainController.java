@@ -24,13 +24,16 @@ import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import org.controlsfx.control.Notifications;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -134,18 +137,24 @@ public class MainController implements Initializable {
      */
     public void showUser(Client client) {
         if (client != null && !client.isConnected()) {
-            String msg = "Either " + client.getUserData().getUserName()
-                    + " closed his application, or there is a network failure.";
-            Platform.runLater(() -> {
-                Notifications.create()
-                        .title("User Disconnected!")
-                        .text(msg)
-                        .showError();
-            }); 
+            if (mSelected == client) {
+                disconnectNotice(client.getUserData().getUserName());
+            }
             client = null;
         }
         mSelected = client;
         refreshAll();
+    }
+
+    public void disconnectNotice(String name) {
+        Platform.runLater(() -> {
+            String msg = "Either " + name
+                    + " closed his application, or there is a network failure.";
+            Notifications.create()
+                    .title("User Disconnected!")
+                    .text(msg)
+                    .showError();
+        });
     }
 
     public Client selectedClient() {
@@ -157,9 +166,13 @@ public class MainController implements Initializable {
             Core.instance().profile().refresh();
             Core.instance().messaging().refresh();
             Core.instance().videocall().refresh();
-            if (mSelected == null && !isProfile()) {
-                selectProfile();
+            if (mSelected == null) {
+                if (!isProfile()) {
+                    selectProfile();
+                }
             }
+            // disable or enable tab header
+            ((Node) tabPane.lookup(".tab-header-area")).setDisable(mSelected == null);
         });
     }
 
@@ -178,7 +191,7 @@ public class MainController implements Initializable {
     }
 
     /**
-     * Select and show the videocall tab
+     * Select and show the video call tab
      */
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
