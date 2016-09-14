@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.components;
+package org.tuntuni.controllers;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Logs;
+import org.tuntuni.models.UserData;
 import org.tuntuni.util.Commons;
 
 /**
@@ -42,10 +42,11 @@ public class UserItem extends BorderPane {
             uitem.setClient(client);
             // return main object
             return uitem;
-        } catch (IOException ex) {
-            Logs.error("UserItem", null, ex);
-            return null;
+        } catch (IOException | NullPointerException ex) {
+            Logs.error("UserItem", "Failed to create instance. {0}", ex);
+            ex.printStackTrace();
         }
+        return null;
     }
 
     @FXML
@@ -57,26 +58,30 @@ public class UserItem extends BorderPane {
 
     private Client mClient;
 
-    private void refresh() {
-        if (mClient == null || mClient.getUserData() == null) {
-            return;
-        }
-        fullName.setText(mClient.getUserData().getUserName());
-        imageView.setImage(mClient.getUserData().getAvatar(
-                imageView.getFitWidth(), imageView.getFitHeight()));
-        String status = mClient.getUserData().getStatus();
-        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
-    }
-
-    private void setClient(Client client) {
-        mClient = client;
-        mClient.userdataProperty().addListener((ov, n, o)
-                -> Platform.runLater(() -> refresh()));
-        refresh();
-    }
-
     public Client getClient() {
         return mClient;
     }
 
+    private void setClient(Client client) throws NullPointerException {
+        mClient = client;
+        refresh(client.getUserData());
+        client.userdataProperty().addListener((ov, n, o) -> {
+            Platform.runLater(() -> refresh(n));
+        });
+    }
+
+    private void refresh(UserData data) {
+        if (data != null) {
+            fullName.setText(data.getUserName());
+            imageView.setImage(data.getAvatar(
+                    imageView.getFitWidth(), imageView.getFitHeight()));
+            String status = data.getStatus();
+            statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
+        }
+    }
+
+    @FXML
+    public void onMouseClicked() {
+        Core.instance().main().showUser(mClient);
+    }
 }

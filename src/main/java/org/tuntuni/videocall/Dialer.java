@@ -160,7 +160,7 @@ public class Dialer {
             mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
             mPlayer.start();
 
-            mRecorder = new VideoRecorder(mClient.getAddress().getAddress());
+            mRecorder = new VideoRecorder(mClient.getAddress());
             mRecorder.start();
             
             synchronized(mStatus) {

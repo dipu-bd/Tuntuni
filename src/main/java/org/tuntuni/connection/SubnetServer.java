@@ -31,7 +31,8 @@ import org.tuntuni.util.Commons;
 import org.tuntuni.util.SocketUtils;
 
 /**
- * http://michieldemey.be/blog/network-discovery-using-udp-broadcast/
+ *
+ * @author Sudipto Chandra
  */
 public class SubnetServer implements Runnable {
 
@@ -50,13 +51,6 @@ public class SubnetServer implements Runnable {
         mPort = port;
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
-        // bind a datagram socket to the given port address
-        try {
-            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
-            mSocket.setBroadcast(true);
-        } catch (UnknownHostException ex) {
-            Logs.warning(getClass(), ex.getMessage());
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -67,10 +61,14 @@ public class SubnetServer implements Runnable {
      */
     public void start() {
         try {
+            // bind a datagram socket to the given port address 
+            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
+            mSocket.setBroadcast(true);
+
             mServerThread = new Thread(this);
             mServerThread.setDaemon(true);
             mServerThread.start();
-        } catch (Exception ex) {
+        } catch (UnknownHostException | SocketException ex) {
             Logs.error(getClass(), "Failed to start. {0}", ex);
         }
     }
@@ -81,6 +79,7 @@ public class SubnetServer implements Runnable {
     public void stop() {
         if (mServerThread != null) {
             mServerThread.interrupt();
+            mSocket.close();
         }
     }
 
@@ -112,7 +111,11 @@ public class SubnetServer implements Runnable {
                 }
 
                 // add new client
-                addUser(packet.getAddress(), dd.getPort());
+                Thread t = new Thread(() -> {
+                    addUser(packet.getAddress(), dd.getPort());
+                });
+                t.setDaemon(true);
+                t.start();
 
             } catch (Exception ex) {
                 Logs.error(getClass(), "Error processing packet. {0}", ex);
@@ -148,21 +151,20 @@ public class SubnetServer implements Runnable {
 
     // add new client to the list
     private void addUser(final InetAddress address, final int port) {
-        Thread t = new Thread(() -> {
-            // check if already added
-            Client client = getClient(address);
-            if (client == null) {
-                // check the server for connection status and profile information first
-                client = new Client(new InetSocketAddress(address, port));
-                client.checkServer();
-                // add new user
-                mUserList.put(client.getIntegerAddress(), client);
-            } else {
-                // update user
-                client.updateAddress(new InetSocketAddress(address, port));
-            }
-        });
-        t.setDaemon(true);
-        t.start();
+        // check if already added
+        Client client = getClient(address);
+        InetSocketAddress sa = new InetSocketAddress(address, port);
+        if (client == null) {
+            // check the server for connection status and profile information first
+            client = new Client(sa);
+            // add new user
+            mUserList.put(client.getIntegerAddress(), client);
+
+        } else if (client.getSocketAddress() != sa) {
+            // update user
+            client.updateAddress(new InetSocketAddress(address, port));
+            // check if connected
+            client.checkServer();
+        }
     }
 }

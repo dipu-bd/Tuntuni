@@ -76,69 +76,106 @@ public class ProfileController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().profile(this);
         initialGridWidth = aboutGridPane.getColumnConstraints().get(1).getPrefWidth();
+
+        editNameButton.setVisible(false);
+        editStatusButton.setVisible(false);
+        editAboutMeButton.setVisible(false);
+        userName.textProperty().addListener((a, b, c) -> {
+            boolean show = isDefaultProfile()
+                    && !c.equals(Core.instance().user().username());
+            editNameButton.setVisible(show);
+        });
+        aboutMe.textProperty().addListener((a, b, c) -> {
+            boolean show = isDefaultProfile()
+                    && !c.equals(Core.instance().user().aboutme());
+            editAboutMeButton.setVisible(show);
+        });
+        statusText.textProperty().addListener((a, b, c) -> {
+            boolean show = isDefaultProfile()
+                    && !c.equals(Core.instance().user().status());
+            editStatusButton.setVisible(show);
+        });
     }
 
-    public synchronized void setClient(Client client) {
+    public void setClient(Client client) {
         mClient = client;
         refresh();
     }
 
     public void refresh() {
-        Platform.runLater(() -> loadAll());
+        Platform.runLater(() -> {
+            if (isDefaultProfile()) {
+                loadDefaultProfile();
+            } else {
+                loadClientProfile();
+            }
+        });
     }
 
-    private void loadAll() {
+    public boolean isDefaultProfile() {
+        return (mClient == null || !mClient.isConnected());
+    }
+
+    private void loadClientProfile() {
         // preliminary values
-        final boolean showme = (mClient == null);
         final double width = avatarImage.getFitWidth();
         final double height = avatarImage.getFitHeight();
+        final String user = mClient.getUserData().getUserName();
+        final String status = mClient.getUserData().getStatus();
+        final String about = mClient.getUserData().getAboutMe();
+        final Image avatar = mClient.getUserData().getAvatar(width, height);
 
         // display all data
-        if (showme) {
-            userName.setText(Core.instance().user().username());
-            statusText.setText(Core.instance().user().status());
-            aboutMe.setText(Core.instance().user().aboutme());
-            avatarImage.setImage(Core.instance().user().getAvatarImage(width, height));
-        } else {
-            userName.setText(mClient.getUserData().getUserName() + " ");
-            statusText.setText(mClient.getUserData().getStatus() + " ");
-            aboutMe.setText(mClient.getUserData().getAboutMe() + " ");
-            avatarImage.setImage(mClient.getUserData().getAvatar(width, height));
-        }
+        userName.setText(user + " ");
+        statusText.setText(status + " ");
+        aboutMe.setText(about + " ");
+        avatarImage.setImage(avatar);
+
+        // make things appear
+        ColumnConstraints cc = aboutGridPane.getColumnConstraints().get(1);
+        cc.setMinWidth(initialGridWidth);
+        cc.setMaxWidth(initialGridWidth);
+        //messageButton.setVisible(true);
+        //videoCallButton.setVisible(true);
 
         // set edit states of each controls
-        aboutMe.setEditable(showme);
-        userName.setEditable(showme);
-        statusText.setEditable(showme);
+        aboutMe.setEditable(false);
+        userName.setEditable(false);
+        statusText.setEditable(false);
+        userName.setCursor(Cursor.DEFAULT);
+        statusText.setCursor(Cursor.DEFAULT);
+        avatarButton.setCursor(Cursor.DEFAULT);
+    }
 
-        userName.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
-        statusText.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
-        avatarButton.setCursor(showme ? Cursor.TEXT : Cursor.DEFAULT);
+    private void loadDefaultProfile() {
+        // preliminary values
+        final double width = avatarImage.getFitWidth();
+        final double height = avatarImage.getFitHeight();
+        final String user = Core.instance().user().username();
+        final String status = Core.instance().user().status();
+        final String about = Core.instance().user().aboutme();
+        final Image avatar = Core.instance().user().getAvatarImage(width, height);
 
-        messageButton.setVisible(!showme);
-        videoCallButton.setVisible(!showme);
+        // display all data
+        userName.setText(user);
+        statusText.setText(status);
+        aboutMe.setText(about);
+        avatarImage.setImage(avatar);
+
+        // make things appear
         ColumnConstraints cc = aboutGridPane.getColumnConstraints().get(1);
-        cc.setMinWidth(showme ? 0 : initialGridWidth);
-        cc.setMaxWidth(showme ? 0 : initialGridWidth);
+        cc.setMinWidth(0);
+        cc.setMaxWidth(0);
+        //messageButton.setVisible(false);
+        //videoCallButton.setVisible(false);
 
-        // bind them all
-        editNameButton.setVisible(false);
-        userName.textProperty().addListener((a, b, c) -> {
-            editNameButton.setVisible(showme
-                    && !userName.getText().equals(Core.instance().user().username()));
-        });
-
-        editStatusButton.setVisible(false);
-        statusText.textProperty().addListener((a, b, c) -> {
-            editStatusButton.setVisible(showme
-                    && !statusText.getText().equals(Core.instance().user().status()));
-        });
-
-        editAboutMeButton.setVisible(false);
-        aboutMe.textProperty().addListener((a, b, c) -> {
-            editAboutMeButton.setVisible(showme
-                    && !aboutMe.getText().equals(Core.instance().user().aboutme()));
-        });
+        // set edit states of each controls
+        aboutMe.setEditable(true);
+        userName.setEditable(true);
+        statusText.setEditable(true);
+        userName.setCursor(Cursor.TEXT);
+        statusText.setCursor(Cursor.TEXT);
+        avatarButton.setCursor(Cursor.TEXT);
     }
 
     @FXML

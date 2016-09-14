@@ -21,6 +21,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.concurrent.Executors;
@@ -40,6 +41,7 @@ public class Subnet {
     public static final int SCAN_INTERVAL_MILLIS = 12_000;
 
     private DatagramSocket mSocket;
+    private DiscoveryData mDataToSend;
     private final ScheduledExecutorService mSchedular;
     private final HashSet<String> myAddress;
 
@@ -62,6 +64,7 @@ public class Subnet {
      * once every {@value #SCAN_INTERVAL_MILLIS} milliseconds. </p>
      */
     public void start() {
+        mDataToSend = new DiscoveryData(Core.instance().server().getPort());
         // start periodic check to get active user list        
         mSchedular.scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
                 SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
@@ -72,6 +75,8 @@ public class Subnet {
      */
     public void stop() {
         mSchedular.shutdownNow();
+        mDataToSend = new DiscoveryData(-1);
+        new Thread(performScan).start();
     }
 
     // to scan over whole subnet of all networks for active users
@@ -82,7 +87,7 @@ public class Subnet {
             // open a datagram socket at any random port
             mSocket = new DatagramSocket();
             mSocket.setBroadcast(true);
-
+            
             // get all network interfaces
             Enumeration<NetworkInterface> ne
                     = NetworkInterface.getNetworkInterfaces();
@@ -139,15 +144,10 @@ public class Subnet {
     // send broadcast request to given address domain
     private void sendBroadcastRequest(InterfaceAddress ia) {
         try {
-            //Logs.info(getClass(), "Sending a port request to ", ia.getBroadcast());
-
             // add to my address list
             myAddress.add(ia.getAddress().getHostAddress());
-
             // data to send
-            DiscoveryData dd = new DiscoveryData(Core.instance().server().getPort());
-            byte[] sendData = Commons.toBytes(dd);
-
+            byte[] sendData = Commons.toBytes(mDataToSend);
             // Send the broadcast package!
             for (int port : Core.PORTS) {
                 DatagramPacket sendPacket = new DatagramPacket(

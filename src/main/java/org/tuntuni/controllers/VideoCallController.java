@@ -64,7 +64,7 @@ public class VideoCallController implements Initializable {
         Core.instance().videocall(this);
         dialStatusChanged(DialStatus.IDLE);
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
-            dialStatusChanged(n);
+            Platform.runLater(() -> dialStatusChanged(n));
         });
     }
 
@@ -137,33 +137,31 @@ public class VideoCallController implements Initializable {
     }
 
     public void dialStatusChanged(DialStatus status) {
-        Platform.runLater(() -> {
-            switch (status) {
-                case IDLE:
-                    videoImage.setImage(mBlackImage);
-                    startButton.setText("Start Call");
-                    startButton.setDisable(false);
-                    stopButton.setText("End Call");
-                    stopButton.setDisable(true);
-                    break;
+        switch (status) {
+            case IDLE:
+                videoImage.setImage(mBlackImage);
+                startButton.setText("Start Call");
+                startButton.setDisable(false);
+                stopButton.setText("End Call");
+                stopButton.setDisable(true);
+                break;
 
-                case DIALING:
-                    videoImage.setImage(mCallImage);
-                    startButton.setText("Dialing...");
-                    startButton.setDisable(true);
-                    stopButton.setText("Cancel");
-                    stopButton.setDisable(false);
-                    break;
+            case DIALING:
+                videoImage.setImage(mCallImage);
+                startButton.setText("Dialing...");
+                startButton.setDisable(true);
+                stopButton.setText("Cancel");
+                stopButton.setDisable(false);
+                break;
 
-                case BUSY:
-                    videoImage.setImage(mBlackImage);
-                    startButton.setText("In Call");
-                    startButton.setDisable(true);
-                    stopButton.setText("End Call");
-                    stopButton.setDisable(false);
-                    break;
-            }
-        });
+            case BUSY:
+                videoImage.setImage(mBlackImage);
+                startButton.setText("In Call");
+                startButton.setDisable(true);
+                stopButton.setText("End Call");
+                stopButton.setDisable(false);
+                break;
+        }
     }
 
     @FXML

@@ -16,6 +16,7 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -27,9 +28,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
-import org.tuntuni.components.UserItem;
 import org.tuntuni.connection.Client;
 
 /**
@@ -54,76 +55,87 @@ public class MainController implements Initializable {
     @FXML
     private Button profileButton;
 
+    private double userListPrefWidth;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // set main controller to core
         Core.instance().main(this);
 
-        // listen to user list change
-        Core.instance().scanner().userListProperty().addListener((ov, o, n)
-                -> Platform.runLater(() -> buildUserList()));
-
-        Core.instance().user().usernameProperty().addListener(
-                (ov, o, n) -> profileButton.setText(n));
-
-        // bind profile button text
+        // change of user name
         profileButton.setText(Core.instance().user().username());
+        Core.instance().user().usernameProperty().addListener((ov, o, n) -> {
+            Platform.runLater(() -> profileButton.setText(n));
+        });
 
-        // avatar image
-        ChangeListener updateAvatar = (ov, o, n)
-                -> ((ImageView) profileButton.getGraphic())
-                .setImage(Core.instance().user().getAvatarImage(32, 32));
+        // change of avatar image
+        final ImageView profileImage = (ImageView) profileButton.getGraphic();
+        ChangeListener updateAvatar = (ov, o, n) -> {
+            Image avatar = Core.instance().user().getAvatarImage(32, 32);
+            profileImage.setImage(avatar);
+        };
         updateAvatar.changed(null, null, null);
-
         Core.instance().user().avatarProperty().addListener(updateAvatar);
+
+        // change of user list change
+        userListPrefWidth = userList.getPrefWidth();
+        Core.instance().scanner().userListProperty().addListener((ov, o, n) -> {
+            Platform.runLater(() -> buildUserList(n.values()));
+        });
     }
 
     @FXML
     private void handleProfileAction(ActionEvent event) {
-        selectProfile();
         Core.instance().profile().setClient(null);
         userList.getSelectionModel().clearSelection();
+        selectProfile();
     }
 
-    private void buildUserList() {
+    private void buildUserList(Collection<Client> values) {
         // clear previous items
         userList.getItems().clear();
-        // add all items 
-        for (Client client : Core.instance().scanner().userListProperty().values()) {
-            if (!client.isConnected()) {
-                continue;
-            }
-            // show client
+        // add all items
+        values.stream().forEach((client) -> {
             UserItem item = UserItem.createInstance(client);
             userList.getItems().add(item);
-            item.setOnMouseClicked((evt) -> showUser(item));
-            item.setOnKeyReleased((evt) -> showUser(item));
+        });
+        // hide user list if empty
+        if (userList.getItems().isEmpty()) {
+            userList.setPrefWidth(0.0);
+        } else {
+            userList.setPrefWidth(userListPrefWidth);
         }
-        // hide user list if no items
-        userList.setPrefWidth(userList.getItems().isEmpty() ? 0.0 : 250.0);
         // refresh profile view to show last user information
         Core.instance().profile().refresh();
     }
 
-    private void showUser(UserItem item) {
-        if (item != null) {
-            Core.instance().profile().setClient(item.getClient());
-            Core.instance().messaging().setClient(item.getClient());
-            Core.instance().videocall().setClient(item.getClient());
+    public void showUser(Client client) {
+        Platform.runLater(() -> {
+            Core.instance().profile().setClient(client);
+            Core.instance().messaging().setClient(client);
+            Core.instance().videocall().setClient(client);
             selectProfile();
-        }
+        });
     }
 
+    /**
+     * Select and show the profile tab
+     */
     public void selectProfile() {
         tabPane.getSelectionModel().select(0);
     }
 
+    /**
+     * Select and show the messaging tab
+     */
     public void selectMessaging() {
         tabPane.getSelectionModel().select(1);
     }
 
+    /**
+     * Select and show the videocall tab
+     */
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
     }
-
 }

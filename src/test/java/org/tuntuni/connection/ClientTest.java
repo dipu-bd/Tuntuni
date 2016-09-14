@@ -17,6 +17,7 @@ package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
 import javafx.beans.property.SimpleListProperty;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
 import org.junit.After;
@@ -98,7 +99,7 @@ public class ClientTest {
         System.out.println("getAddress");
         InetSocketAddress expResult = new InetSocketAddress(2332);
         Client instance = new Client(expResult);
-        InetSocketAddress result = instance.getAddress();
+        InetSocketAddress result = instance.getSocketAddress();
         assertEquals(expResult, result);
     }
 
@@ -147,7 +148,7 @@ public class ClientTest {
     public void testMessageProperty() {
         System.out.println("messageProperty");
         Client instance = new Client(new InetSocketAddress(1223));;
-        SimpleListProperty<Message> result = instance.messageProperty();
+        ObservableList<Message> result = instance.messageProperty();
         assertNotNull(result);
     }
 

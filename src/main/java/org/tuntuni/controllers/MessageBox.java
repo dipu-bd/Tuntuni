@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.components;
+package org.tuntuni.controllers;
 
 import java.io.IOException;
 import java.util.Date;
@@ -31,6 +31,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.tuntuni.Core;
+import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
 import org.tuntuni.util.Commons;
 
@@ -48,6 +49,7 @@ public class MessageBox extends BorderPane {
             // return main object
             return mbox;
         } catch (IOException ex) {
+            Logs.error("MessageBox", "Failed to create instance. {0}", ex);
             ex.printStackTrace();
         }
         return null;
@@ -67,14 +69,14 @@ public class MessageBox extends BorderPane {
     private Message mMessage;
 
     private Date mDate;
-    private final PrettyTime mPrettyTime;
     private final Timeline mTimeline;
+    private final PrettyTime mPrettyTime;
 
     public MessageBox() {
         mDate = new Date();
         mPrettyTime = new PrettyTime();
-        mTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(10), (evt) -> updateTime()));
+        mTimeline = new Timeline(new KeyFrame(
+                Duration.seconds(30), (evt) -> updateTime()));
     }
 
     public void initialize(Message message) {
@@ -96,21 +98,20 @@ public class MessageBox extends BorderPane {
         }
     }
 
-    @FXML
-    private void handleShowSender(ActionEvent evt) {
-        if (mMessage.isReceiver()) {
-            Core.instance().profile().setClient(mMessage.getClient());
-        } else {
-            Core.instance().profile().setClient(null);
-        }
-        Core.instance().main().selectProfile();
-    }
-
     // updates the view of time
     private void updateTime() {
         Platform.runLater(() -> {
             timegapLabel.setText(mPrettyTime.format(mDate));
         });
+    }
+
+    @FXML
+    private void handleShowSender(ActionEvent evt) {
+        if (mMessage.isReceiver()) {
+            Core.instance().main().showUser(mMessage.getClient());
+        } else {
+            Core.instance().main().showUser(null);
+        }
     }
 
 }

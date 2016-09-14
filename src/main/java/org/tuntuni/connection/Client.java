@@ -21,6 +21,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
 
@@ -31,15 +32,15 @@ import org.tuntuni.models.UserData;
 public class Client extends TCPClient {
 
     // local data from server 
+    private final ObservableList<Message> mMessages;
     private final ObjectProperty<UserData> mUserData;
-    private final SimpleListProperty<Message> mMessages;
 
     // hides the constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
         super(socket);
         // initialize properties 
+        mMessages = FXCollections.observableArrayList();
         mUserData = new SimpleObjectProperty<>(this, "UserData");
-        mMessages = new SimpleListProperty<>(FXCollections.observableArrayList());
         // load messages
         // TODO: save and restore messages
     }
@@ -136,7 +137,7 @@ public class Client extends TCPClient {
      *
      * @return
      */
-    public SimpleListProperty<Message> messageProperty() {
+    public ObservableList<Message> messageProperty() {
         return mMessages;
     }
 

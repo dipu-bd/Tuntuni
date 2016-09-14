@@ -16,8 +16,12 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -31,7 +35,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import org.tuntuni.Core;
-import org.tuntuni.components.MessageBox;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Message;
 
@@ -69,48 +72,47 @@ public class MessagingController implements Initializable {
 
     public void setClient(Client client) {
         mClient = client;
-        loadAll();
+        Platform.runLater(() -> loadAll());
     }
 
     private void loadAll() {
-        errorLabel.setText("");
         messageText.clear();
+        errorLabel.setText("");
+        messageList.getItems().clear();
 
         // load user name and avatar 
-        if (mClient != null && mClient.getUserData() != null) {
+        if (mClient == null) {
+            userName.setVisible(false);
+            return;
+        }
+
+        // show user info
+        if (mClient.getUserData() != null) {
             userName.setVisible(true);
             userName.setText(mClient.getUserData().getUserName());
             userPhoto.setImage(mClient.getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
-        } else {
-            userName.setVisible(false);
         }
 
         // load list of past messages
-        messageList.getItems().clear();
-        if (mClient != null) {
-            showHistory();
-            mClient.messageProperty().get().addListener(
-                    (ListChangeListener.Change<? extends Message> c) -> {
-                        showHistory();
-                    });
-        }
+        int size = mClient.messageProperty().size();
+        addHistory(mClient.messageProperty().subList(0, size));
+        mClient.messageProperty().addListener((ListChangeListener.Change<? extends Message> c) -> {
+            Platform.runLater(() -> addHistory(c.getAddedSubList()));
+        });
     }
 
-    private void showHistory() {
-        int elems = messageList.getItems().size();
-        for (int i = elems; i < mClient.messageProperty().getSize(); ++i) {
-            Message message = mClient.messageProperty().get(i);
+    private void addHistory(List<? extends Message> list) {
+        list.forEach((message) -> {
             messageList.getItems().add(MessageBox.createInstance(message));
-        }
-        if (messageList.getItems().size() > 0) {
-            messageList.scrollTo(messageList.getItems().size() - 1);
-        }
+        });
+        int last = messageList.getItems().size() - 1;
+        messageList.scrollTo(last);
     }
 
     @FXML
     private void messageKeyPressed(KeyEvent evt) {
-        setTextAreaHeight();
+        //setTextAreaHeight();
         if (evt.getCode() == KeyCode.ENTER) {
             evt.consume();
             if (evt.isShiftDown()) {
@@ -130,32 +132,34 @@ public class MessagingController implements Initializable {
             errorLabel.setText("Message is too short");
             return;
         }
-        sendMessage(text);
-    }
 
-    private void sendMessage(String text) {
         if (mClient == null) {
             errorLabel.setText("The receiver is unknown");
             return;
         }
 
-        Message message = new Message();
-        message.setText(text);
-        Exception ex = null;
+        String res = sendMessage(text);
+        errorLabel.setText(res);
+    }
+
+    private String sendMessage(String text) {
         try {
-            ex = mClient.sendMessage(message);
-        } catch (Exception e) {
-            ex = e;
-        }
-        if (ex != null) {
-            errorLabel.setText("Could not send message. Error: " + ex.getMessage());
-        } else {
+            Message message = new Message();
+            message.setText(text);
+            Exception ex = mClient.sendMessage(message);
+            if (ex != null) {
+                return ex.getMessage();
+            }
             mClient.addMessage(message);
             message.setClient(mClient);
             messageText.clear();
+            return "Message sent!";
+        } catch (Exception e) {
+            return "Failed to deliver";
         }
     }
 
+    @Deprecated
     private void setTextAreaHeight() {
         // elements
         Region content = (Region) messageText.lookup(".content");

@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import javafx.beans.property.BooleanProperty;
@@ -49,7 +50,7 @@ public abstract class TCPClient {
 
     @Override
     public String toString() {
-        return String.format("%s@%s:%s", getHostName(), getHostString(), getPort());
+        return String.format("@%s:%s", getHostString(), getPort());
     }
 
     /**
@@ -57,8 +58,17 @@ public abstract class TCPClient {
      *
      * @return the socket address
      */
-    public InetSocketAddress getAddress() {
+    public InetSocketAddress getSocketAddress() {
         return mAddress;
+    }
+
+    /**
+     * Gets the socket address associated with this client.
+     *
+     * @return the socket address
+     */
+    public InetAddress getAddress() {
+        return mAddress.getAddress();
     }
 
     /**
@@ -77,6 +87,7 @@ public abstract class TCPClient {
      */
     public void updateAddress(InetSocketAddress address) {
         mAddress = address;
+        mConnected.set(false);
     }
 
     /**
@@ -145,7 +156,7 @@ public abstract class TCPClient {
         // create a socket
         try (Socket socket = new Socket()) {
             // connect the socket with given address
-            socket.connect(getAddress(), 1000);
+            socket.connect(mAddress, 1000);
 
             try ( // get all input streams from socket
                     OutputStream out = socket.getOutputStream();
@@ -175,5 +186,5 @@ public abstract class TCPClient {
         }
         return null;
     }
- 
+
 }
