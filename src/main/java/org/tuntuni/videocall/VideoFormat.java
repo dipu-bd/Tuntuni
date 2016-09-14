@@ -29,6 +29,8 @@ public abstract class VideoFormat {
     // capture height
     public static final int HEIGHT = 144;
 
+    // encoding
+    public static final AudioFormat.Encoding ENCODING = AudioFormat.Encoding.PCM_SIGNED;
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;
     //sampleSizeInBits - the number of bits in each sample
@@ -51,7 +53,8 @@ public abstract class VideoFormat {
      * @return the audio format of this video
      */
     public static AudioFormat getAudioFormat() {
-        return new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE, CHANNEL, SIGNED, BIG_ENDIAN);
+        return new AudioFormat(ENCODING, SAMPLE_RATE, SAMPLE_SIZE,
+                CHANNEL, (SAMPLE_SIZE / 8) * CHANNEL, SAMPLE_RATE, BIG_ENDIAN);
     }
 
 }

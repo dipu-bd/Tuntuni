@@ -28,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -90,23 +91,25 @@ public class MessagingController implements Initializable {
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         }
         // load list of past messages
-        int size = mClient.messageProperty().size();
-        addHistory(mClient.messageProperty().subList(0, size));
-        // add listener
+        showHistory(0);
         mClient.messageProperty().addListener((ListChangeListener.Change<? extends Message> c) -> {
-            addHistory(c.getAddedSubList());
+            if (c.wasAdded()) {
+                showHistory(c.getFrom());
+            }
         });
     }
 
-    private void addHistory(List<? extends Message> list) {
-        // add each elements
-        list.forEach((message) -> {
+    public void showHistory(int from) {
+        // iterate list
+        for (int i = from; i < mClient.messageProperty().size(); ++i) {
+            final Message message = mClient.messageProperty().get(i);
             Platform.runLater(() -> {
+                // add element
                 messageList.getItems().add(MessageBox.createInstance(message));
             });
-        });
-        // show last
+        }
         Platform.runLater(() -> {
+            // show last
             int last = messageList.getItems().size() - 1;
             if (last > 0) {
                 messageList.scrollTo(last);
