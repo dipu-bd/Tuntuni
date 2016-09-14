@@ -28,19 +28,19 @@ import org.tuntuni.models.Logs;
  * @author dipu
  */
 public class Dialer {
-
+    
     public static final int IMAGE_PORT = 44731;
     public static final int AUDIO_PORT = 44732;
-
+    
     private final ObjectProperty<DialStatus> mStatus;
     private Client mClient;
     private VideoPlayer mPlayer;
     private VideoRecorder mRecorder;
-
+    
     public Dialer() {
         mStatus = new SimpleObjectProperty<>(DialStatus.IDLE);
     }
-
+    
     public Exception dial(Client client) {
         try {
             // check result
@@ -67,7 +67,7 @@ public class Dialer {
         }
         return null;
     }
-
+    
     public Exception receiveResponse(Client client, Exception err) {
         try {
             // check result
@@ -85,7 +85,7 @@ public class Dialer {
         }
         return null;
     }
-
+    
     public Exception receive(Client client) {
         try {
             // check client
@@ -112,7 +112,7 @@ public class Dialer {
         }
         return null;
     }
-
+    
     public void acceptResponse(Client client, Exception err) {
         try {
             // check client
@@ -133,7 +133,7 @@ public class Dialer {
             stop();
         }
     }
-
+    
     public void endCall() {
         if (mClient != null && getStatus() != DialStatus.IDLE) {
             // stop remote
@@ -147,9 +147,11 @@ public class Dialer {
             stop();
         }
     }
-
+    
     public void endCall(Client client) {
-        stop();
+        if (client != null && client.equals(mClient)) {
+            stop();
+        }
     }
 
 //                                                                            //
@@ -159,10 +161,10 @@ public class Dialer {
         try {
             mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
             mPlayer.start();
-
+            
             mRecorder = new VideoRecorder(mClient.getAddress());
             mRecorder.start();
-
+            
             synchronized (mStatus) {
                 mStatus.set(DialStatus.BUSY);
                 mStatus.notify();
@@ -172,7 +174,7 @@ public class Dialer {
             throw new Exception("Failed to start channel. ERROR: " + ex.getMessage());
         }
     }
-
+    
     public void stop() {
         synchronized (mStatus) {
             mStatus.set(DialStatus.IDLE);
@@ -186,23 +188,23 @@ public class Dialer {
             mStatus.notify();
         }
     }
-
+    
     public VideoPlayer player() {
         return mPlayer;
     }
-
+    
     public VideoRecorder recorder() {
         return mRecorder;
     }
-
+    
     public ObjectProperty<DialStatus> statusProperty() {
         return mStatus;
     }
-
+    
     public DialStatus getStatus() {
         synchronized (mStatus) {
             return mStatus.get();
         }
     }
-
+    
 }

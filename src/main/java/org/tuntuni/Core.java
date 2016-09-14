@@ -110,7 +110,7 @@ public final class Core {
         mSubnet.stop();
         mSubnetServer.stop();
         mServer.stop();
-        mDialer.stop();
+        mDialer.endCall();
     }
 
     ///
