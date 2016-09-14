@@ -34,7 +34,7 @@ import org.tuntuni.videocall.VideoFormat;
  */
 public class AudioPlayer extends StreamServer implements Runnable {
 
-    static final int QUEUE_SIZE = 2;
+    static final int QUEUE_SIZE = 1;
 
     private SourceDataLine mSourceLine;
     private Thread mPlayerThread;
@@ -55,7 +55,6 @@ public class AudioPlayer extends StreamServer implements Runnable {
                     SourceDataLine.class, VideoFormat.getAudioFormat());
             mSourceLine = (SourceDataLine) AudioSystem.getLine(info);
             mSourceLine.open(VideoFormat.getAudioFormat());
-            mSourceLine.start();
 
             mPlayerThread = new Thread(this);
             mPlayerThread.setDaemon(true);
@@ -71,8 +70,7 @@ public class AudioPlayer extends StreamServer implements Runnable {
     public void stop() {
         try {
             mPlayerThread.interrupt();
-            // close player
-            mSourceLine.stop();
+            // close player 
             mSourceLine.close();
         } catch (Exception ex) {
         }
@@ -100,6 +98,7 @@ public class AudioPlayer extends StreamServer implements Runnable {
 
     @Override
     public void run() {
+        mSourceLine.start();
         while (!Thread.interrupted()) {
             synchronized (mData) {
                 if (mData.isEmpty()) {
@@ -111,7 +110,7 @@ public class AudioPlayer extends StreamServer implements Runnable {
                 }
                 byte[] data = mData.poll();
                 if (data != null) {
-                    // play the audio data    
+                    // play the audio data 
                     mSourceLine.write(data, 0, data.length);
                 }
             }

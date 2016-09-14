@@ -50,7 +50,6 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
                     TargetDataLine.class, VideoFormat.getAudioFormat());
             mTargetLine = (TargetDataLine) AudioSystem.getLine(mTargetInfo);
             mTargetLine.open(VideoFormat.getAudioFormat());
-            mTargetLine.start();
             // start audio thread
             mAudioThread = new Thread(this);
             mAudioThread.setDaemon(true);
@@ -63,7 +62,6 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     @Override
     public void stop() {
         try {
-            mTargetLine.stop();
             mTargetLine.close();
             mAudioThread.interrupt();
         } catch (Exception ex) {
@@ -89,6 +87,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
         byte[] buffer = new byte[size];
         Logs.info(getClass(), "Line opened with buffer size = {0}\n", size);
 
+        mTargetLine.start();
         while (isOpen()) {
             // read audio
             int len = mTargetLine.read(buffer, 0, size);

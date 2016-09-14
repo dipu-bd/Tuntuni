@@ -62,6 +62,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // set main controller to core
         Core.instance().main(this);
+        userListPrefWidth = userList.getPrefWidth();        
 
         // change of user name
         profileButton.setText(Core.instance().user().username());
@@ -78,10 +79,13 @@ public class MainController implements Initializable {
         updateAvatar.changed(null, null, null);
         Core.instance().user().avatarProperty().addListener(updateAvatar);
 
-        // monitor user list
+        // add existing users
         userList.getItems().clear();
-        userListPrefWidth = userList.getPrefWidth();
         updateUserList(null, null);
+        Core.instance().scanner().userListProperty().values().forEach((client) -> {
+            Platform.runLater(() -> updateUserList(client, null));
+        });
+        // monitor user list
         Core.instance().scanner().userListProperty().addListener((MapChangeListener.Change<? extends Integer, ? extends Client> change) -> {
             Platform.runLater(() -> updateUserList(change.getValueAdded(), change.getValueRemoved()));
         });
@@ -112,7 +116,7 @@ public class MainController implements Initializable {
             userList.setPrefWidth(userListPrefWidth);
         }
         // refresh profile view to show last user information
-        Core.instance().profile().refresh();
+        //Core.instance().profile().refresh();
     }
 
     /**
