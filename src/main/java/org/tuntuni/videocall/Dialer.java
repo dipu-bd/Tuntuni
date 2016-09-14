@@ -59,6 +59,8 @@ public class Dialer {
             }
             // send dial request
             mClient.callRequest(ConnectFor.CALL_REQUEST, null);
+            // immediately start
+            start();            
         } catch (Exception ex) {
             stop();
             return ex;
@@ -76,9 +78,6 @@ public class Dialer {
             if (client != mClient) {
                 throw new Exception("User mismatch");
             }
-            // start communication
-            start();
-
         } catch (Exception ex) {
             stop();
             Logs.error(getClass(), ex.getMessage());
@@ -120,14 +119,15 @@ public class Dialer {
             if (client != mClient) {
                 throw new Exception("User mismatch");
             }
+            // start communication   
+            if (err == null) {
+                start();
+            }
             // send accept notification
             mClient.callRequest(ConnectFor.CALL_RESPONSE, err);
             if (err != null) {
                 throw err;
             }
-            // start communication   
-            start();
-
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());
             stop();
@@ -162,8 +162,8 @@ public class Dialer {
 
             mRecorder = new VideoRecorder(mClient.getAddress());
             mRecorder.start();
-            
-            synchronized(mStatus) {
+
+            synchronized (mStatus) {
                 mStatus.set(DialStatus.BUSY);
                 mStatus.notify();
             }
