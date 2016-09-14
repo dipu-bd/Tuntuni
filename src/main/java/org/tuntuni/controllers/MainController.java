@@ -110,6 +110,7 @@ public class MainController implements Initializable {
             Core.instance().profile().setClient(item.getClient());
             Core.instance().messaging().setClient(item.getClient());
             Core.instance().videocall().setClient(item.getClient());
+            selectProfile();
         }
     }
 

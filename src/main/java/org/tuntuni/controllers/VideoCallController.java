@@ -140,7 +140,7 @@ public class VideoCallController implements Initializable {
         Platform.runLater(() -> {
             switch (status) {
                 case IDLE:
-                    videoImage.setImage(null);
+                    videoImage.setImage(mBlackImage);
                     startButton.setText("Start Call");
                     startButton.setDisable(false);
                     stopButton.setText("End Call");

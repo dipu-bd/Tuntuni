@@ -162,6 +162,11 @@ public class Dialer {
 
             mRecorder = new VideoRecorder(mClient.getAddress().getAddress());
             mRecorder.start();
+            
+            synchronized(mStatus) {
+                mStatus.set(DialStatus.BUSY);
+                mStatus.notify();
+            }
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());
             throw new Exception("Failed to start channel. ERROR: " + ex.getMessage());
