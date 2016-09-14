@@ -159,6 +159,8 @@ public class SubnetServer implements Runnable {
             client = new Client(sa);
             // add new user
             mUserList.put(client.getIntegerAddress(), client);
+            // check if connected
+            client.checkServer();
 
         } else if (client.getPort() != port) {
             // update user
