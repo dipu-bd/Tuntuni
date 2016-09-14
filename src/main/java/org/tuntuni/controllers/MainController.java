@@ -87,14 +87,9 @@ public class MainController implements Initializable {
         });
     }
 
-    @FXML
-    private void handleProfileAction(ActionEvent event) {
-        Core.instance().profile().setClient(null);
-        userList.getSelectionModel().clearSelection();
-        selectProfile();
-    }
-
+    // updates the user list
     private void updateUserList(Client add, Client remove) {
+        System.out.println("Added " + add + " removed " + remove);
         // add item
         if (add != null) {
             UserItem item = UserItem.createInstance(add);
@@ -109,7 +104,7 @@ public class MainController implements Initializable {
                     it.remove();
                     break;
                 }
-            } 
+            }
         }
         // hide user list if empty 
         if (userList.getItems().isEmpty()) {
@@ -121,6 +116,11 @@ public class MainController implements Initializable {
         Core.instance().profile().refresh();
     }
 
+    /**
+     * Select a client and display profile immediately
+     *
+     * @param client
+     */
     public void showUser(Client client) {
         Platform.runLater(() -> {
             Core.instance().profile().setClient(client);
@@ -149,5 +149,12 @@ public class MainController implements Initializable {
      */
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
+    }
+
+    @FXML
+    private void handleProfileAction(ActionEvent event) {
+        Core.instance().profile().setClient(null);
+        userList.getSelectionModel().clearSelection();
+        selectProfile();
     }
 }

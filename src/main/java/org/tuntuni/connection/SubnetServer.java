@@ -153,11 +153,10 @@ public class SubnetServer implements Runnable {
     private void addUser(final InetAddress address, final int port) {
         // check if already added
         int key = SocketUtils.addressAsInteger(address);
-        Client client = mUserList.get(key);
-        InetSocketAddress sa = new InetSocketAddress(address, port);
+        Client client = mUserList.get(key); 
         if (client == null) {
             // check the server for connection status and profile information first
-            client = new Client(sa);
+            client = new Client(new InetSocketAddress(address, port));
             // add new user
             mUserList.put(key, client);
             // check if connected
@@ -173,5 +172,5 @@ public class SubnetServer implements Runnable {
             // check if connected
             client.checkServer();
         }
-    }
+    } 
 }

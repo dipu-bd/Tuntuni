@@ -43,7 +43,7 @@ public class MainServer extends TCPServer {
     @Override
     Object getResponse(ConnectFor status, Socket from, Object[] data) {
         // log this connection
-        Logs.info(getName(), "Received {0} from {1} with {1} data", status, from, data.length);
+        Logs.info(getName(), "{0} request from {1} with {1} data", status, from, data.length);
 
         switch (status) {
             case STATE:

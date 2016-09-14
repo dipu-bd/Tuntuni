@@ -65,7 +65,7 @@ public class UserItem extends BorderPane {
     private void setClient(Client client) throws NullPointerException {
         mClient = client;
         refresh(client.getUserData());
-        client.userdataProperty().addListener((ov, n, o) -> {
+        client.userdataProperty().addListener((ov, o, n) -> {
             Platform.runLater(() -> refresh(n));
         });
     }
@@ -73,16 +73,16 @@ public class UserItem extends BorderPane {
     private void refresh(UserData data) {
         // if user data is not avaiable
         if (data == null) {
-            this.setVisible(false);
+            setVisible(false);
             return;
         }
         // show data
+        setVisible(true);
         fullName.setText(data.getUserName());
         imageView.setImage(data.getAvatar(
                 imageView.getFitWidth(), imageView.getFitHeight()));
         String status = data.getStatus();
-        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
-        this.setVisible(true);
+        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);        
     }
 
     @FXML

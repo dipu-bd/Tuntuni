@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Objects;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.tuntuni.models.Logs;
@@ -51,6 +52,23 @@ public abstract class TCPClient {
     @Override
     public String toString() {
         return String.format("@%s:%s", getHostString(), getPort());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof TCPClient) {
+            TCPClient c = (TCPClient) other;
+            return c.getHostString().equals(getHostString()) && c.getPort() == getPort();
+        } else {
+            return super.equals(other);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 41 * hash + Objects.hashCode(this.mAddress);
+        return hash;
     }
 
     /**
