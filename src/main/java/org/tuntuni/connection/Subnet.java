@@ -37,7 +37,7 @@ import org.tuntuni.util.Commons;
 public class Subnet {
 
     public static final int SCAN_START_DELAY_MILLIS = 1_000;
-    public static final int SCAN_INTERVAL_MILLIS = 6_000;
+    public static final int SCAN_INTERVAL_MILLIS = 12_000;
 
     private DatagramSocket mSocket;
     private final ScheduledExecutorService mSchedular;

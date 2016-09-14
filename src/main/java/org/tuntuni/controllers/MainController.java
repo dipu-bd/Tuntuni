@@ -90,6 +90,9 @@ public class MainController implements Initializable {
         userList.getItems().clear();
         // add all items 
         for (Client client : Core.instance().scanner().userListProperty().values()) {
+            if (!client.isConnected()) {
+                continue;
+            }
             // show client
             UserItem item = UserItem.createInstance(client);
             userList.getItems().add(item);

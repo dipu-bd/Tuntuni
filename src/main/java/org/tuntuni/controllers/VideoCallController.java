@@ -17,7 +17,6 @@ package org.tuntuni.controllers;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -142,21 +141,28 @@ public class VideoCallController implements Initializable {
         Platform.runLater(() -> {
             switch (status) {
                 case IDLE:
-                    videoImage.setImage(mBlackImage);
+                    videoImage.setImage(null);
+                    startButton.setText("Start Call");
                     startButton.setDisable(false);
-                    startButton.setMinWidth(150);
-                    stopButton.setMaxWidth(0);
+                    stopButton.setText("End Call");
+                    stopButton.setDisable(true);
+                    break;
 
                 case DIALING:
                     videoImage.setImage(mCallImage);
+                    startButton.setText("Dialing...");
                     startButton.setDisable(true);
-                    startButton.setMinWidth(150);                    
-                    stopButton.setMaxWidth(0);
+                    stopButton.setText("Cancel");
+                    stopButton.setDisable(false);                    
+                    break;
 
                 case BUSY:
-                    startButton.setMaxWidth(0);
-                    stopButton.setMinWidth(150);
                     videoImage.setImage(mBlackImage);
+                    startButton.setText("In Call");
+                    startButton.setDisable(true);
+                    stopButton.setText("End Call");
+                    stopButton.setDisable(false);
+                    break;
             }
         });
     }

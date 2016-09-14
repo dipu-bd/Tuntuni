@@ -48,12 +48,15 @@ public class Dialer {
                 throw new Exception("Invalid user");
             }
             // occupy my slot
-            if (mStatus.get() != DialStatus.IDLE) {
+            if (getStatus() != DialStatus.IDLE) {
                 throw new Exception("You are already in a call");
             }
             // occupy call slot
-            mClient = client;
-            mStatus.set(DialStatus.DIALING);
+            synchronized (mStatus) {
+                mStatus.set(DialStatus.DIALING);
+                mClient = client;
+                mStatus.notify();
+            }
             // send dial request
             mClient.callRequest(ConnectFor.CALL_REQUEST, null);
         } catch (Exception ex) {
@@ -75,6 +78,7 @@ public class Dialer {
             }
             // start communication
             start();
+
         } catch (Exception ex) {
             stop();
             Logs.error(getClass(), ex.getMessage());
@@ -90,12 +94,15 @@ public class Dialer {
                 throw new Exception("Invalid user");
             }
             // check if user is available
-            if (mStatus.get() != DialStatus.IDLE) {
+            if (getStatus() != DialStatus.IDLE) {
                 throw new Exception("User is busy");
             }
             // change status 
-            mClient = client;
-            mStatus.set(DialStatus.DIALING);
+            synchronized (mStatus) {
+                mStatus.set(DialStatus.DIALING);
+                mClient = client;
+                mStatus.notify();
+            }
             // request user to accept the call 
             Platform.runLater(() -> {
                 Core.instance().videocall().acceptCallDialog(mClient);
@@ -128,7 +135,7 @@ public class Dialer {
     }
 
     public void endCall() {
-        if (mClient != null && mStatus.get() != DialStatus.IDLE) {
+        if (mClient != null && getStatus() != DialStatus.IDLE) {
             // stop remote
             new Thread(() -> {
                 try {
@@ -147,7 +154,7 @@ public class Dialer {
 
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
+//                                                                            // 
     private void start() throws Exception {
         try {
             mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
@@ -162,14 +169,17 @@ public class Dialer {
     }
 
     public void stop() {
-        if (mRecorder != null) {
-            mRecorder.stop();
+        synchronized (mStatus) {
+            mStatus.set(DialStatus.IDLE);
+            if (mRecorder != null) {
+                mRecorder.stop();
+            }
+            if (mPlayer != null) {
+                mPlayer.stop();
+            }
+            mClient = null;
+            mStatus.notify();
         }
-        if (mPlayer != null) {
-            mPlayer.stop();
-        }
-        mClient = null;
-        mStatus.set(DialStatus.IDLE);
     }
 
     public VideoPlayer player() {
@@ -185,7 +195,9 @@ public class Dialer {
     }
 
     public DialStatus getStatus() {
-        return mStatus.get();
+        synchronized (mStatus) {
+            return mStatus.get();
+        }
     }
 
 }

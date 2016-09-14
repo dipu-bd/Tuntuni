@@ -29,6 +29,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import org.controlsfx.dialog.ExceptionDialog;
@@ -69,9 +70,12 @@ public class ProfileController implements Initializable {
     @FXML
     private Button videoCallButton;
 
+    private double initialGridWidth = 170;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().profile(this);
+        initialGridWidth = aboutGridPane.getColumnConstraints().get(1).getPrefWidth();
     }
 
     public synchronized void setClient(Client client) {
@@ -113,8 +117,9 @@ public class ProfileController implements Initializable {
 
         messageButton.setVisible(!showme);
         videoCallButton.setVisible(!showme);
-        aboutGridPane.getColumnConstraints().get(1).setMinWidth(showme ? 0 : 160);
-        aboutGridPane.getColumnConstraints().get(1).setMaxWidth(showme ? 0 : 160);
+        ColumnConstraints cc = aboutGridPane.getColumnConstraints().get(1);
+        cc.setMinWidth(showme ? 0 : initialGridWidth);
+        cc.setMaxWidth(showme ? 0 : initialGridWidth);
 
         // bind them all
         editNameButton.setVisible(false);
