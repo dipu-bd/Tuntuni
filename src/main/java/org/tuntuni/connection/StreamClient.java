@@ -48,16 +48,6 @@ public abstract class StreamClient {
     public void connect(InetAddress address, int port) throws IOException {
         mAddress = new InetSocketAddress(address, port);
 
-        try {
-            mClient = new Socket();
-            mClient.connect(mAddress, 10_000);
-            mOutput = new ObjectOutputStream(mClient.getOutputStream());
-            Logs.info(getName(), "Connected to {0}", mAddress);
-        } catch (IOException ex) {
-            Logs.error(getName(), "Connection failure. {0}", ex);
-            throw ex;
-        }
-
         mClientThread = new Thread(() -> run());
         mClientThread.setName(getName());
         mClientThread.setDaemon(true);
@@ -79,8 +69,25 @@ public abstract class StreamClient {
             mSendQueue.clear();
         }
     }
-    
-    private void run() { 
+
+    private boolean connect() {
+        try {
+            mClient = new Socket();
+            mClient.connect(mAddress, 10_000);
+            mOutput = new ObjectOutputStream(mClient.getOutputStream());
+            Logs.info(getName(), "Connected to {0}", mAddress);
+            return true;
+        } catch (IOException ex) {
+            Logs.error(getName(), "Connection failure. {0}", ex);
+            return false;
+        }
+    }
+
+    private void run() {
+        if (!connect()) {
+            return;
+        }
+
         // Run consecutive IO operations
         while (isConnected()) {
             // Wait for data to become available
