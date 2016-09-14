@@ -52,7 +52,7 @@ public class MessageBox extends BorderPane {
             return mbox;
         } catch (IOException ex) {
             Logs.error("MessageBox", "Failed to create instance. {0}", ex);
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         return null;
     }

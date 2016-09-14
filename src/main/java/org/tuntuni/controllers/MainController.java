@@ -102,7 +102,9 @@ public class MainController implements Initializable {
         if (add != null) {
             UserItem item = UserItem.createInstance(add);
             userList.getItems().add(item);
-            add.connectedProperty().addListener((ov, n, o) -> refreshAll());
+            add.connectedProperty().addListener((ov, n, o) -> {
+                showUser(add);
+            });
         }
         // remove item
         if (remove != null) {
@@ -133,12 +135,13 @@ public class MainController implements Initializable {
     public void showUser(Client client) {
         if (client != null && !client.isConnected()) {
             String msg = "Either " + client.getUserData().getUserName()
-                    + " closed his application,"
-                    + " or there is a network failure.";
-            Notifications.create()
-                    .title("User Disconnected!")
-                    .text(msg)
-                    .showError();
+                    + " closed his application, or there is a network failure.";
+            Platform.runLater(() -> {
+                Notifications.create()
+                        .title("User Disconnected!")
+                        .text(msg)
+                        .showError();
+            }); 
             client = null;
         }
         mSelected = client;

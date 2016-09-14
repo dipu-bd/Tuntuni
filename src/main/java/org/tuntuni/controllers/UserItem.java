@@ -44,7 +44,7 @@ public class UserItem extends BorderPane {
             return uitem;
         } catch (IOException | NullPointerException ex) {
             Logs.error("UserItem", "Failed to create instance. {0}", ex);
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         return null;
     }

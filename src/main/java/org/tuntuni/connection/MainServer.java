@@ -72,14 +72,14 @@ public class MainServer extends TCPServer {
         if (client == null) {
             return new Exception("The sender is not registered");
         }
-        try { 
-            Message message = (Message) data[0]; 
+        try {
+            Message message = (Message) data[0];
             message.setReceiver(true);
             message.setTime(new Date());
             client.addMessage(message);
             Core.instance().messaging().notifyIncoming(message);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             return new Exception("Failed to add message", ex);
         }
         return null;
@@ -88,9 +88,9 @@ public class MainServer extends TCPServer {
     // receiver response
     public Object setCallResponse(Socket from, Object[] data) {
         try {
-            Client param1 = getClient(from);
-            Exception param2 = (Exception) data[0];
-            return Core.instance().dialer().receiveResponse(param1, param2);
+            Client client = getClient(from);
+            Exception err = (Exception) data[0];
+            return Core.instance().dialer().receiveResponse(client, err);
         } catch (Exception ex) {
             return ex;
         }
