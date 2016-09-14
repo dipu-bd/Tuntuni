@@ -73,12 +73,12 @@ public abstract class StreamClient {
     private boolean connect() {
         try {
             mClient = new Socket();
-            mClient.connect(mAddress, 10_000);
+            mClient.connect(mAddress, 0);
             mOutput = new ObjectOutputStream(mClient.getOutputStream());
             Logs.info(getName(), "Connected to {0}", mAddress);
             return true;
         } catch (IOException ex) {
-            Logs.error(getName(), "Connection failure. {0}", ex);
+            Logs.error(getName(), "Failed to connect. {0}", ex);
             return false;
         }
     }
@@ -87,7 +87,6 @@ public abstract class StreamClient {
         if (!connect()) {
             return;
         }
-
         // Run consecutive IO operations
         while (isConnected()) {
             // Wait for data to become available
@@ -101,7 +100,7 @@ public abstract class StreamClient {
                 mOutput.writeObject(data);
                 mOutput.flush();
             } catch (SocketException ex) {
-                Logs.error(getName(), "Connection failure! {0}", ex);
+                Logs.error(getName(), "Socket failure! {0}", ex);
                 return;
             } catch (IOException ex) {
                 Logs.error(getName(), "Write failure! {0}", ex);

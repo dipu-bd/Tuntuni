@@ -78,7 +78,7 @@ public abstract class StreamServer {
 
     private void accept() throws IOException {
         if (!isOpen()) {
-            throw new IOException("Server not initialized");
+            throw new IOException("Server was not initialized");
         }
         mClient = mServer.accept();
         mInput = new ObjectInputStream(mClient.getInputStream());

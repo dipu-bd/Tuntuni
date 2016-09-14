@@ -51,14 +51,15 @@ public abstract class ImageServer extends StreamServer {
     public void run() {
         while (isOpen()) {
             try {
+                
                 displayImage((ImageFrame) receive());
+                
             } catch (SocketException ex) {
                 Logs.error(getName(), "Connection failure! {0}", ex);
                 break;
+            } catch (EOFException ex) {
             } catch (IOException | ClassNotFoundException ex) {
-                if (!(ex instanceof EOFException)) {
-                    Logs.error(getName(), "Receive failure. {0}", ex);
-                }
+                Logs.error(getName(), "Receive failure. {0}", ex);
             }
         }
     }

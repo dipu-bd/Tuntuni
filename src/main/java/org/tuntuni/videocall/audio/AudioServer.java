@@ -62,8 +62,7 @@ public abstract class AudioServer extends StreamServer {
                 Logs.error(getName(), "Connection failure! {0}", ex);
                 break;
             } catch (EOFException ex) {
-            } catch (IOException | ClassNotFoundException ex) {
-
+            } catch (IOException | ClassNotFoundException ex) { 
                 Logs.error(getName(), "Receive failure. {0}", ex);
             }
         }
