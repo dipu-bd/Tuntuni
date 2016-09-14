@@ -100,6 +100,7 @@ public class Client extends TCPClient {
         if (ex != null) {
             throw ex;
         }
+        addMessage(toSent);
     }
 
     //////////////////////////////////////////////////////////////////////////// 

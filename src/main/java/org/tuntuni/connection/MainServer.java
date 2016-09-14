@@ -70,7 +70,7 @@ public class MainServer extends TCPServer {
     public Object setMessage(Client client, Object[] data) {
         // get client 
         if (client == null) {
-            return new Exception("The sender could not be recognized");
+            return new Exception("The sender is not registered");
         }
         try { 
             Message message = (Message) data[0]; 
@@ -78,7 +78,7 @@ public class MainServer extends TCPServer {
             message.setTime(new Date());
             client.addMessage(message);            
         } catch (Exception ex) {
-            return ex;
+            return new Exception("Failed to add message", ex);
         }
         return null;
     }

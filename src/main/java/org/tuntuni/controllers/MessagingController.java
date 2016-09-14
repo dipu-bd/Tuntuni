@@ -158,7 +158,7 @@ public class MessagingController implements Initializable {
             messageText.clear();
             return "Message sent!";
         } catch (Exception e) {
-            return "Failed to deliver";
+            return e.getMessage();
         }
     }
 
