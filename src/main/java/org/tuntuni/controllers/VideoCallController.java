@@ -125,12 +125,11 @@ public class VideoCallController implements Initializable {
 
         // return the result
         Optional<Boolean> result = dialog.showAndWait();
-        new Thread(() -> {
-            if (result.isPresent() && result.get()) {
-                Core.instance().dialer().acceptResponse(client, null);
-            }
+        if (result.isPresent() && result.get()) {
+            Core.instance().dialer().acceptResponse(client, null);
+        } else {
             Core.instance().dialer().acceptResponse(client, new Exception("Call was rejected"));
-        }).start();
+        }
     }
 
     public ImageView getViewer() {
@@ -153,7 +152,7 @@ public class VideoCallController implements Initializable {
                     startButton.setText("Dialing...");
                     startButton.setDisable(true);
                     stopButton.setText("Cancel");
-                    stopButton.setDisable(false);                    
+                    stopButton.setDisable(false);
                     break;
 
                 case BUSY:
