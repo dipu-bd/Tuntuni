@@ -128,11 +128,7 @@ public class MessagingController implements Initializable, ListChangeListener<Me
 
     private String sendMessage(String text) {
         try {
-            Message message = new Message();
-            message.setText(text);
-            message.setViewed(true);
-            mClient.sendMessage(message);
-            messageText.clear();
+            mClient.sendMessage(new Message(text));
             return "Message sent!";
         } catch (Exception e) {
             return e.getMessage();
@@ -140,28 +136,22 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     }
 
     public void notifyIncoming(Message message) {
-        if (message == null || message.isViewed()) {
+        if (message == null) {
             return;
-        }        
-        String title = message.getSender().getUserName() + " sent a message!";
-        String msg = message.getText();
-        if (msg.length() > 200) {
-            msg = msg.substring(0, 200) + "...";
         }
-        Action action = new Action("View", (ActionEvent t) -> {
-            Platform.runLater(() -> {
-                Core.instance().main().showUser(mClient);
-                Core.instance().main().selectMessaging();
-            });
+        Platform.runLater(() -> {
+            String title = message.getSender().getUserName() + " sent a message!";
+            String msg = message.getText();
+            if (msg.length() > 200) {
+                msg = msg.substring(0, 200) + "...";
+            }
+            Notifications.create()
+                    .darkStyle()
+                    .title(title)
+                    .text(msg)
+                    .hideAfter(Duration.seconds(20))
+                    .showInformation();
         });
-
-        Notifications.create()
-                .darkStyle()
-                .title(title)
-                .text(msg)
-                .action(action)
-                .hideAfter(Duration.seconds(20))
-                .showInformation();
     }
 
     @FXML
@@ -181,19 +171,17 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     private void handleSendMessage(ActionEvent event) {
         errorLabel.setText("");
         String text = messageText.getText().trim();
-
         if (text.isEmpty()) {
             errorLabel.setText("Message is too short");
             return;
         }
-
         if (mClient == null) {
             errorLabel.setText("The receiver is unknown");
             return;
         }
-
         String res = sendMessage(text);
         errorLabel.setText(res);
+        messageText.clear();
     }
 
     @Deprecated

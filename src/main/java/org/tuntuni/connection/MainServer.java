@@ -79,6 +79,7 @@ public class MainServer extends TCPServer {
             client.addMessage(message);
             Core.instance().messaging().notifyIncoming(message);
         } catch (Exception ex) {
+            ex.printStackTrace();
             return new Exception("Failed to add message", ex);
         }
         return null;
