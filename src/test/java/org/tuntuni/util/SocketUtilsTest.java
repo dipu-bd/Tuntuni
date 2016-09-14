@@ -18,8 +18,8 @@ package org.tuntuni.util;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

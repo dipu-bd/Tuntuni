@@ -16,14 +16,14 @@
 package org.tuntuni;
 
 import javafx.stage.Stage;
-import org.tuntuni.connection.SubnetServer;
 import org.tuntuni.connection.MainServer;
 import org.tuntuni.connection.Subnet;
-import org.tuntuni.models.UserProfile;
+import org.tuntuni.connection.SubnetServer;
 import org.tuntuni.controllers.MainController;
 import org.tuntuni.controllers.MessagingController;
 import org.tuntuni.controllers.ProfileController;
 import org.tuntuni.controllers.VideoCallController;
+import org.tuntuni.models.UserProfile;
 import org.tuntuni.videocall.Dialer;
 
 /**

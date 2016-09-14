@@ -21,9 +21,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
+import org.junit.Test;
 import org.tuntuni.Core;
 
 /**

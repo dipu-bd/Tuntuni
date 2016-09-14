@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -25,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 
 /**

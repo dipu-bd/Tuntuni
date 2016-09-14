@@ -18,11 +18,10 @@ package org.tuntuni.util;
 import com.google.gson.Gson;
 import java.util.prefs.BackingStoreException;
 import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
-import org.tuntuni.Core;
-import org.tuntuni.models.UserData;
+import org.junit.Test;
 
 /**
  *

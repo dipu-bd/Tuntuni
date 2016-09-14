@@ -16,9 +16,6 @@
 package org.tuntuni.videocall.audio;
 
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.scene.media.AudioClip;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;

@@ -15,7 +15,6 @@
  */
 package org.tuntuni.connection;
 
-import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -28,6 +27,7 @@ import java.net.Socket;
 import java.util.Objects;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 

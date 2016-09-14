@@ -15,9 +15,6 @@
  */
 package org.tuntuni.video;
 
-import org.tuntuni.videocall.VideoRecorder;
-import org.tuntuni.videocall.VideoPlayer;
-import org.tuntuni.videocall.Dialer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -30,6 +27,9 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tuntuni.videocall.Dialer;
+import org.tuntuni.videocall.VideoPlayer;
+import org.tuntuni.videocall.VideoRecorder;
 
 /**
  *

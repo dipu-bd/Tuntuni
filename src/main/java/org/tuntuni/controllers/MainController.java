@@ -156,8 +156,6 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleProfileAction(ActionEvent event) {
-        Core.instance().profile().setClient(null);
-        userList.getSelectionModel().clearSelection();
-        selectProfile();
+        showUser(null);
     }
 }

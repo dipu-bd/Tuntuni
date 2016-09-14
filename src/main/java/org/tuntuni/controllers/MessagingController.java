@@ -17,7 +17,6 @@ package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -34,7 +33,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
-import org.controlsfx.control.action.Action;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Message;
@@ -136,7 +134,7 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     }
 
     public void notifyIncoming(Message message) {
-        if (message == null) {
+        if (message == null || message.getClient() == mClient ) {
             return;
         }
         Platform.runLater(() -> {
@@ -145,12 +143,15 @@ public class MessagingController implements Initializable, ListChangeListener<Me
             if (msg.length() > 200) {
                 msg = msg.substring(0, 200) + "...";
             }
+            ImageView image = new ImageView(
+                    message.getSender().getAvatar(32, 32)
+            );
             Notifications.create()
-                    .darkStyle()
                     .title(title)
                     .text(msg)
                     .hideAfter(Duration.seconds(20))
-                    .showInformation();
+                    .graphic(image)
+                    .show();
         });
     }
 
