@@ -21,7 +21,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.concurrent.Executors;
@@ -87,7 +86,7 @@ public class Subnet {
             // open a datagram socket at any random port
             mSocket = new DatagramSocket();
             mSocket.setBroadcast(true);
-            
+
             // get all network interfaces
             Enumeration<NetworkInterface> ne
                     = NetworkInterface.getNetworkInterfaces();
@@ -148,12 +147,12 @@ public class Subnet {
             myAddress.add(ia.getAddress().getHostAddress());
             // data to send
             byte[] sendData = Commons.toBytes(mDataToSend);
-            // Send the broadcast package!
-            for (int port : Core.PORTS) {
-                DatagramPacket sendPacket = new DatagramPacket(
-                        sendData, sendData.length, ia.getBroadcast(), port);
-                mSocket.send(sendPacket);
-            }
+            // Send the broadcast package! 
+            DatagramPacket sendPacket = new DatagramPacket(
+                    sendData, sendData.length,
+                    ia.getBroadcast(), SubnetServer.PORT);
+            mSocket.send(sendPacket);
+            
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to send broadcast. {0}", ex);
         }

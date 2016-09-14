@@ -36,19 +36,16 @@ import org.tuntuni.util.SocketUtils;
  */
 public class SubnetServer implements Runnable {
 
-    private final int mPort;
+    public static final int PORT = 24914;
+
     private Thread mServerThread;
     private DatagramSocket mSocket;
     private final SimpleMapProperty<Integer, Client> mUserList;
 
     /**
-     * Creates a MulticastServer by given port to listen.
-     *
-     * @param port PORT address to listen
-     * @throws java.net.SocketException
+     * Creates a MulticastServer by given port to listen. 
      */
-    public SubnetServer(int port) throws SocketException {
-        mPort = port;
+    public SubnetServer() { 
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
     }
@@ -62,7 +59,7 @@ public class SubnetServer implements Runnable {
     public void start() {
         try {
             // bind a datagram socket to the given port address 
-            mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
+            mSocket = new DatagramSocket(PORT, InetAddress.getByName("0.0.0.0"));
             mSocket.setBroadcast(true);
 
             mServerThread = new Thread(this);
@@ -85,7 +82,7 @@ public class SubnetServer implements Runnable {
 
     @Override
     public void run() {
-        Logs.info(getClass(), "Listening for broadcast packets at {0}", mPort);
+        Logs.info(getClass(), "Listening for broadcast packets at {0}", PORT);
 
         while (!Thread.interrupted()) {
             try {

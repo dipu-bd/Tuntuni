@@ -15,8 +15,7 @@
  */
 package org.tuntuni.connection;
 
-import java.net.InetSocketAddress;
-import javafx.beans.property.SimpleListProperty;
+import java.net.InetSocketAddress; 
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
@@ -48,41 +47,7 @@ public class ClientTest {
     @After
     public void tearDown() {
     }
-
-    /**
-     * Test of connect method, of class Client.
-     */
-    @Test
-    public void testConstructor() throws Exception {
-        System.out.println("testConstructor()");
-        Client instance = new Client(new InetSocketAddress(Core.PORTS[0]));
-        assertNotNull(instance);
-        System.out.println();
-    }
-
-    @Test
-    public void testServer() throws Exception {
-        System.out.println("testServer()");
-        Client instance = new Client(new InetSocketAddress(Core.PORTS[0]));
-        assertNotNull(instance);
-        System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.checkServer();
-        System.out.println("++result= " + result);
-        System.out.println();
-    }
-
-    @Test
-    public void testRandom() throws Exception {
-        System.out.println("testRandom()");
-        Client instance = new Client(
-                new InetSocketAddress("192.121.11.23", Core.PORTS[0]));
-        assertNotNull(instance);
-        System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.checkServer();
-        System.out.println("++result= " + result);
-        System.out.println();
-    }
-
+  
     @Test
     public void testInvalid() throws Exception {
         System.out.println("testInvalid()");

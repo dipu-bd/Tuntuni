@@ -46,8 +46,7 @@ public abstract class StreamClient {
     public abstract String getName();
 
     public void connect(InetAddress address, int port) throws IOException {
-        mAddress = new InetSocketAddress(address, port);
-
+        mAddress = new InetSocketAddress(address, port); 
         mClientThread = new Thread(() -> run());
         mClientThread.setName(getName());
         mClientThread.setDaemon(true);
@@ -84,11 +83,8 @@ public abstract class StreamClient {
     }
 
     private void run() {
-        if (!connect()) {
-            return;
-        }
         // Run consecutive IO operations
-        while (isConnected()) {
+        while (!Thread.interrupted()) {
             // Wait for data to become available
             Object data = getNext();
             // Check validity
@@ -96,12 +92,15 @@ public abstract class StreamClient {
                 continue;
             }
             // Output to stream
+            if (!isConnected()) {
+                continue;
+            }
             try {
                 mOutput.writeObject(data);
                 mOutput.flush();
             } catch (SocketException ex) {
                 Logs.error(getName(), "Socket failure! {0}", ex);
-                return;
+                //break;
             } catch (IOException ex) {
                 Logs.error(getName(), "Write failure! {0}", ex);
             }
@@ -125,7 +124,7 @@ public abstract class StreamClient {
     public void send(Object frame) {
         // check if connected
         if (!isConnected()) {
-            return;
+            connect();
         }
         // Add to queue 
         synchronized (mSendQueue) {
@@ -137,7 +136,7 @@ public abstract class StreamClient {
         }
     }
 
-    public void send(byte[] data, int size)  {
+    public void send(byte[] data, int size) {
         send(new DataFrame(data, size));
     }
 
@@ -145,8 +144,7 @@ public abstract class StreamClient {
         return mClient != null
                 && mOutput != null
                 && !mClient.isClosed()
-                && mClient.isConnected()
-                && mClientThread.isAlive();
+                && mClient.isConnected();
     }
 
     public InetSocketAddress getAddress() {

@@ -41,37 +41,14 @@ import org.tuntuni.videocall.Dialer;
  */
 public final class Core {
 
-    public static final int PORTS[] = {
-        24914, //PRIMARY_PORT
-        42016, //BACKUP_PORT  
-    };
-
-    // instance of context
-    private static class CoreHolder {
-
-        public static final Core INSTANCE = new Core();
-    }
-
-    /**
-     * Gets an instance of this class.
-     *
-     * @return
-     */
-    public static final Core instance() {
-        return CoreHolder.INSTANCE;
-    }
-
-    // private variables
-    private final MainServer mServer;
-    private final Subnet mSubnet;
-    private Stage mPrimaryStage;
-    // multicast server
-    private SubnetServer mSubnetServer;
-    // dialer
-    private Dialer mDialer;
-    // data  
     private final UserProfile mUser;
-    // controllers
+
+    private final Dialer mDialer;
+    private final Subnet mSubnet;
+    private final SubnetServer mSubnetServer;
+    private final MainServer mServer;
+
+    private Stage mPrimaryStage;
     private MainController mMain;
     private VideoCallController mVideoCall;
     private MessagingController mMessaging;
@@ -85,13 +62,8 @@ public final class Core {
         mSubnet = new Subnet();
         mUser = new UserProfile();
         mDialer = new Dialer();
-        // create a listenner server for network discovery
-        for (int port : PORTS) {
-            try {
-                mSubnetServer = new SubnetServer(port);
-            } catch (SocketException ex) {
-            }
-        }
+        // create a listenner server for network discovery 
+        mSubnetServer = new SubnetServer();
     }
 
     /**
@@ -263,6 +235,21 @@ public final class Core {
      */
     public MessagingController messaging() {
         return mMessaging;
+    }
+
+    /**
+     * Gets an instance of this class.
+     *
+     * @return
+     */
+    public static final Core instance() {
+        return CoreHolder.INSTANCE;
+    }
+
+    // instance of context
+    private static class CoreHolder {
+
+        public static final Core INSTANCE = new Core();
     }
 
 }
