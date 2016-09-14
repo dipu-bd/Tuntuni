@@ -76,23 +76,28 @@ public abstract class StreamClient {
         }
     }
 
-    private boolean connect() {
+    private void connect() throws IOException {
         if (isConnected()) {
-            return true;
+            return;
         }
-        try {
-            mClient = new Socket();
-            mClient.connect(mAddress, 0);
-            mOutput = new ObjectOutputStream(mClient.getOutputStream());
-            Logs.info(getName(), "Connected to {0}", mAddress);
-            return true;
-        } catch (IOException ex) {
-            Logs.error(getName(), "Failed to connect. {0}", ex);
-            return false;
-        }
+        mClient = new Socket();
+        mClient.connect(mAddress, 5000);
+        mOutput = new ObjectOutputStream(mClient.getOutputStream());
+        Logs.info(getName(), "Connected to {0}", mAddress);
     }
 
     private void run() {
+        while (!Thread.interrupted()) {
+            try {
+                connect();
+                break;
+            } catch (Exception ex) {
+                if (Core.instance().dialer().getStatus() != DialStatus.DIALING) {
+                    Logs.error(getName(), "Failed to connect. {0}", ex);
+                    return;
+                }
+            }
+        }
         // Run consecutive IO operations
         while (!Thread.interrupted()) {
             // Wait for data to become available
@@ -109,8 +114,8 @@ public abstract class StreamClient {
                 mOutput.writeObject(data);
                 mOutput.flush();
             } catch (SocketException ex) {
-                Logs.error(getName(), "Socket failure! {0}", ex);
                 if (Core.instance().dialer().getStatus() != DialStatus.DIALING) {
+                    Logs.error(getName(), "Socket failure! {0}", ex);
                     break;
                 }
             } catch (IOException ex) {
@@ -133,11 +138,7 @@ public abstract class StreamClient {
         }
     }
 
-    public boolean send(Object frame) {
-        // check if connected
-        if (!connect()) {
-            return false;
-        }
+    public void send(Object frame) {
         // Add to queue 
         synchronized (mSendQueue) {
             mSendQueue.add(frame);
@@ -146,11 +147,10 @@ public abstract class StreamClient {
             }
             mSendQueue.notify();
         }
-        return true;
     }
 
-    public boolean send(byte[] data, int size) {
-        return send(new DataFrame(data, size));
+    public void send(byte[] data, int size) {
+        send(new DataFrame(data, size));
     }
 
     public boolean isConnected() {

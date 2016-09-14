@@ -135,8 +135,8 @@ public class ProfileController implements Initializable {
         ColumnConstraints cc = aboutGridPane.getColumnConstraints().get(1);
         cc.setMinWidth(initialGridWidth);
         cc.setMaxWidth(initialGridWidth);
-        //messageButton.setVisible(true);
-        //videoCallButton.setVisible(true);
+        messageButton.setVisible(true);
+        videoCallButton.setVisible(true);
 
         // set edit states of each controls
         aboutMe.setEditable(false);

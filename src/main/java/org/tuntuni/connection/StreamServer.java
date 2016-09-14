@@ -22,7 +22,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
+import org.tuntuni.videocall.DialStatus;
 
 /**
  * Receives data from client
@@ -46,6 +48,7 @@ public abstract class StreamServer {
     public void open() throws IOException {
         mServer = new ServerSocket(mPort);
         Logs.info(getName(), "Opened @ {0}", getPort());
+
         mServerThread = new Thread(() -> run());
         mServerThread.setDaemon(true);
         mServerThread.start();
@@ -55,17 +58,12 @@ public abstract class StreamServer {
         try {
             mServerThread.interrupt();
             if (mServer != null) {
-                mServer.close();
-                mServer = null;
+                mServer.close(); 
             }
             if (mClient != null) {
                 mClient.close();
                 mClient = null;
-            }
-            if (mInput != null) {
-                mInput.close();
-                mInput = null;
-            }
+            } 
         } catch (Exception ex) {
             Logs.warning(getName(), "Failed to close. {0}", ex);
         }
@@ -74,11 +72,15 @@ public abstract class StreamServer {
     public void run() {
         while (isOpen()) {
             try {
+                
                 dataReceived(receive());
-            } catch (SocketException ex) {
-                Logs.error(getName(), "Connection failure! {0}", ex);
-                //break;
+                
             } catch (EOFException ex) {
+            } catch (SocketException ex) {
+                if (Core.instance().dialer().getStatus() != DialStatus.DIALING) {
+                    Logs.error(getName(), "Connection failure! {0}", ex);
+                    break;
+                }
             } catch (IOException | ClassNotFoundException ex) {
                 Logs.error(getName(), "Receive failure. {0}", ex);
             }
