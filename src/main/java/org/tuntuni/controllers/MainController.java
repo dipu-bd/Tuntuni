@@ -17,9 +17,11 @@ package org.tuntuni.controllers;
 
 import java.net.URL;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -77,10 +79,11 @@ public class MainController implements Initializable {
         updateAvatar.changed(null, null, null);
         Core.instance().user().avatarProperty().addListener(updateAvatar);
 
-        // change of user list change
+        // monitor user list
+        userList.getItems().clear();
         userListPrefWidth = userList.getPrefWidth();
-        Core.instance().scanner().userListProperty().addListener((ov, o, n) -> {
-            Platform.runLater(() -> buildUserList(n.values()));
+        Core.instance().scanner().userListProperty().addListener((MapChangeListener.Change<? extends Integer, ? extends Client> change) -> {
+            Platform.runLater(() -> updateUserList(change.getValueAdded(), change.getValueRemoved()));
         });
     }
 
@@ -91,15 +94,24 @@ public class MainController implements Initializable {
         selectProfile();
     }
 
-    private void buildUserList(Collection<Client> values) {
-        // clear previous items
-        userList.getItems().clear();
-        // add all items
-        values.stream().forEach((client) -> {
-            UserItem item = UserItem.createInstance(client);
+    private void updateUserList(Client add, Client remove) {
+        // add item
+        if (add != null) {
+            UserItem item = UserItem.createInstance(add);
             userList.getItems().add(item);
-        });
-        // hide user list if empty
+        }
+        // remove item
+        if (remove != null) {
+            Iterator<UserItem> it = userList.getItems().iterator();
+            while (it.hasNext()) {
+                UserItem item = it.next();
+                if (item.getClient().equals(remove)) {
+                    it.remove();
+                    break;
+                }
+            } 
+        }
+        // hide user list if empty 
         if (userList.getItems().isEmpty()) {
             userList.setPrefWidth(0.0);
         } else {

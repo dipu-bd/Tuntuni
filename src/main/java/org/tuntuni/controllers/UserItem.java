@@ -71,13 +71,18 @@ public class UserItem extends BorderPane {
     }
 
     private void refresh(UserData data) {
-        if (data != null) {
-            fullName.setText(data.getUserName());
-            imageView.setImage(data.getAvatar(
-                    imageView.getFitWidth(), imageView.getFitHeight()));
-            String status = data.getStatus();
-            statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
+        // if user data is not avaiable
+        if (data == null) {
+            this.setVisible(false);
+            return;
         }
+        // show data
+        fullName.setText(data.getUserName());
+        imageView.setImage(data.getAvatar(
+                imageView.getFitWidth(), imageView.getFitHeight()));
+        String status = data.getStatus();
+        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
+        this.setVisible(true);
     }
 
     @FXML
