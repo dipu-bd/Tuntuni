@@ -18,10 +18,8 @@ package org.tuntuni.controllers;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -79,13 +77,11 @@ public class MessagingController implements Initializable {
         messageText.clear();
         errorLabel.setText("");
         messageList.getItems().clear();
-
         // load user name and avatar 
         if (mClient == null) {
             userName.setVisible(false);
             return;
         }
-
         // show user info
         if (mClient.getUserData() != null) {
             userName.setVisible(true);
@@ -93,21 +89,29 @@ public class MessagingController implements Initializable {
             userPhoto.setImage(mClient.getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         }
-
         // load list of past messages
         int size = mClient.messageProperty().size();
         addHistory(mClient.messageProperty().subList(0, size));
+        // add listener
         mClient.messageProperty().addListener((ListChangeListener.Change<? extends Message> c) -> {
-            Platform.runLater(() -> addHistory(c.getAddedSubList()));
+            addHistory(c.getAddedSubList());
         });
     }
 
     private void addHistory(List<? extends Message> list) {
+        // add each elements
         list.forEach((message) -> {
-            messageList.getItems().add(MessageBox.createInstance(message));
+            Platform.runLater(() -> {
+                messageList.getItems().add(MessageBox.createInstance(message));
+            });
         });
-        int last = messageList.getItems().size() - 1;
-        messageList.scrollTo(last);
+        // show last
+        Platform.runLater(() -> {
+            int last = messageList.getItems().size() - 1;
+            if (last > 0) {
+                messageList.scrollTo(last);
+            }
+        });
     }
 
     @FXML
@@ -146,12 +150,7 @@ public class MessagingController implements Initializable {
         try {
             Message message = new Message();
             message.setText(text);
-            Exception ex = mClient.sendMessage(message);
-            if (ex != null) {
-                return ex.getMessage();
-            }
-            mClient.addMessage(message);
-            message.setClient(mClient);
+            mClient.sendMessage(message);
             messageText.clear();
             return "Message sent!";
         } catch (Exception e) {

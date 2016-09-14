@@ -18,6 +18,7 @@ package org.tuntuni.connection;
 import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
+import javafx.application.Platform;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
@@ -72,14 +73,11 @@ public class MainServer extends TCPServer {
         if (client == null) {
             return new Exception("The sender could not be recognized");
         }
-        try {
-            // get setMessage
-            Message message = (Message) data[0];
-            // add this setMessage
+        try { 
+            Message message = (Message) data[0]; 
             message.setReceiver(true);
-            message.setClient(client);
             message.setTime(new Date());
-            client.addMessage(message);
+            client.addMessage(message);            
         } catch (Exception ex) {
             return ex;
         }

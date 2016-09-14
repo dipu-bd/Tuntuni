@@ -21,6 +21,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
 
@@ -84,7 +85,6 @@ public class Client extends TCPClient {
                 return true;
             }
         } catch (NullPointerException ex) {
-            //logger.log(Level.SEVERE, Logs.CLIENT_TEST_FAILED, ex);
         }
         return false;
     }
@@ -93,10 +93,13 @@ public class Client extends TCPClient {
      * Send a sendMessage to this client
      *
      * @param toSent Message to be sent
-     * @return True if success, false otherwise.
+     * @throws java.lang.Exception
      */
-    public Exception sendMessage(Message toSent) {
-        return (Exception) request(ConnectFor.MESSAGE, toSent);
+    public void sendMessage(Message toSent) throws Exception {
+        Exception ex = (Exception) request(ConnectFor.MESSAGE, toSent);
+        if (ex != null) {
+            throw ex;
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////// 
@@ -146,14 +149,16 @@ public class Client extends TCPClient {
      * @param message
      */
     public void addMessage(Message message) {
+        message.setClient(this);
         mMessages.add(message);
     }
 
     /**
      * Sends a call request and receive response
+     *
      * @param req
      * @param data
-     * @throws Exception 
+     * @throws Exception
      */
     public void callRequest(ConnectFor req, Exception data) throws Exception {
         Exception res = (Exception) request(req, data);
