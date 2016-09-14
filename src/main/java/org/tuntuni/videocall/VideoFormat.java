@@ -28,6 +28,8 @@ public abstract class VideoFormat {
     public static final int WIDTH = 176;
     // capture height
     public static final int HEIGHT = 144;
+    // frames per seconds
+    public static final int FRAME_RATE = 12;
 
     // encoding
     public static final AudioFormat.Encoding ENCODING = AudioFormat.Encoding.PCM_SIGNED;

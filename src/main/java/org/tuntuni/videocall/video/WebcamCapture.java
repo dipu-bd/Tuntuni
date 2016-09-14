@@ -29,6 +29,7 @@ import org.tuntuni.videocall.VideoFormat;
 public class WebcamCapture extends ImageSource implements WebcamListener {
 
     private Webcam mWebcam;
+    private long lastImageTime;
 
     public WebcamCapture() {
     }
@@ -75,9 +76,19 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
         return mWebcam == null ? false : mWebcam.isOpen();
     }
 
+    private boolean checkFrameRate(long time) {
+        time -= lastImageTime;
+        time *= VideoFormat.FRAME_RATE;
+        return time + 50 > 1000;
+    }
+
     @Override
     public void webcamImageObtained(WebcamEvent we) {
-        send(new ImageFrame(we.getImage()));
+        long time = System.currentTimeMillis();
+        if (checkFrameRate(time)) {
+            send(new ImageFrame(we.getImage()));
+            lastImageTime = time;
+        }
     }
 
     @Override
