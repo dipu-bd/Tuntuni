@@ -117,7 +117,7 @@ public abstract class TCPServer {
                 mSSocket = new ServerSocket(port);
                 break;
             } catch (IOException ex) {
-                Logs.warning(this.getName(), Logs.SERVER_BIND_FAILS, port);
+                Logs.warning(getName(), "Could not bind to {0}", port);
             }
         }
     }
@@ -154,7 +154,7 @@ public abstract class TCPServer {
                 mSSocket.close();
             }
         } catch (Exception ex) {
-            Logs.warning(this.getName(), Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.warning(getName(), "Error stopping server. {0}", ex);
         }
         // shutdown executors
         mExecutor.shutdownNow();
@@ -164,7 +164,7 @@ public abstract class TCPServer {
     // it is started via an executor service.
     private void runServer() {
         // Infinite server loop
-        Logs.info(this.getName(), Logs.SERVER_LISTENING, getPort());
+        Logs.info(getName(), "Opened @ {0}", getPort());
         while (isOpen()) {
             try {
                 Socket socket = mSSocket.accept();
@@ -175,11 +175,11 @@ public abstract class TCPServer {
                 });
             } catch (IOException ex) {
                 if (isOpen()) {
-                    Logs.error(this.getName(), Logs.SERVER_ACCEPT_FAILED, ex);
+                    Logs.error(getName(), "Accept failure. {0}", ex);
                 }
             }
         }
-        Logs.info(this.getName(), Logs.SERVER_LISTENING_STOPPED);
+        Logs.info(getName(), "Stopped listening");
     }
 
     // process a selection key
@@ -216,9 +216,9 @@ public abstract class TCPServer {
             }
 
         } catch (IOException ex) {
-            Logs.warning(getClass(), Logs.SERVER_IO_FAILED, ex); 
+            Logs.warning(getClass(), ex.getMessage());
         } catch (ClassNotFoundException ex) {
-            Logs.warning(this.getName(), Logs.SOCKET_CLASS_FAILED, ex);
+            Logs.warning(this.getName(), ex.getMessage());
         }
     }
 
@@ -227,7 +227,7 @@ public abstract class TCPServer {
         try {
             socket.close();
         } catch (IOException ex) {
-            Logs.error(this.getName(), Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.error(this.getName(), "Failed to close socket. {0}", ex);
         }
     }
 

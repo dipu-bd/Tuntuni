@@ -62,7 +62,7 @@ public abstract class StreamClient {
                 mClient.close();
             }
         } catch (Exception ex) {
-            Logs.error(getName(), "Failed to close. {0}", ex);
+            Logs.warning(getName(), "Failed to close. {0}", ex);
         } finally {
             mClient = null;
             mOutput = null;

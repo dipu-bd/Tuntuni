@@ -55,7 +55,7 @@ public class SubnetServer implements Runnable {
             mSocket = new DatagramSocket(mPort, InetAddress.getByName("0.0.0.0"));
             mSocket.setBroadcast(true);
         } catch (UnknownHostException ex) {
-            Logs.error(getClass(), null, ex);
+            Logs.warning(getClass(), ex.getMessage());
         }
     }
 
@@ -71,7 +71,7 @@ public class SubnetServer implements Runnable {
             mServerThread.setDaemon(true);
             mServerThread.start();
         } catch (Exception ex) {
-            Logs.severe("Failed to START multicast server.", ex);
+            Logs.error(getClass(), "Failed to start. {0}", ex);
         }
     }
 
@@ -79,12 +79,8 @@ public class SubnetServer implements Runnable {
      * Stops the current server thread, if any.
      */
     public void stop() {
-        try {
-            if (mServerThread != null && mServerThread.isAlive()) {
-                mServerThread.interrupt();
-            }
-        } catch (Exception ex) {
-            Logs.severe("Failed to STOP multicast server.", ex);
+        if (mServerThread != null) {
+            mServerThread.interrupt();
         }
     }
 
@@ -92,7 +88,7 @@ public class SubnetServer implements Runnable {
     public void run() {
         Logs.info(getClass(), "Listening for broadcast packets at {0}", mPort);
 
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
                 // receive a packet
                 byte[] data = Commons.toBytes(new DiscoveryData());
@@ -106,7 +102,7 @@ public class SubnetServer implements Runnable {
                 }
 
                 // We have a response
-                Logs.info(getClass(), "Broadcast packet from server: {0}. Data = {1}",
+                Logs.info(getClass(), "Packet received. From: {0}, Data: {1}",
                         packet.getAddress().getHostAddress(), dd.getPort());
 
                 // check validity of the address
@@ -119,7 +115,7 @@ public class SubnetServer implements Runnable {
                 addUser(packet.getAddress(), dd.getPort());
 
             } catch (Exception ex) {
-                Logs.error(getClass(), "Error processing multicast socket {0}", ex);
+                Logs.error(getClass(), "Error processing packet. {0}", ex);
             }
         }
     }

@@ -169,7 +169,7 @@ public abstract class TCPClient {
                 return ois.readObject();
             }
         } catch (ClassNotFoundException ex) {
-            Logs.severe(Logs.SOCKET_CLASS_FAILED, ex);
+            Logs.error(getClass(), "Unrecognized object received", ex);
         } catch (IOException ex) {
             //Logs.severe(null, ex);
         }

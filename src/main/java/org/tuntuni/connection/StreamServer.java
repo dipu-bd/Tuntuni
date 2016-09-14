@@ -61,7 +61,7 @@ public abstract class StreamServer {
                 mInput = null;
             }
         } catch (Exception ex) {
-            Logs.error(getName(), "Failed to close. {0}", ex);
+            Logs.warning(getName(), "Failed to close. {0}", ex);
         }
     }
 
