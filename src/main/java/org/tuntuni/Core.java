@@ -78,10 +78,10 @@ public final class Core {
      * Stop server and background tasks
      */
     public void close() {
+        mDialer.endCall();
+        mServer.stop();
         mSubnet.stop();
         mSubnetServer.stop();
-        mServer.stop();
-        mDialer.endCall();
     }
 
     ///

@@ -43,9 +43,9 @@ public class SubnetServer implements Runnable {
     private final SimpleMapProperty<Integer, Client> mUserList;
 
     /**
-     * Creates a MulticastServer by given port to listen. 
+     * Creates a MulticastServer by given port to listen.
      */
-    public SubnetServer() { 
+    public SubnetServer() {
         mUserList = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
     }
@@ -150,8 +150,11 @@ public class SubnetServer implements Runnable {
     private void addUser(final InetAddress address, final int port) {
         // check if already added
         int key = SocketUtils.addressAsInteger(address);
-        Client client = mUserList.get(key); 
-        if (client == null) {
+        Client client = mUserList.get(key);
+        if (client == null && port == -1) {
+            return; // unlikely condition!
+            
+        } else if (client == null) {
             // check the server for connection status and profile information first
             client = new Client(new InetSocketAddress(address, port));
             // add new user
@@ -163,13 +166,13 @@ public class SubnetServer implements Runnable {
             // disconnected
             client.setConnected(false);
             // remove the disconnected user
-            mUserList.remove(key);            
-            
+            mUserList.remove(key);
+
         } else if (client.getPort() != port) {
             // update user
             client.updateAddress(new InetSocketAddress(address, port));
             // check if connected
             client.checkServer();
         }
-    } 
+    }
 }
