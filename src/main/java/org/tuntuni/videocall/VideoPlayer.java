@@ -36,17 +36,13 @@ public class VideoPlayer {
     }
 
     public void start() throws SocketException, IOException {
-        mImagePlayer.open();
-        mImagePlayer.start();
-
+        mImagePlayer.open(); 
         mAudioPlayer.open();
         mAudioPlayer.start();
     }
 
     public void stop() {
-        mImagePlayer.stop();
         mImagePlayer.close();
-
         mAudioPlayer.stop();
         mAudioPlayer.close();
     }

@@ -19,6 +19,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import org.tuntuni.connection.DataFrame;
+import org.tuntuni.connection.StreamServer;
 import org.tuntuni.models.Logs;
 import org.tuntuni.videocall.VideoFormat;
 
@@ -26,7 +28,7 @@ import org.tuntuni.videocall.VideoFormat;
  *
  * @author Sudipto Chandra
  */
-public class AudioPlayer extends AudioServer {
+public class AudioPlayer extends StreamServer {
 
     private DataLine.Info mSourceInfo;
     private SourceDataLine mSourceLine;
@@ -37,11 +39,9 @@ public class AudioPlayer extends AudioServer {
 
     /**
      * Starts the player
-     */
-    @Override
+     */ 
     public void start() {
-        try {
-            super.start();
+        try { 
             // start source line
             mSourceInfo = new DataLine.Info(
                     SourceDataLine.class, VideoFormat.getAudioFormat());
@@ -49,28 +49,35 @@ public class AudioPlayer extends AudioServer {
             mSourceLine.open(VideoFormat.getAudioFormat());
             mSourceLine.start();
         } catch (LineUnavailableException ex) {
-            Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex); 
+            Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
         }
     }
 
     /**
      * Stops the player
-     */
-    @Override
+     */ 
     public void stop() {
-        try {
-            super.stop();
+        try { 
             // close player
             mSourceLine.stop();
             mSourceLine.close();
         } catch (Exception ex) {
         }
     }
+ 
+    @Override
+    public String getName() {
+        return "AudioPlayer";
+    }
 
     @Override
-    public void playAudio(byte[] data) {
-        // play the audio data   
-        mSourceLine.write(data, 0, data.length); 
+    public synchronized void dataReceived(Object data) {
+        if (data != null && data instanceof DataFrame) {
+            DataFrame frame = (DataFrame) data;
+            byte[] play = frame.getBuffer();
+            // play the audio data   
+            mSourceLine.write(play, 0, play.length);
+        }
     }
 
 }

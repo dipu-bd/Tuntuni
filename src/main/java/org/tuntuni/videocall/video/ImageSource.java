@@ -27,17 +27,7 @@ public abstract class ImageSource extends StreamClient {
     public ImageSource() {
         super(5);
     }
-
-    /**
-     * Gets the name of the image source
-     *
-     * @return
-     */
-    @Override
-    public String getName() {
-        return "ImageSource";
-    }
-
+ 
     /**
      * Open the image source to capture
      */
@@ -69,8 +59,4 @@ public abstract class ImageSource extends StreamClient {
      */
     public abstract boolean isOpen();
 
-    @Override
-    public String toString() {
-        return getName();
-    }
 }

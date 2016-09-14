@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -34,6 +35,7 @@ public abstract class StreamServer {
     private ServerSocket mServer;
     private Socket mClient;
     private ObjectInputStream mInput;
+    private Thread mServerThread;
 
     public StreamServer(int port) {
         mPort = port;
@@ -44,10 +46,14 @@ public abstract class StreamServer {
     public void open() throws IOException {
         mServer = new ServerSocket(mPort);
         Logs.info(getName(), "Opened @ {0}", getPort());
+        mServerThread = new Thread(() -> run());
+        mServerThread.setDaemon(true);
+        mServerThread.start();
     }
 
     public void close() {
         try {
+            mServerThread.interrupt();
             if (mServer != null) {
                 mServer.close();
                 mServer = null;
@@ -65,9 +71,21 @@ public abstract class StreamServer {
         }
     }
 
-    public int getPort() {
-        return mServer == null ? -1 : mServer.getLocalPort();
+    public void run() {
+        while (isOpen()) {
+            try {
+                dataReceived(receive());
+            } catch (SocketException ex) {
+                Logs.error(getName(), "Connection failure! {0}", ex);
+                //break;
+            } catch (EOFException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
+                Logs.error(getName(), "Receive failure. {0}", ex);
+            }
+        }
     }
+
+    public abstract void dataReceived(Object data);
 
     public Object receive() throws SocketException, IOException, ClassNotFoundException {
         if (!isConnected()) {
@@ -85,12 +103,9 @@ public abstract class StreamServer {
         Logs.info(getName(), "Accepted client {0}", getRemoteAddress());
     }
 
-    public SocketAddress getRemoteAddress() {
-        return mClient != null ? mClient.getRemoteSocketAddress() : null;
-    }
-
     public boolean isOpen() {
-        return mServer != null && !mServer.isClosed();
+        return mServer != null
+                && !mServer.isClosed();
     }
 
     public boolean isConnected() {
@@ -98,6 +113,14 @@ public abstract class StreamServer {
                 && mInput != null
                 && mClient != null
                 && !mClient.isClosed();
+    }
+
+    public int getPort() {
+        return mServer == null ? -1 : mServer.getLocalPort();
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return mClient != null ? mClient.getRemoteSocketAddress() : null;
     }
 
     @Override

@@ -15,7 +15,6 @@
  */
 package org.tuntuni;
 
-import java.net.SocketException;
 import javafx.stage.Stage;
 import org.tuntuni.connection.SubnetServer;
 import org.tuntuni.connection.MainServer;

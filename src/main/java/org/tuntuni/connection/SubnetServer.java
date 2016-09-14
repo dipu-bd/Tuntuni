@@ -160,6 +160,8 @@ public class SubnetServer implements Runnable {
             client.checkServer();
 
         } else if (port == -1) {
+            // disconnected
+            client.setConnected(false);
             // remove the disconnected user
             mUserList.remove(key);            
             

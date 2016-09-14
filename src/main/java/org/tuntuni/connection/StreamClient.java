@@ -22,7 +22,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.LinkedList;
+import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
+import org.tuntuni.videocall.DialStatus;
 
 /**
  * Sends data to the server
@@ -45,8 +47,13 @@ public abstract class StreamClient {
 
     public abstract String getName();
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     public void connect(InetAddress address, int port) throws IOException {
-        mAddress = new InetSocketAddress(address, port); 
+        mAddress = new InetSocketAddress(address, port);
         mClientThread = new Thread(() -> run());
         mClientThread.setName(getName());
         mClientThread.setDaemon(true);
@@ -70,6 +77,9 @@ public abstract class StreamClient {
     }
 
     private boolean connect() {
+        if (isConnected()) {
+            return true;
+        }
         try {
             mClient = new Socket();
             mClient.connect(mAddress, 0);
@@ -100,7 +110,9 @@ public abstract class StreamClient {
                 mOutput.flush();
             } catch (SocketException ex) {
                 Logs.error(getName(), "Socket failure! {0}", ex);
-                //break;
+                if (Core.instance().dialer().getStatus() != DialStatus.DIALING) {
+                    break;
+                }
             } catch (IOException ex) {
                 Logs.error(getName(), "Write failure! {0}", ex);
             }
@@ -121,10 +133,10 @@ public abstract class StreamClient {
         }
     }
 
-    public void send(Object frame) {
+    public boolean send(Object frame) {
         // check if connected
-        if (!isConnected()) {
-            connect();
+        if (!connect()) {
+            return false;
         }
         // Add to queue 
         synchronized (mSendQueue) {
@@ -134,10 +146,11 @@ public abstract class StreamClient {
             }
             mSendQueue.notify();
         }
+        return true;
     }
 
-    public void send(byte[] data, int size) {
-        send(new DataFrame(data, size));
+    public boolean send(byte[] data, int size) {
+        return send(new DataFrame(data, size));
     }
 
     public boolean isConnected() {

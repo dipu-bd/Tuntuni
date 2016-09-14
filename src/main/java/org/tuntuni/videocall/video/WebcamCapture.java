@@ -35,11 +35,7 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public String getName() {
-        String name = "WebCamCapture";
-        if (mWebcam != null) {
-            name += mWebcam.getDevice().getName();
-        }
-        return name;
+        return "WebCamCapture";
     }
 
     @Override
@@ -56,7 +52,7 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public void start() {
-        // start webcam
+        // start webcam 
         mWebcam = Webcam.getDefault();
         if (mWebcam != null) {
             mWebcam.setViewSize(VideoFormat.getViewSize());

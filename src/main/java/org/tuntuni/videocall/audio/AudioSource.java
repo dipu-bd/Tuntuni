@@ -26,15 +26,7 @@ public abstract class AudioSource extends StreamClient {
     public AudioSource() {
         super(1);
     }
-     
-    /**
-     * Gets the name of the source.
-     *
-     * @return
-     */
-    @Override
-    public abstract String getName();
-
+      
     /**
      * Opens the audio source for recording.
      */
@@ -64,11 +56,6 @@ public abstract class AudioSource extends StreamClient {
      *
      * @return
      */
-    public abstract boolean isOpen();
-
-    @Override
-    public String toString() {
-        return getName();
-    }
+    public abstract boolean isOpen(); 
 
 }

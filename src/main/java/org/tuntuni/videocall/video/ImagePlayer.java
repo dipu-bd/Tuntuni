@@ -21,18 +21,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.tuntuni.connection.StreamServer;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public class ImagePlayer extends ImageServer {
+public class ImagePlayer extends StreamServer {
 
     static final int QUEUE_SIZE = 7;
 
     private final ImageView mViewer;
-    private BufferedImage mImage;
     private ConcurrentLinkedQueue<Image> mQueue;
+    
+    @Deprecated
+    private BufferedImage mImage; 
 
     public ImagePlayer(int port, ImageView viewer) {
         super(port);
@@ -42,15 +45,24 @@ public class ImagePlayer extends ImageServer {
     }
 
     @Override
-    public void displayImage(ImageFrame frame) {
-        mQueue.add(frame.getImage());
-        if (mViewer != null && mQueue.size() > QUEUE_SIZE) {
-            Platform.runLater(() -> {
-                mViewer.setImage(mQueue.remove());
-            });
+    public String getName() {
+        return "ImagePlayer";
+    }
+
+    @Override
+    public void dataReceived(Object data) {
+        if (data != null && data instanceof ImageFrame) {
+            ImageFrame frame = (ImageFrame) data;
+            mQueue.add(frame.getImage());
+            if (mViewer != null && mQueue.size() > QUEUE_SIZE) {
+                Platform.runLater(() -> {
+                    mViewer.setImage(mQueue.remove());
+                });
+            }
         }
     }
 
+    @Deprecated
     private void applyImage(BufferedImage image) {
         if (mImage == null
                 || mImage.getWidth() != image.getWidth()
