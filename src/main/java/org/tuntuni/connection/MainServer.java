@@ -19,8 +19,7 @@ import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
-import org.tuntuni.models.Message;
-import org.tuntuni.video.DialerException;
+import org.tuntuni.models.Message; 
 
 /**
  * Extended by MainServer. It provides functions to deal with a request arrived
@@ -53,10 +52,12 @@ public class MainServer extends TCPServer {
                 return Core.instance().user().getData();
             case MESSAGE: // a message arrived
                 return message(getClient(from), data);
-            case DIAL:
-                return dial(getClient(from));
+            case CALL_REQUEST:
+                return Core.instance().dialer().receive(getClient(from));
+            case CALL_RESPONSE:
+                return callResponse(from, data);
             case END_CALL:
-                return Core.instance().dialer().endCall(getClient(from));
+                Core.instance().dialer().endCall(getClient(from));
         }
         return null;
     }
@@ -85,15 +86,14 @@ public class MainServer extends TCPServer {
         return null;
     }
 
-    public Object dial(Client client) {
-        if (client == null) {
-            return new DialerException("Could not recognize the caller");
-        }
+    // receiver response
+    public Object callResponse(Socket from, Object[] data) {
         try {
-            Core.instance().dialer().receive(client);
+            Client param1 = getClient(from);
+            Exception param2 = (Exception) data[0];
+            return Core.instance().dialer().receiveResponse(param1, param2);
         } catch (Exception ex) {
             return ex;
         }
-        return null;
     }
 }

@@ -91,7 +91,7 @@ public class VideoCallController implements Initializable {
         }
     }
 
-    public boolean acceptCallDialog(final Client client) {
+    public void acceptCallDialog(final Client client) {
         // set current client
         setClient(client);
         Core.instance().main().selectVideoCall();
@@ -118,10 +118,12 @@ public class VideoCallController implements Initializable {
 
         // return the result
         Optional<Boolean> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return false;
+        new Thread(() -> {
+            if (result.isPresent() && result.get()) {
+                Core.instance().dialer().acceptResponse(client, null);
+            }
+            Core.instance().dialer().acceptResponse(client, new Exception("Call was rejected"));
+        }).start();
     }
 
     public ImageView getViewer() {
@@ -149,16 +151,15 @@ public class VideoCallController implements Initializable {
 
     @FXML
     private void startVideoCall(ActionEvent evt) {
-        try {
-            Core.instance().dialer().dial(mClient);
-        } catch (Exception ex) {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.setTitle("Call failed!");
-                alert.setHeaderText("Something went wrong...");
-                alert.setContentText("ERROR: " + ex.getMessage());
-                alert.showAndWait();
-            });
+        // dial
+        Exception ex = Core.instance().dialer().dial(mClient);
+        // if something went wrong
+        if (ex != null) {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Failure!");
+            alert.setHeaderText("Dial Failed.");
+            alert.setContentText("ERROR: " + ex.getMessage());
+            alert.show();
         }
     }
 

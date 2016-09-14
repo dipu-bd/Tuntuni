@@ -15,10 +15,12 @@
  */
 package org.tuntuni.video;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
+import org.tuntuni.connection.ConnectFor;
 import org.tuntuni.models.Logs;
 
 /**
@@ -39,73 +41,108 @@ public class Dialer {
         mStatus = new SimpleObjectProperty<>(DialStatus.IDLE);
     }
 
-    public void dial(Client client) throws DialerException {
+    public Exception dial(Client client) {
         try {
-            mClient = client;
+            // check result
+            if (client != null) {
+                throw new Exception("Invalid user");
+            }
             // occupy my slot
             if (mStatus.get() != DialStatus.IDLE) {
-                throw new Exception("Your are already in a call");
+                throw new Exception("You are already in a call");
             }
-            // occupy a slot in client 
+            // occupy call slot
+            mClient = client;
             mStatus.set(DialStatus.DIALING);
-            Exception ex = client.requestSlot();
-            if (ex != null) {
-                throw ex;
+            // send dial request
+            mClient.callRequest(ConnectFor.CALL_REQUEST, null);
+        } catch (Exception ex) {
+            mStatus.set(DialStatus.IDLE);
+            return ex;
+        }
+        return null;
+    }
+
+    public Exception receiveResponse(Client client, Exception err) {
+        try {
+            // check result
+            if (err != null) {
+                throw err;
+            }
+            // check client
+            if (client != mClient) {
+                throw new Exception("User mismatch");
             }
             // start communication
-            startComs();
+            start();
         } catch (Exception ex) {
-            stopComs();
-            throw new DialerException(ex.getMessage(), ex.getCause());
+            Logs.error(getClass(), ex.getMessage());
+            return ex;
         }
+        return null;
     }
 
-    public void receive(Client client) throws DialerException {
+    public Exception receive(Client client) {
         try {
-            mClient = client;
-            // check if my slot is available
+            // check client
+            if (client == null) {
+                throw new Exception("Invalid user");
+            }
+            // check if user is available
             if (mStatus.get() != DialStatus.IDLE) {
-                throw new Exception("Your are already in a call");
+                throw new Exception("User is busy");
             }
-            // request user to accept the call 
+            // change status 
+            mClient = client;
             mStatus.set(DialStatus.DIALING);
-            boolean res = Core.instance().videocall().acceptCallDialog(mClient);
-            if (!res) {
-                throw new Exception("Call was rejected");
-            }
-            // start communication        
-            startComs();
+            // request user to accept the call 
+            Platform.runLater(() -> {
+                Core.instance().videocall().acceptCallDialog(mClient);
+            });
         } catch (Exception ex) {
-            stopComs();
-            throw new DialerException(ex.getMessage(), ex.getCause());
+            return ex;
         }
+        return null;
     }
 
-    public void stop() {
-        stopComs();
-        mClient = null;
-        mStatus.set(DialStatus.IDLE);
+    public void acceptResponse(Client client, Exception err) {
+        try {
+            // check client
+            if (client != mClient) {
+                throw new Exception("User mismatch");
+            }
+            // send accept notification
+            mClient.callRequest(ConnectFor.CALL_RESPONSE, err);
+            // start communication
+            start();
+
+        } catch (Exception ex) {
+            Logs.error(getClass(), ex.getMessage());
+        }
     }
 
     public void endCall() {
         if (mClient != null && mStatus.get() != DialStatus.IDLE) {
+            // stop remote
+            new Thread(() -> {
+                try {
+                    mClient.callRequest(ConnectFor.END_CALL, null);
+                } catch (Exception ex) {
+                }
+            }).start();
+            // stop local
             stop();
-            new Thread(() -> mClient.endCall()).start();
         }
     }
 
-    public boolean endCall(Client client) {
-        if (client != null && mClient != null
-                && client.getHostString().equals(mClient.getHostString())) {
-            stop();
-            return true;
-        }
-        return false;
+    public void endCall(Client client) {
+        stop();
     }
 
+//                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-    private void startComs() throws DialerException {
+//                                                                            //
+    private void start() throws Exception {
         try {
             mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
             mPlayer.start();
@@ -113,18 +150,20 @@ public class Dialer {
             mRecorder = new VideoRecorder(mClient.getAddress().getAddress());
             mRecorder.start();
         } catch (Exception ex) {
-            Logs.error(getClass(), "Failed to start coms. {0}", ex);
-            throw new DialerException("Failed to start communication.");
+            Logs.error(getClass(), ex.getMessage());
+            throw new Exception("Failed to start channel. ERROR: " + ex.getMessage());
         }
     }
 
-    private void stopComs() {
+    public void stop() {
         if (mRecorder != null) {
             mRecorder.stop();
         }
         if (mPlayer != null) {
             mPlayer.stop();
         }
+        mClient = null;
+        mStatus.set(DialStatus.IDLE);
     }
 
     public VideoPlayer player() {

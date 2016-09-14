@@ -28,20 +28,13 @@ public enum ConnectFor {
     // to pass user profile information
     PROFILE(3),
     // to pass a single message
-    MESSAGE(4),
+    MESSAGE(4), 
     // to receive a call
-    DIAL(5),
-    // to pass audio 
-    AUDIO(6),
-    // to pass video 
-    IMAGE(7),
-    // to pass image port 
-    IMAGE_PORT(8),
-    // to pass audio port
-    AUDIO_PORT(9),
+    CALL_REQUEST(5),
+    // accept response
+    CALL_RESPONSE(6),
     // to end an ongoing call
-    END_CALL(10), 
-    CALL_ACCEPTED(11);
+    END_CALL(7);
 
     private final int mData;
 

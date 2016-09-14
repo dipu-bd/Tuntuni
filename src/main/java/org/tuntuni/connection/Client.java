@@ -148,23 +148,16 @@ public class Client extends TCPClient {
         mMessages.add(message);
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    // methods used in dialer 
-    ////////////////////////////////////////////////////////////////////////////
     /**
-     * Request for a call slot
-     *
-     * @return
+     * Sends a call request and receive response
+     * @param req
+     * @param data
+     * @throws Exception 
      */
-    public Exception requestSlot() {
-        return (Exception) request(ConnectFor.DIAL);
+    public void callRequest(ConnectFor req, Exception data) throws Exception {
+        Exception res = (Exception) request(req, data);
+        if (res != null) {
+            throw res;
+        }
     }
-
-    /**
-     * Request client to end an ongoing call
-     */
-    public void endCall() {
-        request(ConnectFor.END_CALL);
-    }
-
 }
