@@ -160,7 +160,7 @@ public class SubnetServer implements Runnable {
             // add new user
             mUserList.put(client.getIntegerAddress(), client);
 
-        } else if (client.getSocketAddress() != sa) {
+        } else if (client.getPort() != port) {
             // update user
             client.updateAddress(new InetSocketAddress(address, port));
             // check if connected
