@@ -44,7 +44,7 @@ public class Dialer {
     public Exception dial(Client client) {
         try {
             // check result
-            if (client != null) {
+            if (client == null) {
                 throw new Exception("Invalid user");
             }
             // occupy my slot
@@ -57,7 +57,7 @@ public class Dialer {
             // send dial request
             mClient.callRequest(ConnectFor.CALL_REQUEST, null);
         } catch (Exception ex) {
-            mStatus.set(DialStatus.IDLE);
+            stop();
             return ex;
         }
         return null;
@@ -76,6 +76,7 @@ public class Dialer {
             // start communication
             start();
         } catch (Exception ex) {
+            stop();
             Logs.error(getClass(), ex.getMessage());
             return ex;
         }
@@ -100,6 +101,7 @@ public class Dialer {
                 Core.instance().videocall().acceptCallDialog(mClient);
             });
         } catch (Exception ex) {
+            stop();
             return ex;
         }
         return null;
@@ -113,11 +115,15 @@ public class Dialer {
             }
             // send accept notification
             mClient.callRequest(ConnectFor.CALL_RESPONSE, err);
-            // start communication
+            if (err != null) {
+                throw err;
+            }
+            // start communication   
             start();
 
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());
+            stop();
         }
     }
 
