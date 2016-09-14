@@ -49,7 +49,7 @@ public abstract class StreamServer {
         mServer = new ServerSocket(mPort);
         Logs.info(getName(), "Opened @ {0}", getPort());
 
-        mServerThread = new Thread(() -> run());
+        mServerThread = new Thread(() -> listen());
         mServerThread.setDaemon(true);
         mServerThread.start();
     }
@@ -69,7 +69,7 @@ public abstract class StreamServer {
         }
     }
 
-    public void run() {
+    public void listen() {
         while (isOpen()) {
             try {
                 

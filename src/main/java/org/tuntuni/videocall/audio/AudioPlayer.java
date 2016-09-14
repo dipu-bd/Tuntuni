@@ -15,6 +15,10 @@
  */
 package org.tuntuni.videocall.audio;
 
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.media.AudioClip;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -28,26 +32,34 @@ import org.tuntuni.videocall.VideoFormat;
  *
  * @author Sudipto Chandra
  */
-public class AudioPlayer extends StreamServer {
+public class AudioPlayer extends StreamServer implements Runnable {
 
-    private DataLine.Info mSourceInfo;
+    static final int QUEUE_SIZE = 2;
+
     private SourceDataLine mSourceLine;
+    private Thread mPlayerThread;
+    private final LinkedList<byte[]> mData;
 
     public AudioPlayer(int port) {
         super(port);
+        mData = new LinkedList<>();
     }
 
     /**
      * Starts the player
-     */ 
+     */
     public void start() {
-        try { 
+        try {
             // start source line
-            mSourceInfo = new DataLine.Info(
+            DataLine.Info info = new DataLine.Info(
                     SourceDataLine.class, VideoFormat.getAudioFormat());
-            mSourceLine = (SourceDataLine) AudioSystem.getLine(mSourceInfo);
+            mSourceLine = (SourceDataLine) AudioSystem.getLine(info);
             mSourceLine.open(VideoFormat.getAudioFormat());
             mSourceLine.start();
+
+            mPlayerThread = new Thread(this);
+            mPlayerThread.setDaemon(true);
+            mPlayerThread.start();
         } catch (LineUnavailableException ex) {
             Logs.error(getClass(), "Failed to start the audio line. ERROR: {0}", ex);
         }
@@ -55,28 +67,54 @@ public class AudioPlayer extends StreamServer {
 
     /**
      * Stops the player
-     */ 
+     */
     public void stop() {
-        try { 
+        try {
+            mPlayerThread.interrupt();
             // close player
             mSourceLine.stop();
             mSourceLine.close();
         } catch (Exception ex) {
         }
     }
- 
+
     @Override
     public String getName() {
         return "AudioPlayer";
     }
 
     @Override
-    public synchronized void dataReceived(Object data) {
+    public void dataReceived(Object data) {
         if (data != null && data instanceof DataFrame) {
             DataFrame frame = (DataFrame) data;
-            byte[] play = frame.getBuffer();
             // play the audio data   
-            mSourceLine.write(play, 0, play.length);
+            synchronized (mData) {
+                mData.add(frame.getBuffer());
+                if (mData.size() > QUEUE_SIZE) {
+                    mData.poll();
+                }
+                mData.notify();
+            }
+        }
+    }
+
+    @Override
+    public void run() {
+        while (!Thread.interrupted()) {
+            synchronized (mData) {
+                if (mData.isEmpty()) {
+                    try {
+                        mData.wait();
+                    } catch (InterruptedException ex) {
+                        Logs.error(getName(), "Wait interrupted. {0}", ex);
+                    }
+                }
+                byte[] data = mData.poll();
+                if (data != null) {
+                    // play the audio data    
+                    mSourceLine.write(data, 0, data.length);
+                }
+            }
         }
     }
 
