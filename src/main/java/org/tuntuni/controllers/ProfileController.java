@@ -43,8 +43,6 @@ import org.tuntuni.util.FileService;
  */
 public class ProfileController implements Initializable {
 
-    private Client mClient;
-
     @FXML
     private TextField userName;
     @FXML
@@ -97,11 +95,6 @@ public class ProfileController implements Initializable {
         });
     }
 
-    public void setClient(Client client) {
-        mClient = client;
-        refresh();
-    }
-
     public void refresh() {
         Platform.runLater(() -> {
             if (isDefaultProfile()) {
@@ -112,18 +105,22 @@ public class ProfileController implements Initializable {
         });
     }
 
+    public Client getClient() {
+        return Core.instance().main().selectedClient();
+    }
+
     public boolean isDefaultProfile() {
-        return (mClient == null || !mClient.isConnected());
+        return (getClient() == null || !getClient().isConnected());
     }
 
     private void loadClientProfile() {
         // preliminary values
         final double width = avatarImage.getFitWidth();
         final double height = avatarImage.getFitHeight();
-        final String user = mClient.getUserData().getUserName();
-        final String status = mClient.getUserData().getStatus();
-        final String about = mClient.getUserData().getAboutMe();
-        final Image avatar = mClient.getUserData().getAvatar(width, height);
+        final String user = getClient().getUserData().getUserName();
+        final String status = getClient().getUserData().getStatus();
+        final String about = getClient().getUserData().getAboutMe();
+        final Image avatar = getClient().getUserData().getAvatar(width, height);
 
         // display all data
         userName.setText(user + " ");
@@ -144,7 +141,7 @@ public class ProfileController implements Initializable {
         statusText.setEditable(false);
         userName.setCursor(Cursor.DEFAULT);
         statusText.setCursor(Cursor.DEFAULT);
-        avatarButton.setCursor(Cursor.DEFAULT);
+        aboutMe.setCursor(Cursor.DEFAULT);
     }
 
     private void loadDefaultProfile() {
@@ -166,8 +163,8 @@ public class ProfileController implements Initializable {
         ColumnConstraints cc = aboutGridPane.getColumnConstraints().get(1);
         cc.setMinWidth(0);
         cc.setMaxWidth(0);
-        //messageButton.setVisible(false);
-        //videoCallButton.setVisible(false);
+        messageButton.setVisible(false);
+        videoCallButton.setVisible(false);
 
         // set edit states of each controls
         aboutMe.setEditable(true);
@@ -175,7 +172,7 @@ public class ProfileController implements Initializable {
         statusText.setEditable(true);
         userName.setCursor(Cursor.TEXT);
         statusText.setCursor(Cursor.TEXT);
-        avatarButton.setCursor(Cursor.TEXT);
+        aboutMe.setCursor(Cursor.TEXT);
     }
 
     @FXML
@@ -190,22 +187,23 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void changeAvatar(ActionEvent event) {
-        if (mClient == null) {
-            FileChooser fc = new FileChooser();
-            File init = new File(Database.instance().get("Initial Directory"));
-            if (init.exists()) {
-                fc.setInitialDirectory(init);
-            }
-            fc.getExtensionFilters().setAll(
-                    new FileChooser.ExtensionFilter("Image Files",
-                            "*.png", "*.jpg", "*.bmp", "*.gif"));
-            fc.setTitle("Choose your avatar...");
-            File choosen = fc.showOpenDialog(Core.instance().stage());
-            if (choosen != null) {
-                changeAvatar(choosen);
-                Database.instance().set("Initial Directory",
-                        choosen.getParentFile().toString());
-            }
+        if (!isDefaultProfile()) {
+            return;
+        }
+        FileChooser fc = new FileChooser();
+        File init = new File(Database.instance().get("Initial Directory"));
+        if (init.exists()) {
+            fc.setInitialDirectory(init);
+        }
+        fc.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("Image Files",
+                        "*.png", "*.jpg", "*.bmp", "*.gif"));
+        fc.setTitle("Choose your avatar...");
+        File choosen = fc.showOpenDialog(Core.instance().stage());
+        if (choosen != null) {
+            changeAvatar(choosen);
+            Database.instance().set("Initial Directory",
+                    choosen.getParentFile().toString());
         }
         refresh();
     }
@@ -239,5 +237,4 @@ public class ProfileController implements Initializable {
             dialog.showAndWait();
         }
     }
-
 }

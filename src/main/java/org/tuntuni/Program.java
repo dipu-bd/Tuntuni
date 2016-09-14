@@ -22,8 +22,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image; 
-import javafx.stage.Stage; 
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import org.tuntuni.util.Commons;
 
 /**
@@ -45,34 +45,30 @@ public class Program extends Application {
         // build the default scene
         Scene scene = new Scene(root);
         // add custom styles to the scene
-        scene.getStylesheets().add("/css/default.css");    
+        scene.getStylesheets().add("/css/default.css");
 
         // prepare the stage
         stage.setTitle("Tuntuni");
         // set the scene to stage
         stage.setScene(scene);
-        
+
         // stage size
-        stage.setWidth(900);
-        stage.setHeight(630);
+        stage.setWidth(920);
+        stage.setHeight(650);
 
         // set the icon
-        Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        
+        Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));
         stage.getIcons().add(icon);
         stage.getIcons().add(Commons.resizeImage(icon, 16, 16));
+        stage.getIcons().add(Commons.resizeImage(icon, 24, 24));
+        stage.getIcons().add(Commons.resizeImage(icon, 32, 32));
         stage.getIcons().add(Commons.resizeImage(icon, 48, 48));
-        stage.getIcons().add(Commons.resizeImage(icon, 128, 128));    
-        
-        // call other ui methods
-        Platform.runLater(() -> {
-            Core.instance().profile().setClient(null);
-            Core.instance().messaging().setClient(null);
-            Core.instance().videocall().setClient(null);
-        });
+        stage.getIcons().add(Commons.resizeImage(icon, 128, 128)); 
+        stage.getIcons().add(Commons.resizeImage(icon, 256, 256)); 
         
         // display the stage
-        //stage.setMaximized(true);
-        stage.show();        
+        stage.setMaximized(true);
+        stage.show();
     }
 
     /**

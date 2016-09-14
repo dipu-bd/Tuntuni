@@ -78,7 +78,7 @@
         </ListView>
     </left>
     <center>
-        <TabPane id="tab-pane" fx:id="tabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+        <TabPane id="tab-pane" fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="100.0">
             <tabs>
                 <Tab closable="false" text="Profile">
                     <content>

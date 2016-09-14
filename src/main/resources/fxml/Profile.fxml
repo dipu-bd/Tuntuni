@@ -99,7 +99,7 @@
         <GridPane fx:id="aboutGridPane" hgap="5.0" VBox.vgrow="ALWAYS">
             <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="400.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="165.0" prefWidth="180.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="165.0" prefWidth="170.0" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints maxHeight="65.0" minHeight="50.0" prefHeight="60.0" vgrow="SOMETIMES" />

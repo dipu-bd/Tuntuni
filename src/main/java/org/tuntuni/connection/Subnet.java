@@ -113,7 +113,6 @@ public class Subnet {
             if (ni.isLoopback() || !ni.isUp()) {
                 return;
             }
-
             // list of all tasks
             //ArrayList<Callable<Integer>> taskList = new ArrayList<>();
             // loop through addresses assigned to this interface. (usually 1)
@@ -147,12 +146,14 @@ public class Subnet {
             myAddress.add(ia.getAddress().getHostAddress());
             // data to send
             byte[] sendData = Commons.toBytes(mDataToSend);
-            // Send the broadcast package! 
-            DatagramPacket sendPacket = new DatagramPacket(
-                    sendData, sendData.length,
-                    ia.getBroadcast(), SubnetServer.PORT);
-            mSocket.send(sendPacket);
-            
+            // Send the broadcast package!  
+            for (int port : SubnetServer.PORTS) {
+                DatagramPacket sendPacket = new DatagramPacket(
+                        sendData, sendData.length,
+                        ia.getBroadcast(), port);
+                mSocket.send(sendPacket);
+            }
+
         } catch (Exception ex) {
             Logs.error(getClass(), "Failed to send broadcast. {0}", ex);
         }

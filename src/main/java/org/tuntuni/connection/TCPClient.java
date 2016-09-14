@@ -44,7 +44,7 @@ public abstract class TCPClient {
     // to connect with server     
     private InetSocketAddress mAddress;
     private final BooleanProperty mConnected;
-    private long lastSetConnected;
+    private long lastConnectTime;
 
     // hidesthe constructor and handle it with static open() method
     public TCPClient(InetSocketAddress socket) {
@@ -127,7 +127,7 @@ public abstract class TCPClient {
      * @return
      */
     public String getHostName() {
-        return (mAddress.getHostName().equals(getHostString())) ? "" : mAddress.getHostName();
+        return mAddress.getHostName();
     }
 
     /**
@@ -155,7 +155,7 @@ public abstract class TCPClient {
      */
     public boolean isConnected() {
         if (mConnected.get()) {
-            if (System.currentTimeMillis() - lastSetConnected > ALIVE_PERIOD) {
+            if (System.currentTimeMillis() - lastConnectTime > ALIVE_PERIOD) {
                 mConnected.set(false);
             }
         }
@@ -170,7 +170,7 @@ public abstract class TCPClient {
     public void setConnected(boolean connected) {
         mConnected.set(connected);
         if (connected) {
-            lastSetConnected = System.currentTimeMillis();
+            lastConnectTime = System.currentTimeMillis();
         }
     }
 

@@ -43,7 +43,6 @@ import org.tuntuni.videocall.DialStatus;
  */
 public class VideoCallController implements Initializable {
 
-    private Client mClient;
     Image mBlackImage;
     Image mCallImage;
 
@@ -82,16 +81,19 @@ public class VideoCallController implements Initializable {
         }
     }
 
-    public void setClient(Client client) {
-        mClient = client;
+    public Client getClient() {
+        return Core.instance().main().selectedClient();
+    }
+
+    public void refresh() {
         loadAll();
     }
 
     private void loadAll() {
-        if (mClient != null && mClient.getUserData() != null) {
+        if (getClient() != null && getClient().getUserData() != null) {
             userName.setVisible(true);
-            userName.setText(mClient.getUserData().getUserName());
-            userPhoto.setImage(mClient.getUserData().getAvatar(
+            userName.setText(getClient().getUserData().getUserName());
+            userPhoto.setImage(getClient().getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         } else {
             userName.setVisible(false);
@@ -100,7 +102,7 @@ public class VideoCallController implements Initializable {
 
     public void acceptCallDialog(final Client client) {
         // set current client
-        setClient(client);
+        Core.instance().main().showUser(client);
         Core.instance().main().selectVideoCall();
 
         // create the custom dialog.
@@ -167,7 +169,7 @@ public class VideoCallController implements Initializable {
     @FXML
     private void startVideoCall(ActionEvent evt) {
         // dial
-        Exception ex = Core.instance().dialer().dial(mClient);
+        Exception ex = Core.instance().dialer().dial(getClient());
         // if something went wrong
         if (ex != null) {
             Alert alert = new Alert(AlertType.WARNING);

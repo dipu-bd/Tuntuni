@@ -18,6 +18,8 @@ package org.tuntuni.controllers;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,8 +47,6 @@ import org.tuntuni.models.Message;
  */
 public class MessagingController implements Initializable, ListChangeListener<Message> {
 
-    private Client mClient;
-
     @FXML
     private TextArea messageText;
     @FXML
@@ -69,33 +69,34 @@ public class MessagingController implements Initializable, ListChangeListener<Me
         Core.instance().messaging(this);
     }
 
-    public void setClient(Client client) {
-        if (mClient != null) {
-            mClient.messageProperty().removeListener(this);
-        }
-        mClient = client;
+    public void refresh() {
         Platform.runLater(() -> loadAll());
     }
 
+    public Client getClient() {
+        return Core.instance().main().selectedClient();
+    }
+
     private void loadAll() {
+
         messageText.clear();
         errorLabel.setText("");
         messageList.getItems().clear();
         // load user name and avatar 
-        if (mClient == null) {
+        if (getClient() == null) {
             userName.setVisible(false);
             return;
         }
         // show user info
-        if (mClient.getUserData() != null) {
+        if (getClient().getUserData() != null) {
             userName.setVisible(true);
-            userName.setText(mClient.getUserData().getUserName());
-            userPhoto.setImage(mClient.getUserData().getAvatar(
+            userName.setText(getClient().getUserData().getUserName());
+            userPhoto.setImage(getClient().getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         }
         // load list of past messages
         showHistory(0);
-        mClient.messageProperty().addListener(this);
+        getClient().messageProperty().addListener(this);
     }
 
     @Override
@@ -108,8 +109,8 @@ public class MessagingController implements Initializable, ListChangeListener<Me
 
     public void showHistory(int from) {
         // iterate list
-        for (int i = from; i < mClient.messageProperty().size(); ++i) {
-            final Message message = mClient.messageProperty().get(i);
+        for (int i = from; i < getClient().messageProperty().size(); ++i) {
+            final Message message = getClient().messageProperty().get(i);
             Platform.runLater(() -> {
                 // add element
                 messageList.getItems().add(MessageBox.createInstance(message));
@@ -126,7 +127,7 @@ public class MessagingController implements Initializable, ListChangeListener<Me
 
     private String sendMessage(String text) {
         try {
-            mClient.sendMessage(new Message(text));
+            getClient().sendMessage(new Message(text));
             return "Message sent!";
         } catch (Exception e) {
             return e.getMessage();
@@ -134,7 +135,7 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     }
 
     public void notifyIncoming(Message message) {
-        if (message == null || message.getClient() == mClient ) {
+        if (message == null || message.getClient() == getClient()) {
             return;
         }
         Platform.runLater(() -> {
@@ -157,7 +158,9 @@ public class MessagingController implements Initializable, ListChangeListener<Me
 
     @FXML
     private void messageKeyPressed(KeyEvent evt) {
-        //setTextAreaHeight();
+        
+        setTextAreaHeight();
+        
         if (evt.getCode() == KeyCode.ENTER) {
             evt.consume();
             if (evt.isShiftDown()) {
@@ -176,7 +179,7 @@ public class MessagingController implements Initializable, ListChangeListener<Me
             errorLabel.setText("Message is too short");
             return;
         }
-        if (mClient == null) {
+        if (getClient() == null) {
             errorLabel.setText("The receiver is unknown");
             return;
         }

@@ -121,8 +121,18 @@ public class Client extends TCPClient {
      * @return
      */
     public UserData getUserData() {
-        return mUserData.get();
+        return  mUserData.get();
     }
+    
+    /**
+     * Gets the user name.
+     *
+     * @return
+     */
+    public String getUserName() {
+        return mUserData == null ? getHostString() : mUserData.get().getUserName();
+    }
+
 
     /**
      * Sets the user data

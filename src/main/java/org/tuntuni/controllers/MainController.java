@@ -31,6 +31,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.controlsfx.control.Notifications;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 
@@ -44,6 +45,8 @@ import org.tuntuni.connection.Client;
  *
  */
 public class MainController implements Initializable {
+
+    private volatile Client mSelected;
 
     @FXML
     private ListView userList;
@@ -62,7 +65,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // set main controller to core
         Core.instance().main(this);
-        userListPrefWidth = userList.getPrefWidth();        
+        userListPrefWidth = userList.getPrefWidth();
 
         // change of user name
         profileButton.setText(Core.instance().user().username());
@@ -89,6 +92,8 @@ public class MainController implements Initializable {
         Core.instance().scanner().userListProperty().addListener((MapChangeListener.Change<? extends Integer, ? extends Client> change) -> {
             Platform.runLater(() -> updateUserList(change.getValueAdded(), change.getValueRemoved()));
         });
+
+        showUser(null);
     }
 
     // updates the user list
@@ -97,6 +102,7 @@ public class MainController implements Initializable {
         if (add != null) {
             UserItem item = UserItem.createInstance(add);
             userList.getItems().add(item);
+            add.connectedProperty().addListener((ov, n, o) -> refreshAll());
         }
         // remove item
         if (remove != null) {
@@ -125,11 +131,32 @@ public class MainController implements Initializable {
      * @param client
      */
     public void showUser(Client client) {
+        if (client != null && !client.isConnected()) {
+            String msg = "Either " + client.getUserData().getUserName()
+                    + " closed his application,"
+                    + " or there is a network failure.";
+            Notifications.create()
+                    .title("User Disconnected!")
+                    .text(msg)
+                    .showError();
+            client = null;
+        }
+        mSelected = client;
+        refreshAll();
+    }
+
+    public Client selectedClient() {
+        return mSelected;
+    }
+
+    public void refreshAll() {
         Platform.runLater(() -> {
-            Core.instance().profile().setClient(client);
-            Core.instance().messaging().setClient(client);
-            Core.instance().videocall().setClient(client);
-            selectProfile();
+            Core.instance().profile().refresh();
+            Core.instance().messaging().refresh();
+            Core.instance().videocall().refresh();
+            if (mSelected == null && !isProfile()) {
+                selectProfile();
+            }
         });
     }
 
@@ -152,6 +179,18 @@ public class MainController implements Initializable {
      */
     public void selectVideoCall() {
         tabPane.getSelectionModel().select(2);
+    }
+
+    public boolean isProfile() {
+        return tabPane.getSelectionModel().isSelected(0);
+    }
+
+    public boolean isMessaging() {
+        return tabPane.getSelectionModel().isSelected(1);
+    }
+
+    public boolean isVideoCall() {
+        return tabPane.getSelectionModel().isSelected(2);
     }
 
     @FXML

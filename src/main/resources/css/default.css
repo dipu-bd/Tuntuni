@@ -28,7 +28,7 @@
     -fx-text-fill: black;
 }
 
-/* HIDE Tab pane header */
+/* HIDE Tab pane header  
 .tab-pane {
     -fx-tab-min-height: 0; 
     -fx-tab-max-height: 0; 
@@ -36,8 +36,8 @@
 .tab-pane .tab-header-area {
     visibility: hidden ;
 }
+*/
 
-/*
 .tab-pane .tab-header-background {
     -fx-background-color: transparent;
 }
@@ -68,8 +68,7 @@
 
 .tab-pane {
     -fx-open-tab-animation: grow;
-}
-*/
+} 
 
 .highlight-button {
     -fx-cursor: hand;

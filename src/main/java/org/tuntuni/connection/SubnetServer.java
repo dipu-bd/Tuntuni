@@ -36,7 +36,10 @@ import org.tuntuni.util.SocketUtils;
  */
 public class SubnetServer implements Runnable {
 
-    public static final int PORT = 24914;
+    public static final int[] PORTS = {
+        24914,
+        24915
+    };
 
     private Thread mServerThread;
     private DatagramSocket mSocket;
@@ -57,17 +60,22 @@ public class SubnetServer implements Runnable {
      * Starts the server thread.
      */
     public void start() {
-        try {
-            // bind a datagram socket to the given port address 
-            mSocket = new DatagramSocket(PORT, InetAddress.getByName("0.0.0.0"));
-            mSocket.setBroadcast(true);
-
-            mServerThread = new Thread(this);
-            mServerThread.setDaemon(true);
-            mServerThread.start();
-        } catch (UnknownHostException | SocketException ex) {
-            Logs.error(getClass(), "Failed to start. {0}", ex);
+        // bind a datagram socket to the given port address 
+        for (int port : PORTS) {
+            try {
+                mSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
+                mSocket.setBroadcast(true);
+                break;
+            } catch (UnknownHostException | SocketException ex) {
+                mSocket = null;
+            }
         }
+        if (mSocket == null) {
+            Logs.error(getClass(), "Failed to start.");
+        }
+        mServerThread = new Thread(this);
+        mServerThread.setDaemon(true);
+        mServerThread.start();
     }
 
     /**
@@ -80,9 +88,13 @@ public class SubnetServer implements Runnable {
         }
     }
 
+    public int getPort() {
+        return mSocket == null ? -1 : mSocket.getLocalPort();
+    }
+
     @Override
     public void run() {
-        Logs.info(getClass(), "Listening for broadcast packets at {0}", PORT);
+        Logs.info(getClass(), "Listening for broadcast packets at {0}", getPort());
 
         while (!Thread.interrupted()) {
             try {
@@ -92,8 +104,11 @@ public class SubnetServer implements Runnable {
                 mSocket.receive(packet);
 
                 // convert response data
-                DiscoveryData dd = Commons.fromBytes(data, DiscoveryData.class);
-                if (dd == null || dd.getConnectFor() != ConnectFor.PORT) {
+                DiscoveryData dd = Commons.fromBytes(data, DiscoveryData.class
+                );
+                if (dd
+                        == null || dd.getConnectFor()
+                        != ConnectFor.PORT) {
                     continue;
                 }
 
@@ -102,7 +117,8 @@ public class SubnetServer implements Runnable {
                         packet.getAddress().getHostAddress(), dd.getPort());
 
                 // check validity of the address
-                if (dd.getPort() == Core.instance().server().getPort()
+                if (dd.getPort()
+                        == Core.instance().server().getPort()
                         && Core.instance().subnet().isLocalhost(packet.getAddress().getHostAddress())) {
                     continue;
                 }
@@ -111,7 +127,9 @@ public class SubnetServer implements Runnable {
                 Thread t = new Thread(() -> {
                     addUser(packet.getAddress(), dd.getPort());
                 });
-                t.setDaemon(true);
+
+                t.setDaemon(
+                        true);
                 t.start();
 
             } catch (Exception ex) {
@@ -159,7 +177,7 @@ public class SubnetServer implements Runnable {
         }
 
         if (client != null) {
-            
+
             // remove the disconnected user
             if (port == -1) {
                 client.setConnected(false);
