@@ -89,7 +89,6 @@ public class MainController implements Initializable {
 
     // updates the user list
     private void updateUserList(Client add, Client remove) {
-        System.out.println("Added " + add + " removed " + remove);
         // add item
         if (add != null) {
             UserItem item = UserItem.createInstance(add);

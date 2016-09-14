@@ -19,7 +19,6 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
-import java.net.SocketException;
 import org.tuntuni.models.Logs;
 import org.tuntuni.videocall.VideoFormat;
 
@@ -70,7 +69,7 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public void stop() {
-        if (mWebcam != null) { 
+        if (mWebcam != null) {
             mWebcam.close();
         }
     }
@@ -82,11 +81,7 @@ public class WebcamCapture extends ImageSource implements WebcamListener {
 
     @Override
     public void webcamImageObtained(WebcamEvent we) {
-        try {
-            send(new ImageFrame(we.getImage()));
-        } catch (SocketException ex) {
-           stop();
-        }
+        send(new ImageFrame(we.getImage()));
     }
 
     @Override

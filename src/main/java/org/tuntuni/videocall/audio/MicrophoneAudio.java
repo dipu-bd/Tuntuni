@@ -15,7 +15,6 @@
  */
 package org.tuntuni.videocall.audio;
 
-import java.net.SocketException;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -63,7 +62,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
 
     @Override
     public void stop() {
-        try { 
+        try {
             mTargetLine.stop();
             mTargetLine.close();
             mAudioThread.interrupt();
@@ -96,12 +95,8 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
             if (len == -1) {
                 return;
             }
-            try {
-                // update buffer
-                send(buffer, size);
-            } catch (SocketException ex) {  
-                return;
-            }
+            // update buffer
+            send(buffer, size);
         }
     }
 

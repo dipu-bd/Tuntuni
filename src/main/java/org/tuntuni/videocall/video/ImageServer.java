@@ -56,7 +56,7 @@ public abstract class ImageServer extends StreamServer {
                 
             } catch (SocketException ex) {
                 Logs.error(getName(), "Connection failure! {0}", ex);
-                break;
+                //break;
             } catch (EOFException ex) {
             } catch (IOException | ClassNotFoundException ex) {
                 Logs.error(getName(), "Receive failure. {0}", ex);

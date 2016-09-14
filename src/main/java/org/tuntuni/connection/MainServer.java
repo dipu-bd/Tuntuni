@@ -20,7 +20,7 @@ import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
-import org.tuntuni.models.Message; 
+import org.tuntuni.models.Message;
 
 /**
  * Extended by MainServer. It provides functions to deal with a request arrived
@@ -43,7 +43,7 @@ public class MainServer extends TCPServer {
     @Override
     Object getResponse(ConnectFor status, Socket from, Object[] data) {
         // log this connection
-        Logs.info(getName(), "{0} request from {1} with {1} data", status, from, data.length);
+        Logs.info(getName(), "{0} request with {1} params from {2}", status, data.length, from);
 
         switch (status) {
             case STATE:

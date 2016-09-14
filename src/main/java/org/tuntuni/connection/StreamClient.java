@@ -122,10 +122,10 @@ public abstract class StreamClient {
         }
     }
 
-    public void send(Object frame) throws SocketException {
+    public void send(Object frame) {
         // check if connected
         if (!isConnected()) {
-            throw new SocketException();
+            return;
         }
         // Add to queue 
         synchronized (mSendQueue) {
@@ -137,7 +137,7 @@ public abstract class StreamClient {
         }
     }
 
-    public void send(byte[] data, int size) throws SocketException {
+    public void send(byte[] data, int size)  {
         send(new DataFrame(data, size));
     }
 
