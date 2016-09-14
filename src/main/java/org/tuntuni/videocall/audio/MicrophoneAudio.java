@@ -85,7 +85,7 @@ public class MicrophoneAudio extends AudioSource implements Runnable {
     @Override
     public void run() {
         // available: 1 2 5 6 7 9 10 15 25 441 882
-        int size = mTargetLine.getBufferSize() / 5;
+        int size = mTargetLine.getBufferSize() / 2;
         byte[] buffer = new byte[size];
         Logs.info(getClass(), "Line opened with buffer size = {0}\n", size);
 

@@ -27,7 +27,7 @@ import org.tuntuni.util.Commons;
  */
 public class UserData implements Externalizable {
 
-    private static final int AVATAR_MAX_SIZE = 64;
+    private static final int AVATAR_MAX_SIZE = 96;
 
     private String mName;
     private String mStatus;

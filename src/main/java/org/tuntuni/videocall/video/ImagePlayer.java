@@ -29,7 +29,7 @@ import org.tuntuni.connection.StreamServer;
  */
 public class ImagePlayer extends StreamServer {
 
-    static final int QUEUE_SIZE = 7;
+    static final int QUEUE_SIZE = 5;
 
     private final ImageView mViewer;
     private ConcurrentLinkedQueue<Image> mQueue;

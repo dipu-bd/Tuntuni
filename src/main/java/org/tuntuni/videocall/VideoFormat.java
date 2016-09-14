@@ -29,7 +29,7 @@ public abstract class VideoFormat {
     // capture height
     public static final int HEIGHT = 144;
     // frames per seconds
-    public static final int FRAME_RATE = 12;
+    public static final int FRAME_RATE = 15;
 
     // encoding
     public static final AudioFormat.Encoding ENCODING = AudioFormat.Encoding.PCM_SIGNED;
@@ -38,7 +38,7 @@ public abstract class VideoFormat {
     //sampleSizeInBits - the number of bits in each sample
     public static final int SAMPLE_SIZE = 16;
     //channels - the number of channels (1 for mono, 2 for stereo, and so on)
-    public static final int CHANNEL = 2;
+    public static final int CHANNEL = 1;
     //signed - indicates whether the data is signed or unsigned
     public static final boolean SIGNED = true;
     //bigEndian - indicates whether the data for a single sample is stored in big-endian byte order
