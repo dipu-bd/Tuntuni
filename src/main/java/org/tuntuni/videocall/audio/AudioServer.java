@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video.audio;
+package org.tuntuni.videocall.audio;
 
 import java.io.EOFException;
 import java.io.IOException;

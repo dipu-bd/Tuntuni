@@ -17,7 +17,6 @@ package org.tuntuni;
 
 import java.io.IOException;
 import javafx.application.Application;
-import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,8 +24,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage; 
 import org.tuntuni.util.Commons;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 
 /**
@@ -56,8 +53,8 @@ public class Program extends Application {
         stage.setScene(scene);
         
         // stage size
-        stage.setWidth(1024);
-        stage.setHeight(600);
+        stage.setWidth(900);
+        stage.setHeight(630);
 
         // set the icon
         Image icon = new Image(getClass().getResourceAsStream("/img/tuntuni.png"));        

@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -60,11 +61,11 @@ public abstract class TCPServer {
     }
 
     /**
-     * Gets the name of the server
+     * Gets the getName of the server
      *
      * @return
      */
-    public String name() {
+    public String getName() {
         return mName;
     }
 
@@ -116,7 +117,7 @@ public abstract class TCPServer {
                 mSSocket = new ServerSocket(port);
                 break;
             } catch (IOException ex) {
-                Logs.warning(this.name(), Logs.SERVER_BIND_FAILS, port);
+                Logs.warning(this.getName(), Logs.SERVER_BIND_FAILS, port);
             }
         }
     }
@@ -153,7 +154,7 @@ public abstract class TCPServer {
                 mSSocket.close();
             }
         } catch (Exception ex) {
-            Logs.warning(this.name(), Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.warning(this.getName(), Logs.SERVER_CLOSING_ERROR, ex);
         }
         // shutdown executors
         mExecutor.shutdownNow();
@@ -163,7 +164,7 @@ public abstract class TCPServer {
     // it is started via an executor service.
     private void runServer() {
         // Infinite server loop
-        Logs.info(this.name(), Logs.SERVER_LISTENING, getPort());
+        Logs.info(this.getName(), Logs.SERVER_LISTENING, getPort());
         while (isOpen()) {
             try {
                 Socket socket = mSSocket.accept();
@@ -174,11 +175,11 @@ public abstract class TCPServer {
                 });
             } catch (IOException ex) {
                 if (isOpen()) {
-                    Logs.error(this.name(), Logs.SERVER_ACCEPT_FAILED, ex);
+                    Logs.error(this.getName(), Logs.SERVER_ACCEPT_FAILED, ex);
                 }
             }
         }
-        Logs.info(this.name(), Logs.SERVER_LISTENING_STOPPED);
+        Logs.info(this.getName(), Logs.SERVER_LISTENING_STOPPED);
     }
 
     // process a selection key
@@ -217,7 +218,7 @@ public abstract class TCPServer {
         } catch (IOException ex) {
             Logs.warning(getClass(), Logs.SERVER_IO_FAILED, ex); 
         } catch (ClassNotFoundException ex) {
-            Logs.warning(this.name(), Logs.SOCKET_CLASS_FAILED, ex);
+            Logs.warning(this.getName(), Logs.SOCKET_CLASS_FAILED, ex);
         }
     }
 
@@ -226,7 +227,7 @@ public abstract class TCPServer {
         try {
             socket.close();
         } catch (IOException ex) {
-            Logs.error(this.name(), Logs.SERVER_CLOSING_ERROR, ex);
+            Logs.error(this.getName(), Logs.SERVER_CLOSING_ERROR, ex);
         }
     }
 

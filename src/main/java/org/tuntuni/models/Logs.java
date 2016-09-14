@@ -24,35 +24,7 @@ import java.util.logging.Logger;
 public abstract class Logs {
 
     private static final Logger logger = Logger.getGlobal();
-
-    public static final String //--- begin : log message list ---
-            // Program
-            PROGRAM_CLOSING = "Closing all active executors and schedulars.",
-            // Used in Client
-            CLIENT_TEST_FAILED = "Could not parse data sent from server",
-            // Used in Server and Client
-            SERVER_BIND_SUCCESS = "Server is bound to port {0}",
-            SERVER_BIND_FAILS = "Server could not be bound to to port {0}",
-            SERVER_LISTENING = "Waiting for clients at {0}",
-            SERVER_LISTENING_STOPPED = "Stopped waiting for clients.",
-            SERVER_ACCEPT_FAILED = "Failed to accept a channel.",
-            SERVER_IO_FAILED = "Failed to read or write from server",
-            SOCKET_CLASS_FAILED = "Request data could not be recognized.",
-            SERVER_CLOSING_ERROR = "Failed to close the socket",
-            SERVER_RECEIVED_CLIENT = "{0} requested with {1} params from {2}",
-            // Used in Subnet
-            SUBNET_SCAN_START = "Performing a scan for active subnet users",
-            SUBNET_SCAN_SUCCESS = "Performed a scan over the whole networks",
-            SUBNET_SCAN_FAILED = "Failed to get network interfaces",
-            SUBNET_INTERFACE_CHECK_ERROR = "Failed to check network interface",
-            SUBNET_CHECKING_SUBNETS = "Checking up all subnets of {0}",
-            SUBNET_BUILD_ADDRESS_ERROR = "Failed to build host address from {0}",
-            SUBNET_CHECK_ERROR = "Failed to check the subnet: {0}",
-            // StreamServer.java
-            STREAM_ILLEGAL_ACCESS = "This is {0} server. Can not accept {1} requests.",
-            //--- end : log message list ---
-            FINALIZE = "Log finalized ";
-
+ 
     public static void log(Level level, String message, Object... data) {
         logger.log(level, message, data);
     }

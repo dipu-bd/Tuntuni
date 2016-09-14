@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video.audio;
+package org.tuntuni.videocall.audio;
 
 import java.net.SocketException;
 import javax.sound.sampled.AudioFormat;
@@ -22,7 +22,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.VideoFormat;
+import org.tuntuni.videocall.VideoFormat;
 
 /**
  *

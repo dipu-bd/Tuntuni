@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video.image;
+package org.tuntuni.videocall.video;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
@@ -21,7 +21,7 @@ import com.github.sarxos.webcam.WebcamListener;
 import java.awt.Dimension;
 import java.net.SocketException;
 import org.tuntuni.models.Logs;
-import org.tuntuni.video.VideoFormat;
+import org.tuntuni.videocall.VideoFormat;
 
 /**
  *

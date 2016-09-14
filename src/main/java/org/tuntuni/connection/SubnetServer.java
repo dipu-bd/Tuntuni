@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.ConnectFor;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;

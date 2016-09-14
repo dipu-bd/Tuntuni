@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video;
+package org.tuntuni.videocall;
 
 import java.io.IOException;
 import java.net.SocketException;
 import javafx.scene.image.ImageView;
-import org.tuntuni.video.audio.AudioPlayer;
-import org.tuntuni.video.image.ImagePlayer;
+import org.tuntuni.videocall.audio.AudioPlayer;
+import org.tuntuni.videocall.video.ImagePlayer;
 
 /**
  *

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video;
+package org.tuntuni.videocall;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
-import org.tuntuni.video.audio.AudioSource;
-import org.tuntuni.video.audio.MicrophoneAudio;
-import org.tuntuni.video.image.ImageSource;
-import org.tuntuni.video.image.WebcamCapture;
+import org.tuntuni.videocall.audio.AudioSource;
+import org.tuntuni.videocall.audio.MicrophoneAudio;
+import org.tuntuni.videocall.video.ImageSource;
+import org.tuntuni.videocall.video.WebcamCapture;
 
 /**
  *

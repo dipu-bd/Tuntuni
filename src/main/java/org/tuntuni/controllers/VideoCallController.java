@@ -36,7 +36,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
-import org.tuntuni.video.DialStatus;
+import org.tuntuni.videocall.DialStatus;
 
 /**
  * Controller for video calling. It shows video in background.

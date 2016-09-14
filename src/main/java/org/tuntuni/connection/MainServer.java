@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
 import org.tuntuni.Core;
@@ -42,20 +43,19 @@ public class MainServer extends TCPServer {
     @Override
     Object getResponse(ConnectFor status, Socket from, Object[] data) {
         // log this connection
-        Logs.info(this.name(), Logs.SERVER_RECEIVED_CLIENT,
-                new Object[]{status, data.length, from});
+        Logs.info(getName(), "Received {0} from {1} with {1} data", status, from, data.length);
 
         switch (status) {
             case STATE:
                 return Core.instance().user().getState();
             case PROFILE: // send user data
                 return Core.instance().user().getData();
-            case MESSAGE: // a message arrived
-                return message(getClient(from), data);
+            case MESSAGE: // a setMessage arrived
+                return setMessage(getClient(from), data);
             case CALL_REQUEST:
                 return Core.instance().dialer().receive(getClient(from));
             case CALL_RESPONSE:
-                return callResponse(from, data);
+                return setCallResponse(from, data);
             case END_CALL:
                 Core.instance().dialer().endCall(getClient(from));
         }
@@ -66,16 +66,16 @@ public class MainServer extends TCPServer {
         return Core.instance().scanner().getClient(socket.getInetAddress());
     }
 
-    // display the message 
-    public Object message(Client client, Object[] data) {
+    // display the setMessage 
+    public Object setMessage(Client client, Object[] data) {
         // get client 
         if (client == null) {
             return new Exception("The sender could not be recognized");
         }
         try {
-            // get message
+            // get setMessage
             Message message = (Message) data[0];
-            // add this message
+            // add this setMessage
             message.setReceiver(true);
             message.setClient(client);
             message.setTime(new Date());
@@ -87,7 +87,7 @@ public class MainServer extends TCPServer {
     }
 
     // receiver response
-    public Object callResponse(Socket from, Object[] data) {
+    public Object setCallResponse(Socket from, Object[] data) {
         try {
             Client param1 = getClient(from);
             Exception param2 = (Exception) data[0];

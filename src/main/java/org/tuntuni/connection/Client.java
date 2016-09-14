@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.ConnectFor;
 import java.net.InetSocketAddress;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;

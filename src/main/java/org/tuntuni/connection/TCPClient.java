@@ -15,6 +15,7 @@
  */
 package org.tuntuni.connection;
 
+import org.tuntuni.models.ConnectFor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;

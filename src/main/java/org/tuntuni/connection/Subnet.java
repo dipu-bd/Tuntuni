@@ -91,12 +91,12 @@ public class Subnet {
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
             }
-            Logs.info(getClass(), Logs.SUBNET_SCAN_SUCCESS);
+            Logs.info(getClass(), "Performed a scan");
 
             // Close the socket!
             mSocket.close();
         } catch (Exception ex) {
-            Logs.error(getClass(), Logs.SUBNET_SCAN_FAILED, ex);
+            Logs.error(getClass(), "Scan failed. {0}", ex);
         }
 
     };
@@ -116,28 +116,23 @@ public class Subnet {
             ni.getInterfaceAddresses().stream().forEach((ia) -> {
                 // get network address
                 InetAddress address = ia.getAddress();
-
-                // address must be an IPv4 address.
-                // and it should be a site local address.
-                // --- Site Local Address ---
-                // These have the scope of an entire site, or organization. 
-                // They allow addressing within an organization without need for
-                // using a public prefix. 
-                // Routers will forward datagrams using site-local addresses 
-                // within the site, but not outside it to the public Internet.
-                //if (!address.isSiteLocalAddress()
-                //        || !(address instanceof Inet4Address)) {
-                //    return;
-                //}
-                //
-                //send the broadcast signal
-                if (address instanceof Inet4Address) {
+                // Send the broadcast signal to an IPv4 address. 
+                if (address instanceof Inet4Address //) {
+                        && address.isSiteLocalAddress()) {
                     sendBroadcastRequest(ia);
                 }
+                /*
+                 --- Site Local Address ---
+                 These have the scope of an entire site, or organization. 
+                 They allow addressing within an organization without need for
+                 using a public prefix. 
+                 Routers will forward datagrams using site-local addresses 
+                 within the site, but not outside it to the public Internet. 
+                 */
             });
 
         } catch (Exception ex) {
-            Logs.error(getClass(), Logs.SUBNET_INTERFACE_CHECK_ERROR, ex);
+            Logs.error(getClass(), "Failed to check interface. {0}", ex);
         }
     }
 
@@ -160,7 +155,7 @@ public class Subnet {
                 mSocket.send(sendPacket);
             }
         } catch (Exception ex) {
-            Logs.error(getClass(), "Broadcast request failure. {0}", ex);
+            Logs.error(getClass(), "Failed to send broadcast. {0}", ex);
         }
     }
 

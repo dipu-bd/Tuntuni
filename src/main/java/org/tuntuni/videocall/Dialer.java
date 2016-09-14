@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tuntuni.video;
+package org.tuntuni.videocall;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
-import org.tuntuni.connection.ConnectFor;
+import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
 
 /**
