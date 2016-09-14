@@ -16,8 +16,8 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -28,11 +28,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
+import org.controlsfx.control.action.Action;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Message;
@@ -43,7 +45,7 @@ import org.tuntuni.models.Message;
  * It gives a history based text conversation window. Below is a text box and
  * send text button. Above is the conversation history. </p>
  */
-public class MessagingController implements Initializable {
+public class MessagingController implements Initializable, ListChangeListener<Message> {
 
     private Client mClient;
 
@@ -70,6 +72,9 @@ public class MessagingController implements Initializable {
     }
 
     public void setClient(Client client) {
+        if (mClient != null) {
+            mClient.messageProperty().removeListener(this);
+        }
         mClient = client;
         Platform.runLater(() -> loadAll());
     }
@@ -92,12 +97,15 @@ public class MessagingController implements Initializable {
         }
         // load list of past messages
         showHistory(0);
-        mClient.messageProperty().addListener((ListChangeListener.Change<? extends Message> c) -> {
-            c.next();
-            if (c.wasAdded()) {
-                showHistory(c.getFrom());
-            }
-        });
+        mClient.messageProperty().addListener(this);
+    }
+
+    @Override
+    public void onChanged(Change<? extends Message> c) {
+        c.next();
+        if (c.wasAdded()) {
+            showHistory(c.getFrom());
+        }
     }
 
     public void showHistory(int from) {
@@ -116,6 +124,44 @@ public class MessagingController implements Initializable {
                 messageList.scrollTo(last);
             }
         });
+    }
+
+    private String sendMessage(String text) {
+        try {
+            Message message = new Message();
+            message.setText(text);
+            message.setViewed(true);
+            mClient.sendMessage(message);
+            messageText.clear();
+            return "Message sent!";
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    public void notifyIncoming(Message message) {
+        if (message == null || message.isViewed()) {
+            return;
+        }        
+        String title = message.getSender().getUserName() + " sent a message!";
+        String msg = message.getText();
+        if (msg.length() > 200) {
+            msg = msg.substring(0, 200) + "...";
+        }
+        Action action = new Action("View", (ActionEvent t) -> {
+            Platform.runLater(() -> {
+                Core.instance().main().showUser(mClient);
+                Core.instance().main().selectMessaging();
+            });
+        });
+
+        Notifications.create()
+                .darkStyle()
+                .title(title)
+                .text(msg)
+                .action(action)
+                .hideAfter(Duration.seconds(20))
+                .showInformation();
     }
 
     @FXML
@@ -150,18 +196,6 @@ public class MessagingController implements Initializable {
         errorLabel.setText(res);
     }
 
-    private String sendMessage(String text) {
-        try {
-            Message message = new Message();
-            message.setText(text);
-            mClient.sendMessage(message);
-            messageText.clear();
-            return "Message sent!";
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
     @Deprecated
     private void setTextAreaHeight() {
         // elements
@@ -181,4 +215,5 @@ public class MessagingController implements Initializable {
         // enable or the scroll bar
         scrollBarv.setVisibleAmount(MAXIMUM_HEIGHT);
     }
+
 }

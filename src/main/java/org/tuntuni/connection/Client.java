@@ -92,15 +92,16 @@ public class Client extends TCPClient {
     /**
      * Send a sendMessage to this client
      *
-     * @param toSent Message to be sent
+     * @param message Message to be sent
      * @throws java.lang.Exception
      */
-    public void sendMessage(Message toSent) throws Exception {
-        Exception ex = (Exception) request(ConnectFor.MESSAGE, toSent);
+    public void sendMessage(Message message) throws Exception {
+        Exception ex = (Exception) request(ConnectFor.MESSAGE, message);
         if (ex != null) {
             throw ex;
         }
-        addMessage(toSent);
+        message.setReceiver(false);
+        addMessage(message);
     }
 
     //////////////////////////////////////////////////////////////////////////// 

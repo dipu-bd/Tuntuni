@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
-import java.util.Objects; 
+import java.util.Objects;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 
@@ -33,6 +33,7 @@ public class Message implements Externalizable {
     private String mText;
     private boolean mReceiver;
     private Client mClient;
+    private boolean mViewed;
 
     /**
      * Creates an instance with empty message body
@@ -51,6 +52,7 @@ public class Message implements Externalizable {
         mClient = null;
         mReceiver = false;
         mTime = new Date();
+        mViewed = false;
     }
 
     @Override
@@ -119,6 +121,14 @@ public class Message implements Externalizable {
      */
     public void setReceiver(boolean receiver) {
         this.mReceiver = receiver;
+    }
+
+    public boolean isViewed() {
+        return mViewed;
+    }
+
+    public void setViewed(boolean viewed) {
+        this.mReceiver = viewed;
     }
 
     /**

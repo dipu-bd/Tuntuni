@@ -76,7 +76,8 @@ public class MainServer extends TCPServer {
             Message message = (Message) data[0]; 
             message.setReceiver(true);
             message.setTime(new Date());
-            client.addMessage(message);            
+            client.addMessage(message);
+            Core.instance().messaging().notifyIncoming(message);
         } catch (Exception ex) {
             return new Exception("Failed to add message", ex);
         }

@@ -46,6 +46,8 @@ public class MessageBox extends BorderPane {
             MessageBox mbox = (MessageBox) Commons.loadPaneFromFXML("/fxml/MessageBox.fxml");
             //post load work                           
             mbox.initialize(message);
+            // set viewed
+            message.setViewed(true);
             // return main object
             return mbox;
         } catch (IOException ex) {
