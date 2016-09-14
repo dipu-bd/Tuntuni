@@ -16,7 +16,6 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -82,6 +81,7 @@ public class MainController implements Initializable {
         // monitor user list
         userList.getItems().clear();
         userListPrefWidth = userList.getPrefWidth();
+        updateUserList(null, null);
         Core.instance().scanner().userListProperty().addListener((MapChangeListener.Change<? extends Integer, ? extends Client> change) -> {
             Platform.runLater(() -> updateUserList(change.getValueAdded(), change.getValueRemoved()));
         });

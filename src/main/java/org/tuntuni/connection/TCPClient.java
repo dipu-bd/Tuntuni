@@ -39,9 +39,12 @@ import org.tuntuni.util.Commons;
  */
 public abstract class TCPClient {
 
+    public static int ALIVE_PERIOD = 5 * 60_000; // 5 min alive period
+
     // to connect with server     
     private InetSocketAddress mAddress;
     private final BooleanProperty mConnected;
+    private long lastSetConnected;
 
     // hidesthe constructor and handle it with static open() method
     public TCPClient(InetSocketAddress socket) {
@@ -105,7 +108,7 @@ public abstract class TCPClient {
      */
     public void updateAddress(InetSocketAddress address) {
         mAddress = address;
-        mConnected.set(false);
+        setConnected(false);
     }
 
     /**
@@ -151,6 +154,11 @@ public abstract class TCPClient {
      * @return
      */
     public boolean isConnected() {
+        if (mConnected.get()) {
+            if (System.currentTimeMillis() - lastSetConnected > ALIVE_PERIOD) {
+                mConnected.set(false);
+            }
+        }
         return mConnected.get();
     }
 
@@ -161,6 +169,9 @@ public abstract class TCPClient {
      */
     public void setConnected(boolean connected) {
         mConnected.set(connected);
+        if (connected) {
+            lastSetConnected = System.currentTimeMillis();
+        }
     }
 
     /**

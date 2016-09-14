@@ -93,6 +93,7 @@ public class MessagingController implements Initializable {
         // load list of past messages
         showHistory(0);
         mClient.messageProperty().addListener((ListChangeListener.Change<? extends Message> c) -> {
+            c.next();
             if (c.wasAdded()) {
                 showHistory(c.getFrom());
             }

@@ -82,7 +82,7 @@ public class UserItem extends BorderPane {
         imageView.setImage(data.getAvatar(
                 imageView.getFitWidth(), imageView.getFitHeight()));
         String status = data.getStatus();
-        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);        
+        statusLabel.setText(status.isEmpty() ? mClient.toString() : status);
     }
 
     @FXML

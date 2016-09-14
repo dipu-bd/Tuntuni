@@ -18,7 +18,6 @@ package org.tuntuni.connection;
 import org.tuntuni.models.ConnectFor;
 import java.net.Socket;
 import java.util.Date;
-import javafx.application.Platform;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.Message;

@@ -22,7 +22,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
 

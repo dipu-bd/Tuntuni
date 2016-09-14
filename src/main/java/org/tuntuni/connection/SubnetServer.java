@@ -148,30 +148,29 @@ public class SubnetServer implements Runnable {
 
     // add new client to the list
     private void addUser(final InetAddress address, final int port) {
-        // check if already added
+
         int key = SocketUtils.addressAsInteger(address);
         Client client = mUserList.get(key);
-        if (client == null && port == -1) {
-            return; // unlikely condition!
-            
-        } else if (client == null) {
-            // check the server for connection status and profile information first
+
+        // add new user
+        if (client == null && port != -1) {
             client = new Client(new InetSocketAddress(address, port));
-            // add new user
             mUserList.put(key, client);
-            // check if connected
-            client.checkServer();
+        }
 
-        } else if (port == -1) {
-            // disconnected
+        // remove the disconnected user
+        if (client != null && port == -1) {
             client.setConnected(false);
-            // remove the disconnected user
             mUserList.remove(key);
+        }
 
-        } else if (client.getPort() != port) {
-            // update user
+        // update user port
+        if (client != null && client.getPort() != port) {
             client.updateAddress(new InetSocketAddress(address, port));
-            // check if connected
+        }
+
+        // check server
+        if (client != null && !client.isConnected()) {
             client.checkServer();
         }
     }
