@@ -60,7 +60,8 @@ public class Dialer {
             // send dial request
             mClient.callRequest(ConnectFor.CALL_REQUEST, null);
             // immediately start
-            start();            
+            start();          
+            
         } catch (Exception ex) {
             stop();
             return ex;
@@ -77,6 +78,11 @@ public class Dialer {
             // check client
             if (client != mClient) {
                 throw new Exception("User mismatch");
+            }
+            // change the status
+            synchronized (mStatus) {
+                mStatus.set(DialStatus.BUSY);
+                mStatus.notify();
             }
         } catch (Exception ex) {
             stop();
@@ -127,6 +133,11 @@ public class Dialer {
             mClient.callRequest(ConnectFor.CALL_RESPONSE, err);
             if (err != null) {
                 throw err;
+            }           
+            // client should be busy
+            synchronized (mStatus) {
+                mStatus.set(DialStatus.BUSY);
+                mStatus.notify();
             }
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());
@@ -165,10 +176,6 @@ public class Dialer {
             mRecorder = new VideoRecorder(mClient.getAddress());
             mRecorder.start();
             
-            synchronized (mStatus) {
-                mStatus.set(DialStatus.BUSY);
-                mStatus.notify();
-            }
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());
             throw new Exception("Failed to start channel. ERROR: " + ex.getMessage());
