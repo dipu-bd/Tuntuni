@@ -16,7 +16,6 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
-import java.util.Date;
 import java.util.LinkedList;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -37,7 +36,7 @@ public class Client extends TCPClient {
 
     // local data from server 
     private int mState;
-    private IntegerProperty mUnseenCount;
+    private final IntegerProperty mUnseenCount;
     private final LinkedList<Message> mMessages;
     private final ObjectProperty<UserData> mUserData;
 

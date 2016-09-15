@@ -24,7 +24,6 @@ import java.net.UnknownHostException;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import org.tuntuni.Core;
-import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.DiscoveryData;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
@@ -39,7 +38,7 @@ public class SubnetServer implements Runnable {
     public static final int[] PORTS = {
         24914,
         42914,
-        62915
+        //62915
     };
 
     private Thread mServerThread;

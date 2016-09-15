@@ -18,6 +18,15 @@ package org.tuntuni.controllers;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.MapChangeListener;
@@ -35,6 +44,7 @@ import javafx.scene.image.ImageView;
 import org.controlsfx.control.Notifications;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
+import org.tuntuni.models.Logs;
 
 /**
  * The controller for the main scene of this application.
@@ -46,8 +56,6 @@ import org.tuntuni.connection.Client;
  *
  */
 public class MainController implements Initializable {
-
-    private volatile Client mSelected;
 
     @FXML
     private ListView userList;
@@ -61,12 +69,16 @@ public class MainController implements Initializable {
     private Button profileButton;
 
     private double userListPrefWidth;
+    private volatile Client mSelected;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // set main controller to core
         Core.instance().main(this);
         userListPrefWidth = userList.getPrefWidth();
+
+        // capture status
+        Logs.addHandler(new StatusHandler(statusLabel));
 
         // change of user name
         profileButton.setText(Core.instance().user().getName());
@@ -217,4 +229,6 @@ public class MainController implements Initializable {
     private void handleProfileAction(ActionEvent event) {
         showUser(null);
     }
+
+
 }

@@ -22,6 +22,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.videocall.DialStatus;
@@ -36,27 +39,26 @@ public abstract class StreamServer {
     private final int mPort;
     private ServerSocket mServer;
     private Socket mClient;
-    private ObjectInputStream mInput;
-    private Thread mServerThread;
+    private ObjectInputStream mInput; 
+    private ExecutorService mExecutor;
 
     public StreamServer(int port) {
         mPort = port;
+        mExecutor = Executors.newWorkStealingPool();
     }
 
     public abstract String getName();
 
     public void open() throws IOException {
         mServer = new ServerSocket(mPort);
+        mExecutor.submit(() -> listen()); 
         Logs.info(getName(), "Opened @ {0}", getPort());
-
-        mServerThread = new Thread(() -> listen());
-        mServerThread.setDaemon(true);
-        mServerThread.start();
     }
 
     public void close() {
         try {
-            mServerThread.interrupt();
+            mExecutor.shutdownNow();
+            
             if (mServer != null) {
                 mServer.close(); 
             }

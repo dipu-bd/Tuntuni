@@ -97,7 +97,7 @@ public class Subnet {
             while (ne.hasMoreElements()) {
                 checkNetworkInterface(ne.nextElement());
             }
-            Logs.info(getClass(), "Performed a scan");
+            //Logs.info(getClass(), "Performed a broadcast sequence");
 
             // Close the socket!
             mSocket.close();

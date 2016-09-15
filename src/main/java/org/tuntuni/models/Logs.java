@@ -15,18 +15,44 @@
  */
 package org.tuntuni.models;
 
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Lists some log messages used through-out the application.
  */
-public abstract class Logs {
+public final class Logs {
 
-    private static final Logger logger = Logger.getGlobal();
- 
+    // instance of context
+    private static final class LogsHolder {
+
+        private static final Logger INSTANCE = Logger.getGlobal();
+    }
+
+    /**
+     * Gets an instance of this class.
+     *
+     * @return
+     */
+    public static final Logger instance() {
+        return LogsHolder.INSTANCE;
+    }
+
+    public static Logger getLogger() {
+        return instance();
+    }
+
+    public static void addHandler(Handler handler) {
+        instance().addHandler(handler);
+    }
+
     public static void log(Level level, String message, Object... data) {
-        logger.log(level, message, data);
+        instance().log(level, message, data);
+    }
+
+    public static void log(Level level, Class source, String message, Object... data) {
+        log(level, "[" + source.getSimpleName() + "] "+ message, data);
     }
 
     public static void info(String message, Object... data) {
@@ -34,11 +60,11 @@ public abstract class Logs {
     }
 
     public static void info(Class from, String message, Object... data) {
-        info(from.getName(), message, data);
+        log(Level.INFO, from, message, data);
     }
 
     public static void info(String type, String message, Object... data) {
-        info("[" + type + "]" + message, data);
+        info("[" + type + "] " + message, data);
     }
 
     public static void severe(String message, Object... data) {
@@ -50,11 +76,11 @@ public abstract class Logs {
     }
 
     public static void warning(String type, String message, Object... data) {
-        warning("[" + type + "]" + message, data);
+        warning("[" + type + "] " + message, data);
     }
 
     public static void warning(Class from, String message, Object... data) {
-        warning(from.getName(), message, data);
+        log(Level.WARNING, from, message, data);
     }
 
     public static void error(String message, Object... data) {
@@ -62,15 +88,19 @@ public abstract class Logs {
     }
 
     public static void error(Class from, String message, Object... data) {
-        error(from.getName(), message, data);
+        log(Level.SEVERE, from, message, data);
     }
 
     public static void error(String type, String message, Object... data) {
-        error("[" + type + "]" + message, data);
+        error("[" + type + "] " + message, data);
     }
 
     public static void config(String message, Object... data) {
         log(Level.CONFIG, message, data);
+    }
+
+    public static void config(Class from, String message, Object... data) {
+        log(Level.CONFIG, from, message, data);
     }
 
 }

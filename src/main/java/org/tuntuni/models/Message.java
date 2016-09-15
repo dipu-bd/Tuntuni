@@ -127,14 +127,7 @@ public class Message implements Externalizable {
         return mViewed;
     }
 
-    public void setViewed(boolean viewed) {
-        if (mClient != null && isReceived()) {
-            if (viewed) {
-                mClient.decreaseUnseen();
-            } else {
-                mClient.increaseUnseen();
-            }
-        }
+    public void setViewed(boolean viewed) { 
         this.mViewed = viewed;
     }
 

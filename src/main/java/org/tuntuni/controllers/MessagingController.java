@@ -96,7 +96,7 @@ public class MessagingController implements Initializable {
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         }
         // load list of past messages
-        client().messageList().parallelStream().forEach((message) -> {
+        client().messageList().stream().forEach((message) -> {
             showMessage(message, false);
         });
         showMessage(null, true);
@@ -107,7 +107,10 @@ public class MessagingController implements Initializable {
         Platform.runLater(() -> {
             // add message
             if (message != null) {
-                message.setViewed(true);
+                if (!message.isViewed()) {
+                    message.setViewed(true);
+                    message.getClient().decreaseUnseen();
+                }
                 messageList.getItems().add(MessageBox.createInstance(message));
             }
             // show last
@@ -148,12 +151,18 @@ public class MessagingController implements Initializable {
         if (message == null) {
             return;
         }
+        // increase unseen count
+        if (!message.isViewed()) {
+            message.getClient().increaseUnseen();
+        }
+        // check sender and show message
         if (message.getClient() == client()) {
             showMessage(message, true);
             if (Core.instance().main().isMessaging()) {
                 return;
             }
         }
+        // show notification
         if (showNotification.isSelected()) {
             Platform.runLater(() -> {
                 String title = message.getSender().getUserName() + " sent a message!";

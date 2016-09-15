@@ -22,6 +22,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.tuntuni.Core;
 import org.tuntuni.models.Logs;
 import org.tuntuni.videocall.DialStatus;
@@ -35,14 +37,15 @@ public abstract class StreamClient {
 
     private Socket mClient;
     private ObjectOutputStream mOutput;
-    private Thread mClientThread;
     private InetSocketAddress mAddress;
     private final LinkedList<Object> mSendQueue;
-    private int maxQueueSize;
+    private int maxQueueSize;    
+    private ExecutorService mExecutor;
 
     public StreamClient(int maxQueue) {
         maxQueueSize = maxQueue;
         mSendQueue = new LinkedList<>();
+        mExecutor = Executors.newWorkStealingPool();
     }
 
     public abstract String getName();
@@ -54,16 +57,13 @@ public abstract class StreamClient {
 
     public void connect(InetAddress address, int port) throws IOException {
         mAddress = new InetSocketAddress(address, port);
-        mClientThread = new Thread(() -> run());
-        mClientThread.setName(getName());
-        mClientThread.setDaemon(true);
-        mClientThread.start();
+        mExecutor.submit(() -> run());        
 
     }
 
     public void close() {
         try {
-            mClientThread.interrupt();
+            mExecutor.shutdownNow();
             if (mClient != null) {
                 mClient.close();
             }

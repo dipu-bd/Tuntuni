@@ -75,8 +75,7 @@ public class MainServer extends TCPServer {
         try {
             Message message = (Message) data[0];
             message.setClient(client);
-            message.setReceived(true);
-            message.setViewed(false);
+            message.setReceived(true); 
             message.setTime(new Date());
             client.addMessage(message);
             return null;

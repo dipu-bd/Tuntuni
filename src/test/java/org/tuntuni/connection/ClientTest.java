@@ -16,12 +16,10 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress; 
-import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.tuntuni.Core;
