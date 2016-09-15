@@ -44,7 +44,6 @@ public abstract class TCPClient {
     // to connect with server     
     private InetSocketAddress mAddress;
     private final BooleanProperty mConnected;
-    private long lastConnectTime;
 
     // hidesthe constructor and handle it with static open() method
     public TCPClient(InetSocketAddress socket) {
@@ -154,11 +153,6 @@ public abstract class TCPClient {
      * @return
      */
     public boolean isConnected() {
-        if (mConnected.get()) {
-            if (System.currentTimeMillis() - lastConnectTime > ALIVE_PERIOD) {
-                mConnected.set(false);
-            }
-        }
         return mConnected.get();
     }
 
@@ -168,9 +162,8 @@ public abstract class TCPClient {
      * @param connected
      */
     public void setConnected(boolean connected) {
-        mConnected.set(connected);
-        if (connected) {
-            lastConnectTime = System.currentTimeMillis();
+        if (connected != mConnected.get()) {
+            mConnected.set(connected);
         }
     }
 

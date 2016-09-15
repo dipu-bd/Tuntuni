@@ -48,18 +48,7 @@ public class ClientTest {
     @After
     public void tearDown() {
     }
-  
-    @Test
-    public void testInvalid() throws Exception {
-        System.out.println("testInvalid()");
-        Client instance = new Client(new InetSocketAddress(22));
-        assertNotNull(instance);
-        System.out.println("++host=" + instance.getHostString());
-        boolean result = instance.checkServer();
-        System.out.println("++result= " + result);
-        System.out.println();
-    }
-
+   
     @Test
     public void testGetAddress() {
         System.out.println("getAddress");
@@ -111,19 +100,11 @@ public class ClientTest {
     }
 
     @Test
-    public void testMessageProperty() {
-        System.out.println("messageProperty");
-        Client instance = new Client(new InetSocketAddress(1223));;
-        ObservableList<Message> result = instance.messageProperty();
-        assertNotNull(result);
-    }
-
-    @Test
     public void testAddMessage() {
         System.out.println("addMessage");
         Message message = new Message();
         Client instance = new Client(new InetSocketAddress(1223));;
-        instance.messageProperty().add(message);
+        instance.messageList().add(message);
         instance.addMessage(message);
     }
 

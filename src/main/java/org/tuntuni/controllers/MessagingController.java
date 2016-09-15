@@ -16,13 +16,14 @@
 package org.tuntuni.controllers;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
@@ -43,7 +44,7 @@ import org.tuntuni.models.Message;
  * It gives a history based text conversation window. Below is a text box and
  * send text button. Above is the conversation history. </p>
  */
-public class MessagingController implements Initializable, ListChangeListener<Message> {
+public class MessagingController implements Initializable {
 
     @FXML
     private TextArea messageText;
@@ -55,6 +56,8 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     private Label userName;
     @FXML
     private ImageView userPhoto;
+    @FXML
+    private CheckBox showNotification;
 
     private final double MINIMUM_HEIGHT = 70D;
     private final double MAXIMUM_HEIGHT = 150D;
@@ -65,102 +68,114 @@ public class MessagingController implements Initializable, ListChangeListener<Me
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Core.instance().messaging(this);
+        messageText.textProperty().addListener((ov, o, n) -> messageTextChanged());
     }
 
     public void refresh() {
         Platform.runLater(() -> loadAll());
     }
 
-    public Client getClient() {
-        return Core.instance().main().selectedClient();
+    Client client() {
+        return Core.instance().selected();
     }
 
     private void loadAll() {
-
         messageText.clear();
         errorLabel.setText("");
         messageList.getItems().clear();
         // load user name and avatar 
-        if (getClient() == null) {
+        if (client() == null) {
             userName.setVisible(false);
             return;
         }
         // show user info
-        if (getClient().getUserData() != null) {
+        if (client().getUserData() != null) {
             userName.setVisible(true);
-            userName.setText(getClient().getUserData().getUserName());
-            userPhoto.setImage(getClient().getUserData().getAvatar(
+            userName.setText(client().getUserData().getUserName());
+            userPhoto.setImage(client().getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         }
         // load list of past messages
-        showHistory(0);
-        getClient().messageProperty().addListener(this);
+        client().messageList().parallelStream().forEach((message) -> {
+            showMessage(message, false);
+        });
+        showMessage(null, true);
     }
 
-    @Override
-    public void onChanged(Change<? extends Message> c) {
-        c.next();
-        if (c.wasAdded()) {
-            showHistory(c.getFrom());
-        }
-    }
-
-    public void showHistory(int from) {
-        // iterate list
-        for (int i = from; i < getClient().messageProperty().size(); ++i) {
-            final Message message = getClient().messageProperty().get(i);
-            Platform.runLater(() -> {
-                // add element
-                messageList.getItems().add(MessageBox.createInstance(message));
-            });
-        }
+    public void showMessage(Message message, boolean showLast) {
+        // iterate list 
         Platform.runLater(() -> {
+            // add message
+            if (message != null) {
+                message.setViewed(true);
+                messageList.getItems().add(MessageBox.createInstance(message));
+            }
             // show last
             int last = messageList.getItems().size() - 1;
-            if (last > 0) {
+            if (last > 0 && showLast) {
                 messageList.scrollTo(last);
             }
         });
     }
 
-    private String sendMessage(String text) {
-        try {
-            getClient().sendMessage(new Message(text));
-            return "Message sent!";
-        } catch (Exception e) {
-            return e.getMessage();
-        }
+    private void sendMessage(String text) {
+        new Thread(() -> {
+            try {
+                Message message = new Message(text);
+                message.setClient(client());
+                message.setReceived(false);
+                message.setViewed(true);
+                message.setTime(new Date());
+                client().sendMessage(message);
+                Platform.runLater(() -> messageText.setText(""));
+
+            } catch (Exception ex) {
+                if (showNotification.isSelected()) {
+                    Platform.runLater(() -> {
+                        Notifications.create()
+                                .title("Message send failure")
+                                .text(ex.getMessage())
+                                .hideAfter(Duration.seconds(15))
+                                .showError();
+                        errorLabel.setText(ex.getMessage());
+                    });
+                }
+            }
+        }).start();
     }
 
-    public void notifyIncoming(Message message) {
-        if (message == null
-                || (message.getClient() == getClient()
-                && Core.instance().main().isMessaging())) {
+    public void messageAdded(Message message) {
+        if (message == null) {
             return;
         }
-        Platform.runLater(() -> {
-            String title = message.getSender().getUserName() + " sent a message!";
-            String msg = message.getText();
-            if (msg.length() > 200) {
-                msg = msg.substring(0, 200) + "...";
+        if (message.getClient() == client()) {
+            showMessage(message, true);
+            if (Core.instance().main().isMessaging()) {
+                return;
             }
-            ImageView image = new ImageView(
-                    message.getSender().getAvatar(32, 32)
-            );
-            Notifications.create()
-                    .title(title)
-                    .text(msg)
-                    .hideAfter(Duration.seconds(20))
-                    .graphic(image)
-                    .show();
-        });
+        }
+        if (showNotification.isSelected()) {
+            Platform.runLater(() -> {
+                String title = message.getSender().getUserName() + " sent a message!";
+                String msg = message.getText();
+                if (msg.length() > 60) {
+                    msg = msg.substring(0, 60) + "...";
+                }
+                ImageView image = new ImageView(
+                        message.getSender().getAvatar(32, 32)
+                );
+                Notifications.create()
+                        .title(title)
+                        .text(msg)
+                        .hideAfter(Duration.seconds(5))
+                        .graphic(image)
+                        .show();
+            });
+        }
     }
 
     @FXML
     private void messageKeyPressed(KeyEvent evt) {
-
-        setTextAreaHeight();
-
         if (evt.getCode() == KeyCode.ENTER) {
             evt.consume();
             if (evt.isShiftDown()) {
@@ -179,13 +194,16 @@ public class MessagingController implements Initializable, ListChangeListener<Me
             errorLabel.setText("Message is too short");
             return;
         }
-        if (getClient() == null) {
+        if (client() == null) {
             errorLabel.setText("The receiver is unknown");
             return;
         }
-        String res = sendMessage(text);
-        errorLabel.setText(res);
-        messageText.clear();
+        errorLabel.setText("");
+        sendMessage(text);
+    }
+
+    private void messageTextChanged() {
+        setTextAreaHeight();
     }
 
     @Deprecated

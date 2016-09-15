@@ -10,11 +10,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane minHeight="55.0" minWidth="54.0" onMouseClicked="#onMouseClicked" onTouchPressed="#onMouseClicked" prefHeight="60.0" prefWidth="200.0" style="-fx-background-color: rgba(255,255,255,0.8);" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.UserItem">
+<GridPane minHeight="55.0" minWidth="54.0" onMouseClicked="#onMouseClicked" onTouchPressed="#onMouseClicked" prefHeight="60.0" style="-fx-background-color: rgba(255,255,255,0.8);" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.UserItem">
    
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="54.0" prefWidth="60.0" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="200.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="25.0" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints maxHeight="36.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
@@ -38,6 +39,11 @@
                 <Insets bottom="3.0" left="3.0" right="3.0" />
             </GridPane.margin>
         </Label>
+      <Button fx:id="unseenCount" mnemonicParsing="false" onAction="#onUnseenClicked" style="-fx-background-radius: 10;" text="0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="CENTER">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </Button>
     </children>
    <effect>
       <DropShadow />

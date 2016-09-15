@@ -16,11 +16,13 @@
 package org.tuntuni.connection;
 
 import java.net.InetSocketAddress;
-import javafx.beans.property.ListProperty;
+import java.util.Date;
+import java.util.LinkedList;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
+import org.tuntuni.Core;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Message;
 import org.tuntuni.models.UserData;
@@ -31,99 +33,35 @@ import org.tuntuni.models.UserData;
  */
 public class Client extends TCPClient {
 
+    static final int MAX_MESSAGE_QUEUE = 100;
+
     // local data from server 
-    private final ListProperty<Message> mMessages;
+    private int mState;
+    private IntegerProperty mUnseenCount;
+    private final LinkedList<Message> mMessages;
     private final ObjectProperty<UserData> mUserData;
 
     // hides the constructor and handle it with static open() method
     public Client(InetSocketAddress socket) {
         super(socket);
+        mUnseenCount = new SimpleIntegerProperty(0);
         // initialize properties 
+        mMessages = new LinkedList<>();
         mUserData = new SimpleObjectProperty<>(this, "UserData");
-        mMessages = new SimpleListProperty(FXCollections.observableArrayList());
         // load messages
         // TODO: save and restore messages
     }
 
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Test the server is available at the address.
-     *
-     * @return {@code true} if available, {@code false} otherwise
-     */
-    public boolean checkServer() {
-        if (!isConnected()) {
-            return getProfile();
-        }
-        // check if server is alive
-        Object ob = request(ConnectFor.STATE);
-        if (ob == null || !(ob instanceof String)) {
-            setConnected(false);
-            return false;
-        }
-        // now check if states are the same
-        String result = (String) ob;
-        if (!result.equals(getState())) {
-            return getProfile();
-        }
-        return true;
-    }
-
-    /**
-     * Gets the user profile from the server
-     *
-     * @return
-     */
-    public boolean getProfile() {
-        // get getProfile data
-        try {
-            UserData profile = (UserData) request(ConnectFor.PROFILE);
-            setUserData(profile);
-            if (profile != null) {
-                setConnected(true);
-                return true;
-            }
-        } catch (NullPointerException ex) {
-        }
-        return false;
-    }
-
-    /**
-     * Send a sendMessage to this client
-     *
-     * @param message Message to be sent
-     * @throws java.lang.Exception
-     */
-    public void sendMessage(Message message) throws Exception {
-        Exception ex = (Exception) request(ConnectFor.MESSAGE, message);
-        if (ex != null) {
-            throw ex;
-        }
-        message.setReceiver(false);
-        addMessage(message);
-    }
-
-    //////////////////////////////////////////////////////////////////////////// 
-    //////////////////////////////////////////////////////////////////////////// 
-    /**
-     * Gets the state of the user data
-     *
-     * @return
-     */
-    public String getState() {
-        return mUserData.get().getState();
-    }
-
     /**
      * Gets the user data associated with it.
      *
      * @return
      */
     public UserData getUserData() {
-        return  mUserData.get();
+        return mUserData.get();
     }
-    
+
     /**
      * Gets the user name.
      *
@@ -132,7 +70,6 @@ public class Client extends TCPClient {
     public String getUserName() {
         return mUserData == null ? getHostString() : mUserData.get().getUserName();
     }
-
 
     /**
      * Sets the user data
@@ -146,12 +83,37 @@ public class Client extends TCPClient {
         return mUserData;
     }
 
+////////////////////////////////////////////////////////////////////////////////  
+    /**
+     * Downloads the user profile
+     *
+     * @param state
+     */
+    public void downloadProfile(int state) {
+        Object data = request(ConnectFor.PROFILE, state);
+        if (data != null && data instanceof UserData) {
+            setState(state);
+            setConnected(true);
+            UserData profile = (UserData) data;
+            setUserData(profile);
+        }
+    }
+
+    public void setState(int state) {
+        mState = state;
+    }
+
+    public int getState() {
+        return mState;
+    }
+
+////////////////////////////////////////////////////////////////////////////////
     /**
      * Gets the message list property of this client
      *
      * @return
      */
-    public ListProperty<Message> messageProperty() {
+    public LinkedList<Message> messageList() {
         return mMessages;
     }
 
@@ -161,10 +123,42 @@ public class Client extends TCPClient {
      * @param message
      */
     public void addMessage(Message message) {
-        message.setClient(this);
         mMessages.add(message);
+        if (mMessages.size() > MAX_MESSAGE_QUEUE) {
+            mMessages.remove();
+        }
+        Core.instance().messaging().messageAdded(message);
     }
 
+    /**
+     * Send a sendMessage to this client
+     *
+     * @param message Message to be sent
+     * @throws java.lang.Exception
+     */
+    public void sendMessage(Message message) throws Exception {
+        Exception ex = (Exception) request(ConnectFor.MESSAGE, message);
+        if (ex != null) {
+            throw ex;
+        }
+        addMessage(message);
+    }
+
+    public void decreaseUnseen() {
+        if (mUnseenCount.get() > 0) {
+            mUnseenCount.set(mUnseenCount.get() - 1);
+        }
+    }
+
+    public void increaseUnseen() {
+        mUnseenCount.set(mUnseenCount.get() + 1);
+    }
+
+    public IntegerProperty unseenCountProperty() {
+        return mUnseenCount;
+    }
+
+////////////////////////////////////////////////////////////////////////////////
     /**
      * Sends a call request and receive response
      *

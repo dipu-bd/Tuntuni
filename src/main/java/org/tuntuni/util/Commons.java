@@ -31,6 +31,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javax.imageio.ImageIO;
+import org.tuntuni.models.Logs;
 
 /**
  * Some commonly used functions and methods
@@ -54,18 +55,23 @@ public class Commons {
      * @throws java.io.IOException
      */
     public static Pane loadPaneFromFXML(String resourcePath) throws IOException {
-        //init loader           
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(Commons.class.getResource(resourcePath));
+        try {
+            //init loader           
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Commons.class.getResource(resourcePath));
 
-        //load fxml
-        Node node = (Node) loader.load();
-        BorderPane control = (BorderPane) loader.getController();
-
-        BorderPane.setAlignment(node, Pos.CENTER);
-        control.setCenter(node);
-
-        return control;
+            //load fxml
+            Node node = (Node) loader.load();
+            BorderPane control = (BorderPane) loader.getController();
+            BorderPane.setAlignment(node, Pos.CENTER);
+            control.setCenter(node);
+            
+            return control;
+            
+        } catch (IOException ex) {
+            Logs.error("Commos", "FXML Load error. {0}", ex);
+            throw ex;
+        }
     }
 
     /**
@@ -73,11 +79,14 @@ public class Commons {
      * <p>
      * IPv4 address byte array must be 4 bytes long</p>
      *
-     * @param bytes Array of bytes to convert.
+     * @param data Array of bytes to convert.
      * @return
      */
-    public static int bytesToInt(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).getInt();
+    public static int bytesToInt(byte[] data) {
+        if (data == null) {
+            return 0;
+        }
+        return ByteBuffer.wrap(data).getInt();
     }
 
     /**
@@ -117,6 +126,9 @@ public class Commons {
      * @return
      */
     public static <T> T fromBytes(byte[] data, Class<T> expectedClass) {
+        if (data == null) {
+            return null;
+        }
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
                 ObjectInputStream ois = new ObjectInputStream(bais)) {
             return expectedClass.cast(ois.readObject());
@@ -126,6 +138,9 @@ public class Commons {
     }
 
     public static byte[] imageToBytes(BufferedImage img) {
+        if (img == null) {
+            return null;
+        }
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(img, "png", baos);
             return baos.toByteArray();
@@ -135,10 +150,16 @@ public class Commons {
     }
 
     public static byte[] imageToBytes(Image img) {
+        if (img == null) {
+            return null;
+        }
         return imageToBytes(SwingFXUtils.fromFXImage(img, null));
     }
 
     public static Image bytesToImage(byte[] data) {
+        if (data == null) {
+            return null;
+        }
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
             return new Image(bais);
         } catch (IOException ex) {
@@ -147,6 +168,9 @@ public class Commons {
     }
 
     public static BufferedImage bytesToBufferedImage(byte[] data) {
+        if (data == null) {
+            return null;
+        }
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
             return ImageIO.read(bais);
         } catch (IOException ex) {
@@ -156,6 +180,9 @@ public class Commons {
 
     public static Image resizeImage(Image img, double width, double height) {
         byte[] data = imageToBytes(img);
+        if (data == null) {
+            return null;
+        }
         try (ByteArrayInputStream byteInput = new ByteArrayInputStream(data)) {
             return new Image(byteInput, width, height, true, true);
         } catch (IOException ex) {

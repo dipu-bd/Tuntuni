@@ -44,8 +44,8 @@ public class DiscoveryDataTest {
             System.out.println("-- Size for " + port + " =" + bt.length);
             bd = Commons.fromBytes(bt, DiscoveryData.class);
             assertNotNull(bd);
-            assertEquals(dd.getConnectFor(), bd.getConnectFor());
             assertEquals(dd.getPort(), bd.getPort());
+            assertEquals(dd.getState(), bd.getState());
 
         }
 
@@ -55,8 +55,8 @@ public class DiscoveryDataTest {
         System.out.println("-- Size for no port = " + bt.length);
         bd = Commons.fromBytes(bt, DiscoveryData.class);
         assertNotNull(bd);
-        assertEquals(dd.getConnectFor(), bd.getConnectFor());
         assertEquals(dd.getPort(), bd.getPort());
+        assertEquals(dd.getState(), bd.getState());
     }
 
 }

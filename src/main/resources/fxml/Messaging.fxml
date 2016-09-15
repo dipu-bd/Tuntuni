@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox id="message-pane" minWidth="250.0" prefHeight="400.0" prefWidth="250.0" style="-fx-background-color: rgba(0,0,0,0.5);" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MessagingController">
+<VBox id="message-pane" minWidth="250.0" prefHeight="455.0" prefWidth="683.0" style="-fx-background-color: rgba(0,0,0,0.5);" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.MessagingController">
    <children>
       <HBox style="-fx-background-color: rgba(0,20,0,0.3);">
          <children>
@@ -64,6 +64,7 @@
       </TextArea>
       <HBox prefHeight="30.0" prefWidth="200.0">
          <children>
+            <CheckBox fx:id="showNotification" mnemonicParsing="false" prefHeight="30.0" selected="true" text="Show notifications" textFill="#dee8dc" />
             <Label fx:id="errorLabel" prefHeight="30.0" text="error label" textFill="#ffc300" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Italic" size="12.0" />

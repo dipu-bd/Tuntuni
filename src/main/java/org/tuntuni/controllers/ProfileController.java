@@ -80,18 +80,18 @@ public class ProfileController implements Initializable {
         editAboutMeButton.setVisible(false);
         userName.textProperty().addListener((a, b, c) -> {
             boolean show = isDefaultProfile()
-                    && !c.equals(Core.instance().user().username());
+                    && !c.equals(Core.instance().user().getName());
             editNameButton.setVisible(show);
-        });
-        aboutMe.textProperty().addListener((a, b, c) -> {
-            boolean show = isDefaultProfile()
-                    && !c.equals(Core.instance().user().aboutme());
-            editAboutMeButton.setVisible(show);
         });
         statusText.textProperty().addListener((a, b, c) -> {
             boolean show = isDefaultProfile()
-                    && !c.equals(Core.instance().user().status());
+                    && !c.equals(Core.instance().user().getStatus());
             editStatusButton.setVisible(show);
+        });
+        aboutMe.textProperty().addListener((a, b, c) -> {
+            boolean show = isDefaultProfile()
+                    && !c.equals(Core.instance().user().getAboutMe());
+            editAboutMeButton.setVisible(show);
         });
     }
 
@@ -105,22 +105,22 @@ public class ProfileController implements Initializable {
         });
     }
 
-    public Client getClient() {
-        return Core.instance().main().selectedClient();
+    Client client() {
+        return Core.instance().selected();
     }
 
     public boolean isDefaultProfile() {
-        return (getClient() == null || !getClient().isConnected());
+        return (client() == null || !client().isConnected());
     }
 
     private void loadClientProfile() {
         // preliminary values
         final double width = avatarImage.getFitWidth();
         final double height = avatarImage.getFitHeight();
-        final String user = getClient().getUserData().getUserName();
-        final String status = getClient().getUserData().getStatus();
-        final String about = getClient().getUserData().getAboutMe();
-        final Image avatar = getClient().getUserData().getAvatar(width, height);
+        final String user = client().getUserData().getUserName();
+        final String status = client().getUserData().getStatus();
+        final String about = client().getUserData().getAboutMe();
+        final Image avatar = client().getUserData().getAvatar(width, height);
 
         // display all data
         userName.setText(user + " ");
@@ -139,18 +139,23 @@ public class ProfileController implements Initializable {
         aboutMe.setEditable(false);
         userName.setEditable(false);
         statusText.setEditable(false);
+
         userName.setCursor(Cursor.DEFAULT);
         statusText.setCursor(Cursor.DEFAULT);
         aboutMe.setCursor(Cursor.DEFAULT);
+
+        userName.setId("user-name");
+        statusText.setId("user-status");
+        aboutMe.setId("user-about");
     }
 
     private void loadDefaultProfile() {
         // preliminary values
         final double width = avatarImage.getFitWidth();
         final double height = avatarImage.getFitHeight();
-        final String user = Core.instance().user().username();
-        final String status = Core.instance().user().status();
-        final String about = Core.instance().user().aboutme();
+        final String user = Core.instance().user().getName();
+        final String status = Core.instance().user().getStatus();
+        final String about = Core.instance().user().getAboutMe();
         final Image avatar = Core.instance().user().getAvatarImage(width, height);
 
         // display all data
@@ -170,9 +175,14 @@ public class ProfileController implements Initializable {
         aboutMe.setEditable(true);
         userName.setEditable(true);
         statusText.setEditable(true);
+
         userName.setCursor(Cursor.TEXT);
         statusText.setCursor(Cursor.TEXT);
         aboutMe.setCursor(Cursor.TEXT);
+
+        userName.setId("my-name");
+        statusText.setId("my-status");
+        aboutMe.setId("my-about");
     }
 
     @FXML
@@ -210,19 +220,19 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void changeName() {
-        Core.instance().user().username(userName.getText());
+        Core.instance().user().setName(userName.getText());
         editNameButton.setVisible(false);
     }
 
     @FXML
     private void changeStatus() {
-        Core.instance().user().status(statusText.getText());
+        Core.instance().user().setStatus(statusText.getText());
         editStatusButton.setVisible(false);
     }
 
     @FXML
     private void changeAboutMe() {
-        Core.instance().user().aboutme(aboutMe.getText());
+        Core.instance().user().setAboutMe(aboutMe.getText());
         editAboutMeButton.setVisible(false);
     }
 
@@ -230,7 +240,7 @@ public class ProfileController implements Initializable {
         try {
             String uploaded = FileService.instance().upload(choosen);
             Image image = FileService.instance().getImage(uploaded);
-            Core.instance().user().avatar(uploaded);
+            Core.instance().user().setAvatar(uploaded);
         } catch (IOException ex) {
             ExceptionDialog dialog = new ExceptionDialog(ex);
             dialog.setTitle("Failed to upload image");

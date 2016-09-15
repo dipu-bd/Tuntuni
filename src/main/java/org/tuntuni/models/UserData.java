@@ -27,29 +27,30 @@ import org.tuntuni.util.Commons;
  */
 public class UserData implements Externalizable {
 
-    private static final int AVATAR_MAX_SIZE = 96;
+    private static final int AVATAR_MAX_SIZE = 128;
 
     private String mName;
     private String mStatus;
-    private String mAboutMe;
-    private String mState;
+    private String mAboutMe; 
     private byte[] mAvatar;
 
     public UserData() {
     }
+    
+    public UserData(String userName) {
+        mName = userName;
+    }
 
     public UserData(UserProfile profile) {
-        mName = profile.username();
-        mStatus = profile.status();
-        mAboutMe = profile.aboutme();
-        mState = profile.getState();
+        mName = profile.getName();
+        mStatus = profile.getStatus();
+        mAboutMe = profile.getAboutMe(); 
         mAvatar = Commons.imageToBytes(
                 profile.getAvatarImage(AVATAR_MAX_SIZE, AVATAR_MAX_SIZE));
     }
 
     @Override
-    public void writeExternal(ObjectOutput oo) throws IOException {
-        oo.writeUTF(mState);        
+    public void writeExternal(ObjectOutput oo) throws IOException { 
         oo.writeUTF(mName);
         oo.writeUTF(mStatus);
         oo.writeUTF(mAboutMe);
@@ -58,8 +59,7 @@ public class UserData implements Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {                
-        mState = (String) oi.readUTF();
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {           
         mName = (String) oi.readUTF();
         mStatus = (String) oi.readUTF();
         mAboutMe = (String) oi.readUTF();
@@ -69,12 +69,8 @@ public class UserData implements Externalizable {
 
     public String getUserName() {
         return mName;
-    }
-
-    public String getState() {
-        return mState;
-    }
-
+    } 
+    
     public String getStatus() {
         return mStatus;
     }

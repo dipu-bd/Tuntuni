@@ -16,6 +16,7 @@
 package org.tuntuni;
 
 import javafx.stage.Stage;
+import org.tuntuni.connection.Client;
 import org.tuntuni.connection.MainServer;
 import org.tuntuni.connection.Subnet;
 import org.tuntuni.connection.SubnetServer;
@@ -167,6 +168,15 @@ public final class Core {
     }
 
     /**
+     * Gets the currently selected client, or null if none.
+     *
+     * @return
+     */
+    public Client selected() {
+        return mMain == null ? null : mMain.selectedClient();
+    }
+
+    /**
      * Gets the main controller if it is initialized, otherwise a {@code null}
      * value is returned.
      *
@@ -234,6 +244,15 @@ public final class Core {
      */
     public MessagingController messaging() {
         return mMessaging;
+    }
+
+    /**
+     * Change the state of discovery data in subnet
+     */
+    public void changeState() {
+        if (subnet() != null) {
+            subnet().changeState();
+        }
     }
 
     /**

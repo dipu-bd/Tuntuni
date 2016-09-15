@@ -17,6 +17,7 @@ package org.tuntuni.models;
 
 import javafx.beans.property.Property;
 import javafx.scene.image.Image;
+import org.tuntuni.Core;
 import org.tuntuni.util.Commons;
 import org.tuntuni.util.FileService;
 
@@ -26,7 +27,7 @@ import org.tuntuni.util.FileService;
  */
 public class UserProfile extends Persistent {
 
-    private final Property<String> mUserName;
+    private final Property<String> mName;
     private final Property<String> mAvatar;
     private final Property<String> mStatus;
     private final Property<String> mAboutMe;
@@ -38,7 +39,7 @@ public class UserProfile extends Persistent {
         super("Profile");
         mStatus = buildProperty("Status", "");
         mAboutMe = buildProperty("AboutMe", "");
-        mUserName = buildProperty("UserName", System.getProperty("user.name"));
+        mName = buildProperty("UserName", System.getProperty("user.name"));
         mAvatar = buildProperty("Avatar", "");
     }
 
@@ -51,68 +52,133 @@ public class UserProfile extends Persistent {
         return new UserData(this);
     }
 
-    public Property<String> usernameProperty() {
-        return mUserName;
+////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * User name property
+     *
+     * @return
+     */
+    public Property<String> userNameProperty() {
+        return mName;
     }
 
+    /**
+     * Avatar property
+     *
+     * @return
+     */
     public Property<String> avatarProperty() {
         return mAvatar;
     }
 
+    /**
+     * Status property
+     *
+     * @return
+     */
     public Property<String> statusProperty() {
         return mStatus;
     }
 
-    public Property<String> aboutmeProperty() {
+    /**
+     * About me property
+     *
+     * @return
+     */
+    public Property<String> aboutMeProperty() {
         return mAboutMe;
     }
 
+////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Sets the display setName.
+     *
+     * @param value Value of the field
+     */
+    public void setName(String value) {
+        value = value.trim();
+        if (!value.isEmpty()) {
+            mName.setValue(value);
+            Core.instance().changeState();
+        }
+    }
+
+    /**
+     * Sets the location of setAvatar image
+     *
+     * @param value
+     */
+    public void setAvatar(String value) {
+        mAvatar.setValue(value);
+        Core.instance().changeState();
+    }
+
+    /**
+     * Sets the setStatus of the user.
+     *
+     * @param value Value of the field
+     */
+    public void setStatus(String value) {
+        mStatus.setValue(value.trim());
+        Core.instance().changeState();
+    }
+
+    /**
+     * Sets the user's about me text.
+     *
+     * @param value Value of the field
+     */
+    public void setAboutMe(String value) {
+        mAboutMe.setValue(value.trim());
+        Core.instance().changeState();
+    }
+
+////////////////////////////////////////////////////////////////////////////////
     /**
      * Gets the display user name
      *
      * @return
      */
-    public String username() {
-        return mUserName.getValue();
+    public String getName() {
+        return mName.getValue();
     }
 
     /**
-     * Sets the display username.
-     *
-     * @param value Value of the field
-     */
-    public void username(String value) {
-        value = value.trim();
-        if (!value.isEmpty()) {
-            mUserName.setValue(value);
-        }
-    }
-
-    /**
-     * Gets the file path of the avatar
+     * Gets the setStatus of the user.
      *
      * @return Value of the field
      */
-    public String avatar() {
+    public String getStatus() {
+        return mStatus.getValue();
+    }
+
+    /**
+     * Gets the user's about me text.
+     *
+     * @return Value of the field
+     */
+    public String getAboutMe() {
+        return mAboutMe.getValue();
+    }
+    
+    /**
+     * Gets the file path of the setAvatar
+     *
+     * @return Value of the field
+     */
+    public String getAvatar() {
         return mAvatar.getValue();
     }
 
     /**
-     * Sets the location of avatar image
-     *
-     * @param value
-     */
-    public void avatar(String value) {
-        mAvatar.setValue(value);
-    }
-
-    /**
-     * Gets the avatar image
+     * Gets the setAvatar image
      *
      * @return Avatar image; or {@code null} if none.
      */
     public Image getAvatarImage() {
-        if (!mAvatar.getValue().isEmpty()) { 
+        if (!mAvatar.getValue().isEmpty()) {
             return FileService.instance().getImage(mAvatar.getValue());
         } else {
             return new Image(getClass().getResourceAsStream("/img/avatar.png"));
@@ -120,7 +186,7 @@ public class UserProfile extends Persistent {
     }
 
     /**
-     * Gets the avatar image of specified width and height
+     * Gets the setAvatar image of specified width and height
      *
      * @param width Preferred width
      * @param height Preferred height
@@ -130,39 +196,5 @@ public class UserProfile extends Persistent {
         return Commons.resizeImage(getAvatarImage(), width, height);
     }
 
-    /**
-     * Gets the status of the user.
-     *
-     * @return Value of the field
-     */
-    public String status() {
-        return mStatus.getValue();
-    }
 
-    /**
-     * Sets the status of the user.
-     *
-     * @param value Value of the field
-     */
-    public void status(String value) {
-        mStatus.setValue(value.trim());
-    }
-
-    /**
-     * Gets the user's about me text.
-     *
-     * @return Value of the field
-     */
-    public String aboutme() {
-        return mAboutMe.getValue();
-    }
-
-    /**
-     * Sets the user's about me text.
-     *
-     * @param value Value of the field
-     */
-    public void aboutme(String value) {
-        mAboutMe.setValue(value.trim());
-    }
 }

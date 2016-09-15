@@ -40,7 +40,7 @@ public class Subnet {
     public static final int SCAN_INTERVAL_MILLIS = 12_000;
 
     private DatagramSocket mSocket;
-    private DiscoveryData mDataToSend;
+    private final DiscoveryData mDataToSend;
     private final ScheduledExecutorService mSchedular;
     private final HashSet<String> myAddress;
 
@@ -49,6 +49,7 @@ public class Subnet {
      */
     public Subnet() {
         myAddress = new HashSet<>();
+        mDataToSend = new DiscoveryData();
         mSchedular = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -63,7 +64,7 @@ public class Subnet {
      * once every {@value #SCAN_INTERVAL_MILLIS} milliseconds. </p>
      */
     public void start() {
-        mDataToSend = new DiscoveryData(Core.instance().server().getPort());
+        mDataToSend.setPort(Core.instance().server().getPort());
         // start periodic check to get active user list        
         mSchedular.scheduleAtFixedRate(performScan, SCAN_START_DELAY_MILLIS,
                 SCAN_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
@@ -74,7 +75,8 @@ public class Subnet {
      */
     public void stop() {
         mSchedular.shutdownNow();
-        mDataToSend = new DiscoveryData(-1);
+        mDataToSend.setPort(-1);
+        mDataToSend.changeState();
         new Thread(performScan).start();
     }
 
@@ -178,4 +180,12 @@ public class Subnet {
     public HashSet<String> getMyAddresses() {
         return myAddress;
     }
+
+    /**
+     * Changes the state of data to change
+     */
+    public void changeState() {
+        mDataToSend.changeState();
+    }
+
 }

@@ -18,6 +18,7 @@ package org.tuntuni.controllers;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -55,6 +56,8 @@ public class UserItem extends BorderPane {
     private Label fullName;
     @FXML
     private Label statusLabel;
+    @FXML
+    private Button unseenCount;
 
     private Client mClient;
 
@@ -67,6 +70,11 @@ public class UserItem extends BorderPane {
         refresh(client.getUserData());
         client.userdataProperty().addListener((ov, o, n) -> {
             Platform.runLater(() -> refresh(n));
+        });
+        client.unseenCountProperty().addListener((ov, o, n) -> {
+            Platform.runLater(() -> {
+                unseenCount.setText(String.valueOf(n));
+            });
         });
     }
 
@@ -88,5 +96,11 @@ public class UserItem extends BorderPane {
     @FXML
     public void onMouseClicked() {
         Core.instance().main().showUser(mClient);
+    }
+
+    @FXML
+    public void onUnseenClicked() {
+        Core.instance().main().showUser(mClient);
+        Core.instance().main().selectMessaging();
     }
 }

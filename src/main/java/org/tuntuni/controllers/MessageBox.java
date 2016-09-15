@@ -25,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -84,20 +85,25 @@ public class MessageBox extends BorderPane {
     public void initialize(Message message) {
         mMessage = message;
 
+        if (mMessage.isReceived()) {
+            setId("message-receiver");
+        } else {
+            setId("message-sender");
+        }
+        
+        double width = senderImage.getFitWidth();
+        double height = senderImage.getFitHeight();
+        Image avatar = mMessage.getSender().getAvatar(width, height);
+        if (avatar != null) {
+            senderImage.setImage(avatar);
+        }
+
         mDate = mMessage.getTime();
         messageBody.setText(mMessage.getText());
 
         mTimeline.setCycleCount(Animation.INDEFINITE);
         mTimeline.play();
 
-        senderImage.setImage(mMessage.getSender().getAvatar(
-                senderImage.getFitWidth(), senderImage.getFitHeight()));
-
-        if (mMessage.isReceiver()) {
-            setId("message-receiver");
-        } else {
-            setId("message-sender");
-        }
     }
 
     // updates the view of time
@@ -109,7 +115,7 @@ public class MessageBox extends BorderPane {
 
     @FXML
     private void handleShowSender(ActionEvent evt) {
-        if (mMessage.isReceiver()) {
+        if (mMessage.isReceived()) {
             Core.instance().main().showUser(mMessage.getClient());
         } else {
             Core.instance().main().showUser(null);

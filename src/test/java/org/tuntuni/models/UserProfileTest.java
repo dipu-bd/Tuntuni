@@ -43,14 +43,14 @@ public class UserProfileTest {
     @Test
     public void testUsername_String() {
         System.out.println("testUsername_String");
-        assertNotNull(profile.username());
+        assertNotNull(profile.getName());
     }
 
     @Test
     public void testAvatar_Image() {
         System.out.println("testAvatar_Image");
-        System.out.println("++" + profile.avatar());
-        assertNotNull(profile.avatar());
+        System.out.println("++" + profile.getAvatar());
+        assertNotNull(profile.getAvatar());
         assertNotNull(profile.getAvatarImage());
         assertNotNull(profile.getAvatarImage(63, 83));
     }
@@ -58,13 +58,13 @@ public class UserProfileTest {
     @Test
     public void testStatus_String() {
         System.out.println("testStatus_String");
-        assertNotNull(profile.status());
+        assertNotNull(profile.getStatus());
     }
 
     @Test
     public void testAboutme_String() {
         System.out.println("testAboutme_String");
-        assertNotNull(profile.aboutme());
+        assertNotNull(profile.getAboutMe());
     }
 
     @Test

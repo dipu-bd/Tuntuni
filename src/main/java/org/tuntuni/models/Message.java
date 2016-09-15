@@ -31,7 +31,7 @@ public class Message implements Externalizable {
 
     private Date mTime;
     private String mText;
-    private boolean mReceiver;
+    private boolean mReceived;
     private Client mClient;
     private boolean mViewed;
 
@@ -50,7 +50,7 @@ public class Message implements Externalizable {
     public Message(String message) {
         mText = message;
         mClient = null;
-        mReceiver = false;
+        mReceived = false;
         mTime = new Date();
         mViewed = false;
     }
@@ -112,15 +112,15 @@ public class Message implements Externalizable {
     /**
      * @return true if the receiver of this message is this machine.
      */
-    public boolean isReceiver() {
-        return mReceiver;
+    public boolean isReceived() {
+        return mReceived;
     }
 
     /**
-     * @param receiver set if the receiver of this message is this machine.
+     * @param received set if the receiver of this message is this machine.
      */
-    public void setReceiver(boolean receiver) {
-        this.mReceiver = receiver;
+    public void setReceived(boolean received) {
+        this.mReceived = received;
     }
 
     public boolean isViewed() {
@@ -128,7 +128,14 @@ public class Message implements Externalizable {
     }
 
     public void setViewed(boolean viewed) {
-        this.mReceiver = viewed;
+        if (mClient != null && isReceived()) {
+            if (viewed) {
+                mClient.decreaseUnseen();
+            } else {
+                mClient.increaseUnseen();
+            }
+        }
+        this.mViewed = viewed;
     }
 
     /**
@@ -155,7 +162,7 @@ public class Message implements Externalizable {
      * @return UserData of sender
      */
     public UserData getSender() {
-        if (mReceiver) { // current machine is reciever
+        if (mReceived) { // current machine is reciever
             return mClient.getUserData();
         } else {
             return Core.instance().user().getData();
@@ -168,7 +175,7 @@ public class Message implements Externalizable {
      * @return UserData of receiver
      */
     public UserData getReceiver() {
-        if (mReceiver) { // current machine is reciever
+        if (mReceived) { // current machine is reciever
             return Core.instance().user().getData();
         } else {
             return mClient.getUserData();

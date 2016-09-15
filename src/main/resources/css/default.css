@@ -85,41 +85,41 @@
     -fx-background-color: rgba(0,0,0,0.25);
 }
 
-.profile-button {
-    -fx-background-color: rgba(30,30,30,0.1);    
+.videocall-button{
+    -fx-cursor: hand;
+    -fx-background-color: rgba(90,90,100,0.4);
+}
+.videocall-button:hover {
+    -fx-background-color: rgba(90,90,100,0.8);
 }
 
-.profile-button:hover {
-    -fx-background-color: rgba(30,30,30,0.5);
-} 
-
-
-#message-list .list-cell:selected { 
-    -fx-background-color: transparent;
-}
+/******************************************************************************/
+/*                           MESSAGE BOX                                      */
+/******************************************************************************/
 
 .message-box {
     -fx-background-color: transparent;
 }
 
+#message-list .list-cell:selected { 
+    -fx-background-color: transparent;
+} 
+/*
 #message-receiver {
-    /* -fx-padding: 3px 50px 3px 6px;  */  
+    -fx-padding: 3px 50px 3px 6px;    
 }
-
+#message-sender { 
+      -fx-padding: 3px 6px 3px 50px;    
+}
+*/
 #message-receiver .inner-grid {
     -fx-background-radius: 10;
     -fx-background-color:  rgba(240,255,240,0.7);     
 }
-
-#message-sender { 
-    /* -fx-padding: 3px 6px 3px 50px; */    
-}
-
 #message-sender .inner-grid {
     -fx-background-radius: 10;
     -fx-background-color:  rgba(240,240,255,0.7);       
 }
-
 #message-receiver .button {
     -fx-min-width: 0;
     -fx-visible: false;
@@ -128,10 +128,39 @@
     -fx-fit-width: 0;
 }
 
-.videocall-button{
-    -fx-cursor: hand;
-    -fx-background-color: rgba(90,90,100,0.4);
+/******************************************************************************/
+/*                           PROFILE PANE                                     */
+/******************************************************************************/
+
+.profile-button {
+    -fx-background-color: rgba(30,30,30,0.1);    
 }
-.videocall-button:hover {
-    -fx-background-color: rgba(90,90,100,0.8);
+
+.profile-button:hover {
+    -fx-background-color: rgba(30,30,30,0.5);
+} 
+
+#profile-pane #user-box {
+    -fx-background-color: rgba(10,10,50,0.5); 
+    -fx-background-radius: 10;
+}
+
+#profile-pane #user-name, 
+#profile-pane #user-status, 
+#profile-pane #my-name, 
+#profile-pane #my-status {
+    -fx-background-color: transparent;
+    -fx-text-fill: #dfd;
+}
+
+#profile-pane #user-about, 
+#profile-pane #my-about {
+    -fx-background-color: rgba(10,10,10,0.3);
+}
+
+#profile-pane #my-name:focused, 
+#profile-pane #my-status:focused,
+#profile-pane #my-about:focused {
+    -fx-background-color: rgba(255,255,255,0.25);  
+    -fx-text-fill: #fff;
 }

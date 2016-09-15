@@ -81,8 +81,8 @@ public class VideoCallController implements Initializable {
         }
     }
 
-    public Client getClient() {
-        return Core.instance().main().selectedClient();
+    public Client client() {
+        return Core.instance().selected();
     }
 
     public void refresh() {
@@ -90,10 +90,10 @@ public class VideoCallController implements Initializable {
     }
 
     private void loadAll() {
-        if (getClient() != null && getClient().getUserData() != null) {
+        if (client() != null && client().getUserData() != null) {
             userName.setVisible(true);
-            userName.setText(getClient().getUserData().getUserName());
-            userPhoto.setImage(getClient().getUserData().getAvatar(
+            userName.setText(client().getUserData().getUserName());
+            userPhoto.setImage(client().getUserData().getAvatar(
                     userPhoto.getFitWidth(), userPhoto.getFitHeight()));
         } else {
             userName.setVisible(false);
@@ -169,7 +169,7 @@ public class VideoCallController implements Initializable {
     @FXML
     private void startVideoCall(ActionEvent evt) {
         // dial
-        Exception ex = Core.instance().dialer().dial(getClient());
+        Exception ex = Core.instance().dialer().dial(client());
         // if something went wrong
         if (ex != null) {
             Alert alert = new Alert(AlertType.WARNING);

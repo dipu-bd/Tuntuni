@@ -29,11 +29,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 import org.controlsfx.control.Notifications;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
@@ -71,12 +69,12 @@ public class MainController implements Initializable {
         userListPrefWidth = userList.getPrefWidth();
 
         // change of user name
-        profileButton.setText(Core.instance().user().username());
-        Core.instance().user().usernameProperty().addListener((ov, o, n) -> {
+        profileButton.setText(Core.instance().user().getName());
+        Core.instance().user().userNameProperty().addListener((ov, o, n) -> {
             Platform.runLater(() -> profileButton.setText(n));
         });
 
-        // change of avatar image
+        // change of setAvatar image
         final ImageView profileImage = (ImageView) profileButton.getGraphic();
         ChangeListener updateAvatar = (ov, o, n) -> {
             Image avatar = Core.instance().user().getAvatarImage(32, 32);
@@ -106,7 +104,9 @@ public class MainController implements Initializable {
             UserItem item = UserItem.createInstance(add);
             userList.getItems().add(item);
             add.connectedProperty().addListener((ov, n, o) -> {
-                showUser(add);
+                if (add == mSelected) {
+                    disconnectNotice();
+                }
             });
         }
         // remove item
@@ -131,45 +131,49 @@ public class MainController implements Initializable {
     }
 
     /**
+     * Gets the currently selected client; Or null if none is selected.
+     *
+     * @return
+     */
+    public Client selectedClient() {
+        return mSelected;
+    }
+
+    /**
      * Select a client and display profile immediately
      *
      * @param client
      */
     public void showUser(Client client) {
         if (client != null && !client.isConnected()) {
-            if (mSelected == client) {
-                disconnectNotice(client.getUserData().getUserName());
-            }
-            client = null;
+            return;
         }
         mSelected = client;
         refreshAll();
     }
 
-    public void disconnectNotice(String name) {
+    public void disconnectNotice() {
+        if (mSelected == null) {
+            return;
+        }
         Platform.runLater(() -> {
-            String msg = "Either " + name
-                    + " closed his application, or there is a network failure.";
-            Notifications.create()
-                    .title("User Disconnected!")
-                    .text(msg)
-                    .showError();
+            String msg = String.format(
+                    "Sorry. We lost connection with %s (%s).",
+                    mSelected.getUserName(), mSelected.toString());
+            Notifications.create().title("User Disconnected!").text(msg).showError();
+            showUser(null);
         });
-    }
-
-    public Client selectedClient() {
-        return mSelected;
     }
 
     public void refreshAll() {
         Platform.runLater(() -> {
+            // refresh all contents
             Core.instance().profile().refresh();
             Core.instance().messaging().refresh();
             Core.instance().videocall().refresh();
-            if (mSelected == null) {
-                if (!isProfile()) {
-                    selectProfile();
-                }
+            // select profile if necessary
+            if (mSelected == null && !isProfile()) {
+                selectProfile();
             }
             // disable or enable tab header
             ((Node) tabPane.lookup(".tab-header-area")).setDisable(mSelected == null);

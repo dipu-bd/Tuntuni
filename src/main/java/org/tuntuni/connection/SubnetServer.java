@@ -38,7 +38,8 @@ public class SubnetServer implements Runnable {
 
     public static final int[] PORTS = {
         24914,
-        24915
+        42914,
+        62915
     };
 
     private Thread mServerThread;
@@ -104,17 +105,14 @@ public class SubnetServer implements Runnable {
                 mSocket.receive(packet);
 
                 // convert response data
-                DiscoveryData dd = Commons.fromBytes(data, DiscoveryData.class
-                );
-                if (dd
-                        == null || dd.getConnectFor()
-                        != ConnectFor.PORT) {
+                DiscoveryData dd = Commons.fromBytes(data, DiscoveryData.class);
+                if (dd == null) {
                     continue;
                 }
 
                 // We have a response
-                Logs.info(getClass(), "Packet received. From: {0}, Data: {1}",
-                        packet.getAddress().getHostAddress(), dd.getPort());
+                Logs.info(getClass(), "Packet received. From: {0}, Data: {1},{2}",
+                        packet.getAddress().getHostAddress(), dd.getPort(), dd.getState());
 
                 // check validity of the address
                 if (dd.getPort()
@@ -125,11 +123,10 @@ public class SubnetServer implements Runnable {
 
                 // add new client
                 Thread t = new Thread(() -> {
-                    addUser(packet.getAddress(), dd.getPort());
+                    addUser(packet.getAddress(), dd);
                 });
 
-                t.setDaemon(
-                        true);
+                t.setDaemon(true);
                 t.start();
 
             } catch (Exception ex) {
@@ -165,8 +162,9 @@ public class SubnetServer implements Runnable {
     }
 
     // add new client to the list
-    private void addUser(final InetAddress address, final int port) {
+    private void addUser(InetAddress address, DiscoveryData dd) {
 
+        int port = dd.getPort();
         int key = SocketUtils.addressAsInteger(address);
         Client client = mUserList.get(key);
 
@@ -190,9 +188,10 @@ public class SubnetServer implements Runnable {
             }
 
             // check server
-            if (!client.isConnected()) {
-                client.checkServer();
+            if (!client.isConnected() || dd.getState() != client.getState()) {
+                client.downloadProfile(dd.getState());
             }
         }
     }
+
 }

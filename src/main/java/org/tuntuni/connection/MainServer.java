@@ -35,7 +35,7 @@ public class MainServer extends TCPServer {
     /**
      * A function to which the server requests to get response.
      *
-     * @param status the status of the getResponse
+     * @param status the setStatus of the getResponse
      * @param from The socket involving this request.
      * @param data parameters sent by client
      * @return The getResponse object. Can be {@code null}.
@@ -70,19 +70,21 @@ public class MainServer extends TCPServer {
     public Object setMessage(Client client, Object[] data) {
         // get client 
         if (client == null) {
-            return new Exception("The sender is not registered");
+            return new Exception("User not recognized");
         }
         try {
             Message message = (Message) data[0];
-            message.setReceiver(true);
+            message.setClient(client);
+            message.setReceived(true);
+            message.setViewed(false);
             message.setTime(new Date());
             client.addMessage(message);
-            Core.instance().messaging().notifyIncoming(message);
+            return null;
+            
         } catch (Exception ex) {
             //ex.printStackTrace();
             return new Exception("Failed to add message", ex);
         }
-        return null;
     }
 
     // receiver response

@@ -70,8 +70,7 @@ public class UserDataTest {
         ois.close();
         bais.close();
 
-        assertEquals(read.getAboutMe(), write.getAboutMe());
-        assertEquals(read.getState(), write.getState());
+        assertEquals(read.getAboutMe(), write.getAboutMe()); 
         assertEquals(read.getStatus(), write.getStatus());
         assertEquals(read.getUserName(), write.getUserName());
         assertArrayEquals(read.getAvatarData(), write.getAvatarData());        

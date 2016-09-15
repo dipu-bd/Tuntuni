@@ -26,27 +26,25 @@ import java.io.ObjectOutput;
 public class DiscoveryData implements Externalizable {
 
     private int mPort;
-    private ConnectFor mConnectFor;
+    private int mState; 
 
-    public DiscoveryData() {
-        mConnectFor = ConnectFor.INVALID;
+    public DiscoveryData() { 
     }
 
     public DiscoveryData(int port) {
-        mPort = port;
-        mConnectFor = ConnectFor.PORT;
+        mPort = port; 
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeByte(getConnectFor().data());
+    public void writeExternal(ObjectOutput out) throws IOException { 
         out.writeInt(getPort());
+        out.writeInt(mState);
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        setConnectFor(ConnectFor.from(in.readByte()));
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException { 
         setPort(in.readInt());
+        setState(in.readInt());
     }
 
     /**
@@ -62,19 +60,25 @@ public class DiscoveryData implements Externalizable {
     public void setPort(int port) {
         this.mPort = port;
     }
-
+ 
     /**
-     * @return the connectFor
+     * Change current state of the data
      */
-    public ConnectFor getConnectFor() {
-        return mConnectFor;
+    public void changeState() {
+        mState++;
     }
-
+    
     /**
-     * @param connectFor the connectFor to set
+     * @param state the State to set
      */
-    public void setConnectFor(ConnectFor connectFor) {
-        this.mConnectFor = connectFor;
+    public void setState(int state) {
+       mState = state; 
     }
-
+    
+    /**
+     * @return the State
+     */
+    public int getState() {
+        return mState;
+    }
 }

@@ -66,7 +66,7 @@ public class Program extends Application {
         stage.getIcons().add(Commons.resizeImage(icon, 256, 256)); 
         
         // display the stage
-        stage.setMaximized(true);
+        //stage.setMaximized(true);
         stage.show();
     }
 

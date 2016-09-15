@@ -24,8 +24,8 @@
             <RowConstraints fillHeight="false" />
           </rowConstraints>
           <columnConstraints>
-              <ColumnConstraints fillWidth="false" hgrow="NEVER" />
-              <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+              <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="50.0" />
+              <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="100.0" />
           </columnConstraints>
           <children>
               <Button fx:id="senderButton" mnemonicParsing="false" onAction="#handleShowSender" styleClass="highlight-button" GridPane.halignment="RIGHT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
