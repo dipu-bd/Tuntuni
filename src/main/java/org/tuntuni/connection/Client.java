@@ -127,7 +127,9 @@ public class Client extends TCPClient {
         if (mMessages.size() > MAX_MESSAGE_QUEUE) {
             mMessages.remove();
         }
-        Core.instance().messaging().messageAdded(message);
+        if (Core.instance() != null && Core.instance().messaging() != null) {
+            Core.instance().messaging().messageAdded(message);
+        }
     }
 
     /**

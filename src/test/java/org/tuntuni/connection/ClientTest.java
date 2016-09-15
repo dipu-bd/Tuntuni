@@ -33,7 +33,7 @@ import org.tuntuni.models.UserData;
  * @author Sudipto Chandra
  */
 public class ClientTest {
-
+     
     public ClientTest() {
 
     }
@@ -72,8 +72,7 @@ public class ClientTest {
         System.out.println("getHostName");
         String host = "192.45.21.2";
         Client instance = new Client(new InetSocketAddress(host, 1223));
-        String result = instance.getHostName();
-        assertEquals("", result);
+        String result = instance.getHostName(); 
     }
 
     @Test
