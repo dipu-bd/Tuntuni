@@ -99,7 +99,7 @@ public class Client extends TCPClient {
     }
 
     public void setState(int state) {
-        mState = state;
+        mState = state;       
     }
 
     public int getState() {
