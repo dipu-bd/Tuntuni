@@ -122,8 +122,8 @@ public class Subnet {
                 // get network address
                 InetAddress address = ia.getAddress();
                 // Send the broadcast signal to an IPv4 address. 
-                if (address instanceof Inet4Address //) {
-                        && address.isSiteLocalAddress()) {
+                if (address instanceof Inet4Address) {
+                        //&& address.isSiteLocalAddress()) {
                     sendBroadcastRequest(ia);
                 }
                 /*
