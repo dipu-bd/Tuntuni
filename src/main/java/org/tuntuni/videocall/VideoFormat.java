@@ -29,7 +29,7 @@ public abstract class VideoFormat {
     // capture height
     public static final int HEIGHT = 144;
     // frames per seconds
-    public static final int FRAME_RATE = 14;
+    public static final int FRAME_RATE = 12;
 
     //sampleRate - the number of samples per second
     public static final float SAMPLE_RATE = 44100;

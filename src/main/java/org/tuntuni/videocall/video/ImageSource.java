@@ -16,7 +16,9 @@
 package org.tuntuni.videocall.video;
 
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import org.tuntuni.connection.StreamClient;
+import org.tuntuni.videocall.VideoFormat;
 
 /**
  *
@@ -24,6 +26,8 @@ import org.tuntuni.connection.StreamClient;
  */
 public abstract class ImageSource extends StreamClient {
 
+    private long lastImageTime;
+    
     public ImageSource() {
         super(5);
     }
@@ -58,5 +62,22 @@ public abstract class ImageSource extends StreamClient {
      * @return
      */
     public abstract boolean isOpen();
-
+    
+    /**
+     * To send an obtained image to stream client
+     * @param image 
+     */
+    public void sendImage(BufferedImage image) {
+        long time = System.currentTimeMillis();
+        if (checkFrameRate(time)) {
+            send(new ImageFrame(image));
+            lastImageTime = time;
+        }
+    }   
+    
+    private boolean checkFrameRate(long time) {
+        time -= lastImageTime;
+        time *= VideoFormat.FRAME_RATE;
+        return time + 50 > 1000;
+    }
 }

@@ -15,6 +15,7 @@
  */
 package org.tuntuni.util;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -65,9 +66,9 @@ public class Commons {
             BorderPane control = (BorderPane) loader.getController();
             BorderPane.setAlignment(node, Pos.CENTER);
             control.setCenter(node);
-            
+
             return control;
-            
+
         } catch (IOException ex) {
             Logs.error("Commos", "FXML Load error. {0}", ex);
             throw ex;
@@ -189,6 +190,17 @@ public class Commons {
             return null;
         }
     }
+
+    public static BufferedImage resizeImage(BufferedImage imageToScale, int dWidth, int dHeight) {
+        BufferedImage scaledImage = null;
+        if (imageToScale != null) {
+            scaledImage = new BufferedImage(dWidth, dHeight, imageToScale.getType());
+            Graphics2D graphics2D = scaledImage.createGraphics();
+            graphics2D.drawImage(imageToScale, 0, 0, dWidth, dHeight, null);
+            graphics2D.dispose();
+        }
+        return scaledImage;
+    } 
 
     /**
      * Gets a random number between two given numbers (inclusive)
