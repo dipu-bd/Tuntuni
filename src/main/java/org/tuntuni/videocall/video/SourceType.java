@@ -20,6 +20,21 @@ package org.tuntuni.videocall.video;
  * @author dipu
  */
 public enum SourceType {
+    //None,
     WebCam,
-    Desktop
+    Desktop;
+
+    @Override
+    public String toString() {
+        switch (this) {
+            case Desktop:
+                return "Share Screen";
+
+            case WebCam:
+                return "Webcam";
+
+            default:
+                return "None";
+        }
+    }
 }
