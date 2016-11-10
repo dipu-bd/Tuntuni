@@ -179,6 +179,11 @@ public class VideoCallController implements Initializable {
             alert.show();
         }
     }
+    
+    @FXML
+    private void setImageSource(ActionEvent evt) {
+        
+    }
 
     @FXML
     private void endVideoCall(ActionEvent evt) {

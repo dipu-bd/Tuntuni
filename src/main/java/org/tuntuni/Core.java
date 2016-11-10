@@ -27,6 +27,7 @@ import org.tuntuni.controllers.VideoCallController;
 import org.tuntuni.models.Logs;
 import org.tuntuni.models.UserProfile;
 import org.tuntuni.videocall.Dialer;
+import org.tuntuni.videocall.video.SourceType;
 
 /**
  * To handle inter-application communication. An instance of this class can only
@@ -43,6 +44,7 @@ import org.tuntuni.videocall.Dialer;
 public final class Core {
 
     private final UserProfile mUser;
+    private SourceType mSourceType;
 
     private final Dialer mDialer;
     private final Subnet mSubnet;
@@ -59,6 +61,7 @@ public final class Core {
     private Core() {
         // order might be important here
         // put simple & light constructors first 
+        mSourceType = SourceType.WebCam;
         mServer = new MainServer();
         mSubnet = new Subnet();
         mUser = new UserProfile();
@@ -254,6 +257,14 @@ public final class Core {
         if (subnet() != null) {
             subnet().changeState();
         }
+    }
+
+    public SourceType getImageSourceType() {
+        return mSourceType;
+    }
+
+    public void setImageSourceType(SourceType type) {
+        mSourceType = type;
     }
 
     /**

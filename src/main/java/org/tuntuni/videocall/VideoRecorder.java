@@ -26,22 +26,22 @@ import org.tuntuni.videocall.video.WebcamCapture;
 /**
  *
  */
-public class VideoRecorder { 
-    
-    private final InetAddress mAddress; 
-    private final ImageSource mImageSource;
+public class VideoRecorder {
+
+    private final InetAddress mAddress;
     private final AudioSource mAudioSource;
+    private ImageSource mImageSource;
 
     public VideoRecorder(InetAddress address) {
-        mAddress = address; 
-        mImageSource = new WebcamCapture(); 
+        mAddress = address;
         mAudioSource = new MicrophoneAudio();
     }
 
-    public void start() throws SocketException, IOException {
+    public void start(ImageSource source) throws SocketException, IOException {
         mAudioSource.connect(mAddress, Dialer.AUDIO_PORT);
         mAudioSource.start();
 
+        mImageSource = source;
         mImageSource.connect(mAddress, Dialer.IMAGE_PORT);
         mImageSource.start();
     }
@@ -52,5 +52,11 @@ public class VideoRecorder {
 
         mAudioSource.stop();
         mAudioSource.close();
-    } 
+    }
+
+    public void setSource(ImageSource source) {
+        if (!mImageSource.isOpen()) {
+            mImageSource = source;
+        }
+    }
 }

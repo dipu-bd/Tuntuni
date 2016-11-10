@@ -15,20 +15,14 @@
  */
 package org.tuntuni.videocall.video;
 
-import java.awt.AWTException;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.tuntuni.models.Logs;
 import org.tuntuni.util.Commons;
 import org.tuntuni.videocall.VideoFormat;
@@ -38,8 +32,7 @@ import org.tuntuni.videocall.VideoFormat;
  * @author dipu
  */
 public class DesktopCapture extends ImageSource {
-
-    private Thread mThread;
+ 
     private final ScheduledExecutorService mExecutor;
 
     public DesktopCapture() {
@@ -48,7 +41,7 @@ public class DesktopCapture extends ImageSource {
 
     @Override
     public void start() {
-        mExecutor.scheduleAtFixedRate(threadRunner, 0, 15, TimeUnit.SECONDS);
+        mExecutor.scheduleAtFixedRate(threadRunner, 0, 50, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -86,8 +79,9 @@ public class DesktopCapture extends ImageSource {
                 BufferedImage image = robot.createScreenCapture(screenRectangle);
 
                 // send image
-                image = Commons.resizeImage(image, VideoFormat.WIDTH, VideoFormat.HEIGHT);
-                sendImage(image);
+                image = Commons.resizeImage(image, 640, 480);
+                //image = Commons.resizeImage(image, VideoFormat.WIDTH, VideoFormat.HEIGHT);
+                sendImage(image); 
 
             } catch (Exception ex) {
                 Logs.error(getName(), "ERROR: {0}", ex);

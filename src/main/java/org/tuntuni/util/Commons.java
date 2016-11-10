@@ -196,11 +196,17 @@ public class Commons {
         if (imageToScale != null) {
             scaledImage = new BufferedImage(dWidth, dHeight, imageToScale.getType());
             Graphics2D graphics2D = scaledImage.createGraphics();
-            graphics2D.drawImage(imageToScale, 0, 0, dWidth, dHeight, null);
+
+            int width = dWidth;
+            double height = imageToScale.getHeight();
+            height = dWidth * height / imageToScale.getWidth();
+            int y = (int) Math.round((dHeight - height) / 2);
+            
+            graphics2D.drawImage(imageToScale, 0, y, width, (int) height, null);
             graphics2D.dispose();
         }
         return scaledImage;
-    } 
+    }
 
     /**
      * Gets a random number between two given numbers (inclusive)
