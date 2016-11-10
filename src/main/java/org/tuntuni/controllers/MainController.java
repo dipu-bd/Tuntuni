@@ -68,14 +68,14 @@ public class MainController implements Initializable {
     @FXML
     private Button profileButton;
 
-    private double userListPrefWidth;
+//    private double userListPrefWidth;
     private volatile Client mSelected;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // set main controller to core
         Core.instance().main(this);
-        userListPrefWidth = userList.getPrefWidth();
+//        userListPrefWidth = userList.getPrefWidth();
 
         // capture status
         Logs.addHandler(new StatusHandler(statusLabel));
@@ -133,11 +133,11 @@ public class MainController implements Initializable {
             }
         }
         // hide user list if empty 
-        if (userList.getItems().isEmpty()) {
-            userList.setPrefWidth(0.0);
-        } else {
-            userList.setPrefWidth(userListPrefWidth);
-        }
+//        if (userList.getItems().isEmpty()) {
+//            userList.setPrefWidth(0.0);
+//        } else {
+//            userList.setPrefWidth(userListPrefWidth);
+//        }
         // refresh profile view to show last user information
         //Core.instance().profile().refresh();
     }

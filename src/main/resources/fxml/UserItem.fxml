@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
-<GridPane minHeight="55.0" minWidth="54.0" onMouseClicked="#onMouseClicked" onTouchPressed="#onMouseClicked" prefHeight="60.0" style="-fx-background-color: rgba(255,255,255,0.8);" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.UserItem">
+<GridPane minHeight="55.0" minWidth="54.0" onMouseClicked="#onMouseClicked" onTouchPressed="#onMouseClicked" prefHeight="60.0" style="-fx-background-color: rgba(255,255,255,0.8);" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tuntuni.controllers.UserItem">
    
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="54.0" prefWidth="60.0" />
@@ -31,7 +31,7 @@
                 <Insets left="3.0" right="3.0" top="3.0" />
             </GridPane.margin>
         </Label>
-        <Label fx:id="statusLabel" alignment="TOP_LEFT" text="Status" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+        <Label fx:id="statusLabel" alignment="TOP_LEFT" maxWidth="120.0" text="Status" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
             <font>
                 <Font name="System Italic" size="12.0" />
             </font>
