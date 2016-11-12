@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -35,12 +35,12 @@
                   <Insets />
                </HBox.margin>
             </Label>
-            <Region HBox.hgrow="ALWAYS" />            
-            <ComboBox fx:id="sourceCombo" onAction="#sourceChanged" promptText="Video Source" visibleRowCount="3">
+            <Region HBox.hgrow="ALWAYS" />
+            <CheckBox fx:id="shareScreenChecker" mnemonicParsing="false" onAction="#onShareScreenChecked" text="Share Screen">
                <HBox.margin>
-                  <Insets top="4.0" />
+                  <Insets right="5.0" top="5.0" />
                </HBox.margin>
-            </ComboBox>
+            </CheckBox>
             <Button fx:id="startButton" mnemonicParsing="false" onAction="#startVideoCall" prefHeight="30.0" prefWidth="150.0" styleClass="videocall-button" text="Start Call" textFill="#e3ebcb">
                <font>
                   <Font name="System Bold" size="16.0" />

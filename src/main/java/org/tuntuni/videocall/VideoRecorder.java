@@ -20,8 +20,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import org.tuntuni.videocall.audio.AudioSource;
 import org.tuntuni.videocall.audio.MicrophoneAudio;
-import org.tuntuni.videocall.video.ImageSource;
-import org.tuntuni.videocall.video.WebcamCapture;
+import org.tuntuni.videocall.video.ImageSource; 
 
 /**
  *
@@ -30,18 +29,18 @@ public class VideoRecorder {
 
     private final InetAddress mAddress;
     private final AudioSource mAudioSource;
-    private ImageSource mImageSource;
+    private final ImageSource mImageSource;
 
     public VideoRecorder(InetAddress address) {
         mAddress = address;
+        mImageSource = new ImageSource();
         mAudioSource = new MicrophoneAudio();
     }
 
-    public void start(ImageSource source) throws SocketException, IOException {
+    public void start() throws SocketException, IOException {
         mAudioSource.connect(mAddress, Dialer.AUDIO_PORT);
         mAudioSource.start();
-
-        mImageSource = source;
+ 
         mImageSource.connect(mAddress, Dialer.IMAGE_PORT);
         mImageSource.start();
     }
@@ -53,10 +52,8 @@ public class VideoRecorder {
         mAudioSource.stop();
         mAudioSource.close();
     }
-
-    public void setSource(ImageSource source) {
-        if (!mImageSource.isOpen()) {
-            mImageSource = source;
-        }
+ 
+    public void setScreen(boolean shareScreen) {
+        mImageSource.setScreen(shareScreen);
     }
 }

@@ -25,9 +25,9 @@ import javax.sound.sampled.AudioFormat;
 public abstract class VideoFormat {
 
     // capture width
-    public static final int WIDTH = 176;
+    public static final int WIDTH = 640;
     // capture height
-    public static final int HEIGHT = 144;
+    public static final int HEIGHT = 480;
     // frames per seconds
     public static final int FRAME_RATE = 12;
 

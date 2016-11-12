@@ -22,10 +22,7 @@ import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.ConnectFor;
 import org.tuntuni.models.Logs;
-import org.tuntuni.videocall.video.DesktopCapture;
 import org.tuntuni.videocall.video.ImageSource;
-import org.tuntuni.videocall.video.SourceType;
-import org.tuntuni.videocall.video.WebcamCapture;
 
 /**
  *
@@ -43,6 +40,10 @@ public class Dialer {
 
     public Dialer() {
         mStatus = new SimpleObjectProperty<>(DialStatus.IDLE);
+    }
+
+    public void setShareScreen(boolean val) {
+        mRecorder.setScreen(val);
     }
 
     public Exception dial(Client client) {
@@ -174,27 +175,13 @@ public class Dialer {
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            // 
-    
-    private ImageSource getSource() {
-        switch(Core.instance().getImageSourceType()) {
-            case Desktop:
-                return new DesktopCapture(); 
-                
-            case WebCam:
-                return new WebcamCapture(); 
-            
-            default:
-                return new DesktopCapture();
-        }
-    }
-    
     private void start() throws Exception {
         try {
             mPlayer = new VideoPlayer(Core.instance().videocall().getViewer());
             mPlayer.start();
 
             mRecorder = new VideoRecorder(mClient.getAddress());
-            mRecorder.start(getSource());
+            mRecorder.start();
 
         } catch (Exception ex) {
             Logs.error(getClass(), ex.getMessage());

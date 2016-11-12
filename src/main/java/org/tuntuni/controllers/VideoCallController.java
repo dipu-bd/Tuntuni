@@ -30,7 +30,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -38,9 +38,7 @@ import javafx.scene.image.ImageView;
 import org.tuntuni.Core;
 import org.tuntuni.connection.Client;
 import org.tuntuni.models.Logs;
-import org.tuntuni.util.Commons;
 import org.tuntuni.videocall.DialStatus;
-import org.tuntuni.videocall.video.SourceType;
 
 /**
  * Controller for video calling. It shows video in background.
@@ -61,7 +59,7 @@ public class VideoCallController implements Initializable {
     @FXML
     private ImageView videoImage;
     @FXML
-    private ComboBox sourceCombo;
+    private CheckBox shareScreenChecker;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -71,8 +69,6 @@ public class VideoCallController implements Initializable {
         Core.instance().dialer().statusProperty().addListener((ov, o, n) -> {
             Platform.runLater(() -> dialStatusChanged(n));
         });
-        // add image sources
-        sourceCombo.getItems().addAll((Object[]) SourceType.values());
     }
 
     private void buildImage() {
@@ -153,8 +149,7 @@ public class VideoCallController implements Initializable {
                 startButton.setText("Start Call");
                 startButton.setDisable(false);
                 stopButton.setText("End Call");
-                stopButton.setDisable(true);                
-                sourceCombo.setDisable(false);
+                stopButton.setDisable(true);
                 break;
 
             case DIALING:
@@ -162,17 +157,15 @@ public class VideoCallController implements Initializable {
                 startButton.setText("Dialing...");
                 startButton.setDisable(true);
                 stopButton.setText("Cancel");
-                stopButton.setDisable(false);                
-                sourceCombo.setDisable(true);
+                stopButton.setDisable(false);
                 break;
 
-            case BUSY:                
+            case BUSY:
                 videoImage.setImage(mBlackImage);
                 startButton.setText("In Call");
                 startButton.setDisable(true);
                 stopButton.setText("End Call");
-                stopButton.setDisable(false);                
-                sourceCombo.setDisable(true);
+                stopButton.setDisable(false);
                 break;
         }
     }
@@ -192,12 +185,10 @@ public class VideoCallController implements Initializable {
     }
 
     @FXML
-    private void sourceChanged(ActionEvent evt) {
+    private void onShareScreenChecked(ActionEvent evt) {
         try {
-            SourceType type = (SourceType) sourceCombo.getSelectionModel().getSelectedItem();
-            if (type != null) {
-                Core.instance().setImageSourceType(type);
-            }
+            boolean sel = shareScreenChecker.isSelected();
+            Core.instance().dialer().setShareScreen(sel);
         } catch (Exception ex) {
             Logs.error(getClass(), "Error: {0}", ex);
         }

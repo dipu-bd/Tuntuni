@@ -29,9 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tuntuni.videocall.Dialer;
 import org.tuntuni.videocall.VideoPlayer;
-import org.tuntuni.videocall.VideoRecorder;
-import org.tuntuni.videocall.video.DesktopCapture;
-import org.tuntuni.videocall.video.WebcamCapture;
+import org.tuntuni.videocall.VideoRecorder; 
 
 /**
  *
@@ -64,7 +62,7 @@ public class StreammingTest extends Application {
 
         System.out.println(">>> starting recorder");
         mRecorder = new VideoRecorder(InetAddress.getLocalHost());
-        mRecorder.start(new DesktopCapture());
+        mRecorder.start();
     }
 
     public void tearDown() {

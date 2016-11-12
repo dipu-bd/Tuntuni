@@ -15,69 +15,184 @@
  */
 package org.tuntuni.videocall.video;
 
+import com.github.sarxos.webcam.Webcam;
+import java.awt.AWTException;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.tuntuni.connection.StreamClient;
+import org.tuntuni.models.Logs;
+import org.tuntuni.util.Commons;
 import org.tuntuni.videocall.VideoFormat;
 
 /**
  *
  * @author Sudipto Chandra
  */
-public abstract class ImageSource extends StreamClient {
+public class ImageSource extends StreamClient {
 
     private long lastImageTime;
-    
+    private Webcam mWebcam;
+    private boolean mScreen;
+    private final ScheduledExecutorService mExecutor;
+
     public ImageSource() {
         super(5);
+        mScreen = false;
+        mExecutor = Executors.newSingleThreadScheduledExecutor();
     }
- 
-    /**
-     * Open the image source to capture
-     */
-    public abstract void start();
-
-    /**
-     * Close the image source
-     */
-    public abstract void stop();
-
-    /**
-     * Gets the view size or dimension of captured images
-     *
-     * @return
-     */
-    public abstract Dimension getSize();
-
-    /**
-     * Sets the view size or dimension to capture
-     *
-     * @param size
-     */
-    public abstract void setSize(Dimension size);
 
     /**
      * Checks if the source is open
      *
      * @return
      */
-    public abstract boolean isOpen();
-    
+    public boolean isOpen() {
+        if (mScreen) {
+            return !mExecutor.isShutdown();
+        } else {
+            return mWebcam == null ? false : mWebcam.isOpen();
+        }
+    }
+
+    /**
+     * Open the image source to capture
+     */
+    public void start() {
+        if (!mScreen) {
+            openWebcam();
+        }
+        mExecutor.scheduleAtFixedRate(threadRunner, 0, 50, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Close the image source
+     */
+    public void stop() {
+        mExecutor.shutdown();
+        closeWebcam();
+    }
+
+    public void setScreen(boolean screen) {
+        if (mScreen == screen) {
+            return;
+        }
+        if (screen) {
+            if (mWebcam != null) {
+                mWebcam.close();
+            }
+        } else {
+            openWebcam();
+        }
+        mScreen = screen;
+    }
+
+    public boolean isScreen() {
+        return mScreen;
+    }
+
+    /**
+     * Gets the view size or dimension of captured images
+     *
+     * @return
+     */
+    public Dimension getSize() {
+        if (mScreen) {
+            return VideoFormat.getViewSize();
+        } else {
+            return mWebcam == null ? null : mWebcam.getViewSize();
+        }
+    }
+
+    /**
+     * Sets the view size or dimension to capture
+     *
+     * @param size
+     */
+    public void setSize(Dimension size) {
+        if (mWebcam != null) {
+            mWebcam.setViewSize(size);
+        }
+    }
+
+    private void openWebcam() {
+        // start webcam 
+        mWebcam = Webcam.getDefault();
+        if (mWebcam != null) {
+            mWebcam.open(true);
+        } else {
+            Logs.warning(getClass(), "Webcam not found");
+        }
+    }
+
+    private void closeWebcam() {
+        if (mWebcam != null) {
+            mWebcam.close();
+            mWebcam = null;
+        }
+    }
+
+    private final Runnable threadRunner = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                if (mScreen) {
+                    sendScreen();
+                } else {
+                    sendWebcam();
+                }
+            } catch (Exception ex) {
+                Logs.error(getName(), "ERROR: {0}", ex);
+            }
+        }
+    };
+
+    private void sendScreen() throws AWTException {
+        // get desktop
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Rectangle screenRectangle = new Rectangle(screenSize);
+        Robot robot = new Robot();
+        BufferedImage image = robot.createScreenCapture(screenRectangle);
+
+        image = Commons.resizeImage(image, VideoFormat.WIDTH, VideoFormat.HEIGHT);
+        sendImage(image);
+    }
+
+    private void sendWebcam() {
+        if (mWebcam != null) {
+            BufferedImage image = mWebcam.getImage();
+            image = Commons.resizeImage(image, VideoFormat.WIDTH, VideoFormat.HEIGHT);
+            sendImage(image);
+        }
+    }
+
     /**
      * To send an obtained image to stream client
-     * @param image 
+     *
+     * @param image
      */
-    public void sendImage(BufferedImage image) {
+    private void sendImage(BufferedImage image) {
         long time = System.currentTimeMillis();
         if (checkFrameRate(time)) {
             send(new ImageFrame(image));
             lastImageTime = time;
         }
-    }   
-    
+    }
+
+    // to check if frame rate is maintaining
     private boolean checkFrameRate(long time) {
         time -= lastImageTime;
         time *= VideoFormat.FRAME_RATE;
         return time + 50 > 1000;
+    }
+
+    @Override
+    public String getName() {
+        return mScreen ? "ScreenSource" : "WebcamSource";
     }
 }
